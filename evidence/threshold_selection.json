@@ -1,0 +1,86 @@
+[
+ {
+  "thr": 0.2,
+  "n_cand": 146.833,
+  "k": 33.5,
+  "cost": 2325.0,
+  "slots": 40.0,
+  "hit": 0.467,
+  "hit_gmv": 0.22,
+  "loss": 0.222,
+  "loss_gmv": 0.317,
+  "budget_matters": 0.0
+ },
+ {
+  "thr": 0.25,
+  "n_cand": 118.5,
+  "k": 33.833,
+  "cost": 2308.333,
+  "slots": 40.0,
+  "hit": 0.499,
+  "hit_gmv": 0.222,
+  "loss": 0.224,
+  "loss_gmv": 0.319,
+  "budget_matters": 0.0
+ },
+ {
+  "thr": 0.3,
+  "n_cand": 86.833,
+  "k": 33.167,
+  "cost": 2341.667,
+  "slots": 40.0,
+  "hit": 0.52,
+  "hit_gmv": 0.222,
+  "loss": 0.201,
+  "loss_gmv": 0.315,
+  "budget_matters": 0.0
+ },
+ {
+  "thr": 0.35,
+  "n_cand": 61.333,
+  "k": 33.5,
+  "cost": 2325.0,
+  "slots": 40.0,
+  "hit": 0.551,
+  "hit_gmv": 0.224,
+  "loss": 0.182,
+  "loss_gmv": 0.319,
+  "budget_matters": 0.0
+ },
+ {
+  "thr": 0.4,
+  "n_cand": 42.833,
+  "k": 29.667,
+  "cost": 2216.667,
+  "slots": 37.0,
+  "hit": 0.583,
+  "hit_gmv": 0.215,
+  "loss": 0.169,
+  "loss_gmv": 0.294,
+  "budget_matters": 0.0
+ },
+ {
+  "thr": 0.45,
+  "n_cand": 32.0,
+  "k": 25.5,
+  "cost": 1908.333,
+  "slots": 31.833,
+  "hit": 0.624,
+  "hit_gmv": 0.194,
+  "loss": 0.151,
+  "loss_gmv": 0.266,
+  "budget_matters": 0.0
+ },
+ {
+  "thr": 0.5,
+  "n_cand": 24.0,
+  "k": 21.167,
+  "cost": 1608.333,
+  "slots": 26.667,
+  "hit": 0.658,
+  "hit_gmv": 0.169,
+  "loss": 0.128,
+  "loss_gmv": 0.239,
+  "budget_matters": 0.0
+ }
+]

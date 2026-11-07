@@ -1,0 +1,496 @@
+% ============================================================
+% SECTION: QUY TRÌNH TÍCH HỢP ETL BẰNG PENTAHO
+% Dự án: Kho Dữ Liệu Chất Lượng Nước (Water Potability)
+% ============================================================
+
+\section{Quy trình tích hợp ETL bằng Pentaho}
+
+\subsection{Tổng quan kiến trúc hệ thống}
+
+Hệ thống kho dữ liệu được xây dựng theo kiến trúc vi dịch vụ (microservices), triển khai hoàn toàn bằng Docker. Toàn bộ hệ thống bao gồm bốn thành phần chính được điều phối bởi \texttt{docker-compose}:
+
+\begin{itemize}
+    \item \textbf{PostgreSQL 15} (\texttt{dwh\_postgres}): Cơ sở dữ liệu mục tiêu lưu trữ kho dữ liệu, chạy trên cổng 5432.
+    \item \textbf{Pentaho ETL Worker} (\texttt{dwh\_pentaho}): Container chạy Pentaho Data Integration phiên bản headless, thực thi file transformation \texttt{.ktr} thông qua công cụ dòng lệnh \texttt{pan.sh}.
+    \item \textbf{Backend} (\texttt{dwh\_etl}): Container Python hỗ trợ phân tích và kết nối cơ sở dữ liệu thông qua SQLAlchemy.
+    \item \textbf{Frontend} (\texttt{dwh\_frontend}): Giao diện web trực quan hóa kết quả phân tích.
+\end{itemize}
+
+Quá trình ETL được thực hiện bởi Pentaho Data Integration (PDI), phiên bản Community Edition, chạy không có giao diện đồ họa (headless mode) trong môi trường Docker với Java Runtime Environment phiên bản 17 (\texttt{eclipse-temurin:17-jre-alpine}).
+
+
+\subsection{Thiết kế mô hình kho dữ liệu (Star Schema)}
+
+Kho dữ liệu được thiết kế theo mô hình \textbf{Star Schema}, bao gồm một bảng sự kiện trung tâm và ba bảng chiều:
+
+\subsubsection{Các bảng chiều (Dimension Tables)}
+
+\begin{itemize}
+    \item \textbf{\texttt{Dim\_Acidity}}: Phân loại độ axit của nước dựa trên giá trị pH.
+    \begin{itemize}
+        \item \textit{Axit}: pH $< 6.5$
+        \item \textit{Trung tính}: $6.5 \leq$ pH $\leq 8.5$
+        \item \textit{Kiềm}: pH $> 8.5$
+    \end{itemize}
+
+    \item \textbf{\texttt{Dim\_Hardness}}: Phân loại độ cứng của nước.
+    \begin{itemize}
+        \item \textit{Nước mềm}: Hardness $< 60$ mg/L
+        \item \textit{Nước cứng vừa}: $60 \leq$ Hardness $< 120$ mg/L
+        \item \textit{Nước cứng}: $120 \leq$ Hardness $< 180$ mg/L
+        \item \textit{Nước rất cứng}: Hardness $\geq 180$ mg/L
+    \end{itemize}
+
+    \item \textbf{\texttt{Dim\_Potability}}: Phân loại khả năng uống của nước (0: Không an toàn, 1: An toàn).
+\end{itemize}
+
+\subsubsection{Bảng sự kiện (Fact Table)}
+
+Bảng \textbf{\texttt{Fact\_Water\_Sample}} là bảng trung tâm lưu trữ toàn bộ các mẫu nước đã được xử lý, với khóa ngoại liên kết đến ba bảng chiều:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  scale=0.9, transform shape, % <--- Thu nhỏ 90% để không bị tràn lề
+  every node/.style={font=\small},
+  factbox/.style={draw, fill=blue!15, rounded corners=4pt,
+                  minimum width=5.0cm, align=left, inner sep=6pt},
+  dimbox/.style={draw, fill=orange!20, rounded corners=4pt,
+                 minimum width=3.8cm, align=left, inner sep=6pt},
+  fkarrow/.style={-{Latex[length=2.5mm]}, thick, dashed, gray}
+]
+
+% Fact table (center)
+\node[factbox] (fact) {
+  \textbf{Fact\_Water\_Sample}\\
+  \rule{4.6cm}{0.4pt}\\
+  \textbf{Water\_ID (PK, SERIAL)} \\
+  ph\ DECIMAL(10,5)\\
+  Hardness\ DECIMAL(10,5)\\
+  Solids\ DECIMAL(15,5)\\
+  Chloramines\ DECIMAL(10,5)\\
+  Sulfate\ DECIMAL(10,5)\\
+  Conductivity\ DECIMAL(10,5)\\
+  Organic\_carbon\ DECIMAL(10,5)\\
+  Trihalomethanes\ DECIMAL(10,5)\\
+  Turbidity\ DECIMAL(10,5)\\
+  \textit{Acidity\_Key}\ INT (FK)\\
+  \textit{Hardness\_Key}\ INT (FK)\\
+  \textit{Potability\_Key}\ INT (FK)
+};
+
+% Dim_Acidity (top-left) - Ép khoảng cách ngang còn 0.5cm
+\node[dimbox, above left=1.8cm and 0.5cm of fact] (dimAcid) {
+  \textbf{Dim\_Acidity}\\
+  \rule{3.4cm}{0.4pt}\\
+  \textbf{Acidity\_Key (PK)} \\
+  Category\ VARCHAR(50)\\
+  {\footnotesize (Axit / Trung tính / Kiềm)}
+};
+
+% Dim_Hardness (top-right) - Ép khoảng cách ngang còn 0.5cm
+\node[dimbox, above right=1.8cm and 0.5cm of fact] (dimHard) {
+  \textbf{Dim\_Hardness}\\
+  \rule{3.4cm}{0.4pt}\\
+  \textbf{Hardness\_Key (PK)} \\
+  Category\ VARCHAR(50)\\
+  {\footnotesize (Mềm/Vừa/Cứng/Rất cứng)}
+};
+
+% Dim_Potability (below)
+\node[dimbox, below=1.8cm of fact] (dimPot) {
+  \textbf{Dim\_Potability}\\
+  \rule{3.4cm}{0.4pt}\\
+  \textbf{Potability\_Key (PK)} \\
+  Label\ VARCHAR(20)\\
+  {\footnotesize (An toàn / Không an toàn)}
+};
+
+% FK arrows
+\draw[fkarrow] (fact.north west) -- (dimAcid.south east)
+  node[midway, sloped, above, font=\scriptsize] {Acidity\_Key};
+\draw[fkarrow] (fact.north east) -- (dimHard.south west)
+  node[midway, sloped, above, font=\scriptsize] {Hardness\_Key};
+\draw[fkarrow] (fact.south) -- (dimPot.north)
+  node[midway, right, font=\scriptsize] {Potability\_Key};
+
+\end{tikzpicture}
+\caption{Mô hình Star Schema của kho dữ liệu Water Potability}
+\label{fig:star_schema}
+\end{figure}
+
+\subsection{Luồng xử lý ETL trong Pentaho (\texttt{water\_etl\_pipeline.ktr})}
+
+File transformation \texttt{water\_etl\_pipeline.ktr} được thiết kế trực tiếp trong Pentaho Spoon và thực thi bằng công cụ \texttt{pan.sh}. Pipeline gồm \textbf{8 bước (steps)} được kết nối tuần tự theo luồng dữ liệu như sau:
+
+% ---- TikZ ETL FLOWCHART ----
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  scale=1.1, transform shape,
+  every node/.style={font=\small},
+  % Khối 1-7: Khóa cứng chiều ngang ở mức 6cm, đảm bảo tuyệt đối bằng nhau
+  mainbox/.style={draw, fill=white, rounded corners=5pt,
+                  minimum width=6cm, text width=5.8cm, minimum height=0.9cm,
+                  align=center, inner sep=4pt},
+  % Khối 8a, 8b: Thu nhỏ chiều ngang lại còn 4.5cm
+  branchbox/.style={draw, fill=white, rounded corners=5pt,
+                    minimum width=4.5cm, text width=4.3cm, minimum height=0.9cm,
+                    align=center, inner sep=4pt},
+  phaselbl/.style={font=\scriptsize\bfseries\itshape, text=gray!70, anchor=west},
+  arr/.style={-{Latex[length=2.5mm]}, thick}
+]
+
+\def\sx{0}    % main column x
+\def\lx{-3.5} % left branch x (đẩy nhẹ ra thêm để không dính nhau)
+\def\rx{3.5}  % right branch x
+\def\bracex{6.2} % tọa độ x của ngoặc nhọn
+\def\lblx{6.4}   % tọa độ x của chữ chú thích
+
+% --- CÁC KHỐI CHÍNH TỪ 1 ĐẾN 7 ---
+\node[mainbox] (csv)  at (\sx, 0)     {\textbf{1.\ CSV file input}\\{\scriptsize \texttt{/data/raw/water\_potability.csv}, buf=50k}};
+\node[mainbox] (null) at (\sx,-2.0)   {\textbf{2.\ If field value is null}\\{\scriptsize Điền mean: ph=7.08, Sulfate=333.77, THM=66.39}};
+\node[mainbox] (nr1)  at (\sx,-4.0)   {\textbf{3.\ Number range (Hardness)}\\{\scriptsize $<$60 / 60--120 / 120--180 / $\geq$180 mg/L}};
+\node[mainbox] (dh)   at (\sx,-6.0)   {\textbf{4.\ update dim\_hardness}\\{\scriptsize CombinationLookup, cache=9999, commit=100}};
+\node[mainbox] (nr2)  at (\sx,-8.0)   {\textbf{5.\ Number range 2 (pH)}\\{\scriptsize $<$6.5 Axit / 6.5--8.5 Trung tính / $>$8.5 Kiềm}};
+\node[mainbox] (da)   at (\sx,-10.0)  {\textbf{6.\ update dim\_acidity}\\{\scriptsize CombinationLookup, cache=9999, commit=100}};
+\node[mainbox] (dp)   at (\sx,-12.0)  {\textbf{7.\ Dim\_potability lookup}\\{\scriptsize DBLookup trả về \texttt{fk\_potability}}};
+
+% --- CÁC KHỐI NHÁNH ĐÃ ĐƯỢC THU NHỎ ---
+\node[branchbox] (fact) at (\lx,-14.5)  {\textbf{8a.\ update fact}\\{\scriptsize TableOutput, batch=1000}};
+\node[branchbox] (json) at (\rx,-14.5)  {\textbf{8b.\ JSON output}\\{\scriptsize \texttt{/data/eda\_results.json}}};
+
+% --- VẼ MŨI TÊN ---
+\draw[arr] (csv)  -- (null);
+\draw[arr] (null) -- (nr1);
+\draw[arr] (nr1)  -- (dh);
+\draw[arr] (dh)   -- (nr2);
+\draw[arr] (nr2)  -- (da);
+\draw[arr] (da)   -- (dp);
+
+% Rẽ nhánh mũi tên ở cuối
+\draw[arr] (dp.south) -- ++(0,-0.8) -| (fact.north);
+\draw[arr] (dp.south) -- ++(0,-0.8) -| (json.north);
+
+% --- VẼ DẤU NGOẶC NHỌN ---
+\draw[gray, thick, decorate, decoration={brace,amplitude=5pt}]
+  (\bracex, 0.5) -- (\bracex,-0.5) node[midway]{};
+\draw[gray, thick, decorate, decoration={brace,amplitude=5pt}]
+  (\bracex,-1.5) -- (\bracex,-12.5) node[midway]{};
+\draw[gray, thick, decorate, decoration={brace,amplitude=5pt}]
+  (\bracex,-14.0) -- (\bracex,-15.0) node[midway]{};
+
+% --- CHỮ CHÚ THÍCH CÁC GIAI ĐOẠN ---
+\node[phaselbl] at (\lblx, 0)     {[E]xtract};
+\node[phaselbl] at (\lblx,-7.0)   {[T]ransform};
+\node[phaselbl] at (\lblx,-14.5)  {[L]oad};
+
+\end{tikzpicture}
+\caption{Sơ đồ luồng xử lý ETL trong Pentaho Transformation \texttt{water\_etl\_pipeline.ktr}}
+\label{fig:etl_flow}
+\end{figure}
+
+\subsubsection{Bước 1: Đọc dữ liệu CSV (\texttt{CSV file input})}
+
+Bước đầu tiên đọc dữ liệu thô từ file CSV tại đường dẫn \texttt{/data/raw/water\_potability.csv}. Các thông số cấu hình:
+\begin{itemize}
+    \item Dấu phân cách: dấu phẩy (\texttt{,})
+    \item Ký tự bao quanh chuỗi: dấu nháy kép (\texttt{"})
+    \item Dòng tiêu đề: có (header = Y)
+    \item Kích thước bộ đệm: 50.000 bản ghi
+    \item Toàn bộ 10 trường được khai báo kiểu \texttt{Number} hoặc \texttt{Integer} với độ chính xác cao
+\end{itemize}
+
+\subsubsection{Bước 2: Xử lý giá trị thiếu (\texttt{If field value is null})}
+
+Bước này thực hiện \textbf{điền giá trị thay thế} cho các trường bị thiếu (NULL). Đây là bước tiền xử lý dữ liệu quan trọng, điền giá trị mặc định là giá trị trung bình (mean) của từng thuộc tính đã được tính từ bước EDA:
+
+\begin{table}[H]
+\centering
+\caption{Giá trị điền thay thế cho các trường NULL}
+\label{tab:null_replacement}
+\begin{tabular}{lrl}
+\hline
+\textbf{Thuộc tính} & \textbf{Giá trị điền} & \textbf{Ghi chú} \\
+\hline
+\texttt{ph} & 7.08 & Trung bình pH \\
+\texttt{Sulfate} & 333.77 & Trung bình Sulfate (mg/L) \\
+\texttt{Trihalomethanes} & 66.39 & Trung bình Trihalomethanes ($\mu$g/L) \\
+\hline
+\end{tabular}
+\end{table}
+
+Chỉ có ba thuộc tính chứa giá trị NULL trong bộ dữ liệu; các thuộc tính còn lại đã đầy đủ.
+
+\subsubsection{Bước 3: Phân loại độ cứng (\texttt{Number range})}
+
+Sử dụng bước \textbf{Number Range} để ánh xạ giá trị số \texttt{Hardness} thành nhãn phân loại \texttt{Hardness\_Category} theo các ngưỡng chuẩn quốc tế:
+
+\begin{table}[H]
+\centering
+\caption{Quy tắc phân loại độ cứng}
+\label{tab:hardness_range}
+\begin{tabular}{lcc}
+\hline
+\textbf{Danh mục} & \textbf{Giới hạn dưới (mg/L)} & \textbf{Giới hạn trên (mg/L)} \\
+\hline
+Nước mềm & $-\infty$ & $< 60$ \\
+Nước cứng vừa & $\geq 60$ & $< 120$ \\
+Nước cứng & $\geq 120$ & $< 180$ \\
+Nước rất cứng & $\geq 180$ & $+\infty$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Bước 4: Cập nhật chiều độ cứng (\texttt{update dim\_hardness})}
+
+Sử dụng bước \textbf{Combination Lookup/Update} để tra cứu khóa chiều \texttt{hardness\_key} từ bảng \texttt{dim\_hardness} dựa trên \texttt{Hardness\_Category}. Nếu giá trị chưa tồn tại, bước này sẽ tự động tạo bản ghi mới (insert). Cơ chế:
+\begin{itemize}
+    \item Trường tra cứu: \texttt{Hardness\_Category} $\rightarrow$ cột \texttt{category} trong DB
+    \item Khóa trả về: \texttt{hardness\_key} (sử dụng phương thức \texttt{tablemax} để tự tăng)
+    \item Kích thước cache: 9.999 bản ghi; kích thước batch commit: 100
+\end{itemize}
+
+\subsubsection{Bước 5: Phân loại độ axit (\texttt{Number range 2})}
+
+Tương tự bước 3, bước này ánh xạ giá trị \texttt{ph} thành nhãn \texttt{Acidity\_Category} dựa trên thang pH tiêu chuẩn:
+
+\begin{table}[H]
+\centering
+\caption{Quy tắc phân loại độ axit}
+\label{tab:acidity_range}
+\begin{tabular}{lcc}
+\hline
+\textbf{Danh mục} & \textbf{Giới hạn dưới} & \textbf{Giới hạn trên} \\
+\hline
+Axit & $-\infty$ & $< 6.5$ \\
+Trung tính & $\geq 6.5$ & $\leq 8.5$ \\
+Kiềm & $> 8.5$ & $+\infty$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Bước 6: Cập nhật chiều độ axit (\texttt{update dim\_acidity})}
+
+Hoạt động theo cơ chế giống bước 4, tra cứu và cập nhật bảng \texttt{dim\_acidity} dựa trên \texttt{Acidity\_Category}, trả về \texttt{acidity\_key}.
+
+\subsubsection{Bước 7: Tra cứu chiều khả năng uống (\texttt{Dim\_potability lookup})}
+
+Sử dụng bước \textbf{Database Lookup} để tra cứu \texttt{potability\_key} từ bảng \texttt{dim\_potability} dựa trên giá trị \texttt{Potability} (0 hoặc 1) từ dữ liệu gốc. Giá trị trả về được đặt tên \texttt{fk\_potability} để phân biệt với trường gốc.
+
+Sau bước này, mỗi bản ghi dữ liệu đã có đầy đủ ba khóa ngoại:
+\begin{itemize}
+    \item \texttt{hardness\_key} $\rightarrow$ \texttt{Dim\_Hardness}
+    \item \texttt{acidity\_key} $\rightarrow$ \texttt{Dim\_Acidity}
+    \item \texttt{fk\_potability} $\rightarrow$ \texttt{Dim\_Potability}
+\end{itemize}
+
+\subsubsection{Bước 8a: Nạp vào bảng sự kiện (\texttt{update fact})}
+
+Bước \textbf{Table Output} thực hiện \textbf{Load} dữ liệu vào bảng \texttt{fact\_water\_sample}. Cấu hình:
+\begin{itemize}
+    \item Kích thước batch commit: 1.000 bản ghi (tối ưu hiệu suất)
+    \item Chế độ batch insert: bật (\texttt{use\_batch = Y})
+    \item Chỉ định rõ ánh xạ cột: bật (\texttt{specify\_fields = Y})
+    \item Không truncate bảng trước khi nạp (cho phép chạy lại tăng dần)
+\end{itemize}
+
+Ánh xạ trường từ luồng dữ liệu sang cột trong DB:
+
+\begin{table}[H]
+\centering
+\caption{Ánh xạ trường khi nạp vào Fact Table}
+\label{tab:fact_mapping}
+\begin{tabular}{ll}
+\hline
+\textbf{Trường trong luồng dữ liệu} & \textbf{Cột trong \texttt{fact\_water\_sample}} \\
+\hline
+\texttt{ph} & \texttt{ph} \\
+\texttt{Hardness} & \texttt{hardness} \\
+\texttt{Solids} & \texttt{solids} \\
+\texttt{Chloramines} & \texttt{chloramines} \\
+\texttt{Sulfate} & \texttt{sulfate} \\
+\texttt{Conductivity} & \texttt{conductivity} \\
+\texttt{Organic\_carbon} & \texttt{organic\_carbon} \\
+\texttt{Trihalomethanes} & \texttt{trihalomethanes} \\
+\texttt{Turbidity} & \texttt{turbidity} \\
+\texttt{hardness\_key} & \texttt{hardness\_key} \\
+\texttt{acidity\_key} & \texttt{acidity\_key} \\
+\texttt{fk\_potability} & \texttt{potability\_key} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Bước 8b: Xuất kết quả JSON (\texttt{JSON output})}
+
+Song song với việc nạp vào CSDL, luồng dữ liệu được rẽ nhánh để xuất ra file \texttt{/data/eda\_results.json}. File JSON này phục vụ trực tiếp cho Frontend để hiển thị kết quả phân tích mà không cần truy vấn lại CSDL. Các trường được xuất bao gồm toàn bộ thuộc tính gốc cộng với các nhãn phân loại và khóa chiều được sinh ra trong quá trình ETL.
+
+\subsection{Kết nối cơ sở dữ liệu}
+
+Pentaho kết nối đến PostgreSQL thông qua kết nối JDBC được cấu hình trong file \texttt{water\_etl\_pipeline.ktr}:
+ 
+\begin{table}[H]
+\centering
+\caption{Thông số kết nối CSDL trong Pentaho}
+\label{tab:db_conn}
+\begin{tabular}{ll}
+\hline
+\textbf{Tham số} & \textbf{Giá trị} \\
+\hline
+\texttt{name} & \texttt{data\_warehouse} \\
+\texttt{type} & PostgreSQL (Native/JDBC) \\
+\texttt{server} & \texttt{db} \\
+\texttt{port} & $5432$ \\
+\texttt{username} & \texttt{admin} \\
+\hline
+\end{tabular}
+\end{table}
+
+Trong môi trường Docker, tên máy chủ \texttt{db} được Docker DNS tự động phân giải thành địa chỉ IP nội bộ của container PostgreSQL nhờ cơ chế Docker Compose network.
+
+\subsection{Triển khai và thực thi}
+
+\subsubsection{Đóng gói mã nguồn bằng Docker}
+
+Container Pentaho được xây dựng dựa trên image \texttt{eclipse-temurin:17-jre-alpine}, một Java Runtime Environment nhẹ phù hợp cho môi trường triển khai. Quá trình khởi động được điều khiển bởi script \texttt{start\_pentaho.sh}:
+\begin{lstlisting}
+    export JAVA_HOME=/opt/java/openjdk
+    export PENTAHO_JAVA_HOME=$JAVA_HOME
+    export PATH=$JAVA_HOME/bin:$PATH
+    
+    PDI_DIR="/app/data-integration"
+    
+    if [ ! -d "$JAVA_HOME" ]; then
+        echo "Error: Java directory not found at $JAVA_HOME"
+        exit 1
+    fi
+    
+    if [ ! -d "$PDI_DIR" ]; then
+        echo "Error: Pentaho directory not found at $PDI_DIR"
+        echo "Hệ thống đang tìm tại: $PDI_DIR"
+        echo "Hãy đảm bảo thư mục 'data-integration' nằm trong folder 'pentaho/' của dự án."
+        exit 1
+    fi
+    
+    echo "Đang khởi động Pentaho ETL..."
+    cd "$PDI_DIR"
+    chmod +x /app/data-integration/*.sh
+    /app/data-integration/pan.sh -file="/etl/water_etl_pipeline.ktr" -level=Basic
+\end{lstlisting}
+
+\begin{enumerate}
+    \item Kiểm tra sự tồn tại của \texttt{JAVA\_HOME} và thư mục PDI
+    \item Cấp quyền thực thi cho tất cả file \texttt{.sh} trong thư mục Pentaho
+    \item Gọi lệnh: \verb|pan.sh -file="/etl/water_etl_pipeline.ktr" -level=Basic|
+\end{enumerate}
+
+Thư mục \texttt{/etl} (chứa file \texttt{.ktr}) và \texttt{/data} (chứa dữ liệu CSV đầu vào và JSON đầu ra) được mount từ máy chủ vào container thông qua Docker volumes, đảm bảo tính bền vững của dữ liệu giữa các lần chạy.
+
+% \subsubsection{Khởi tạo lược đồ tự động}
+
+% Khi PostgreSQL container khởi động, script \texttt{01\_schema.sql} trong thư mục \texttt{/docker-entrypoint-initdb.d/} được PostgreSQL tự động thực thi, tạo toàn bộ bảng chiều, bảng sự kiện, và dữ liệu ban đầu (seed data) cho các bảng chiều tĩnh.
+
+\subsection{Tóm tắt quy trình ETL}
+
+\begin{table}[H]
+\centering
+\caption{Tóm tắt các giai đoạn ETL}
+\label{tab:etl_summary}
+\begin{tabular}{llp{7cm}}
+\hline
+\textbf{Giai đoạn} & \textbf{Công cụ/Bước} & \textbf{Nội dung xử lý} \\
+\hline
+\textbf{Extract} & \text{CSV file input} & Đọc dữ liệu thô \\
+\hline
+\multirow{4}{*}{\textbf{Transform}} & \text{If field value is null} & Điền trung bình vào 3 trường bị thiếu \\
+ & \text{Number range} & Phân loại Hardness $\rightarrow$ 4 nhóm độ cứng \\
+ & \text{Number range 2} & Phân loại pH $\rightarrow$ 3 nhóm độ axit \\
+ & \text{Dim lookup} & Tra cứu khóa ngoại từ 3 bảng chiều \\
+\hline
+\multirow{2}{*}{\textbf{Load}} & \text{update fact} & Nạp vào \texttt{fact\_water\_sample} (batch 1.000) \\
+ & \texttt{JSON} output & Xuất file JSON cho Frontend \\
+\hline
+\end{tabular}
+\end{table}
+
+Quy trình ETL được thiết kế theo nguyên tắc \textbf{idempotency} (có thể chạy lại mà không gây lỗi nhân đôi dữ liệu trong bảng chiều) nhờ cơ chế \texttt{Combination Lookup/Update} của Pentaho, cho phép chỉ insert bản ghi mới nếu chưa tồn tại, ngược lại trả về khóa đã có.
+
+% ============================================================
+\subsection{Đánh giá hiệu năng và chất lượng quy trình ETL}
+% ============================================================
+
+\subsubsection{Cấu hình hiệu năng}
+
+Pipeline được cấu hình với các tham số tối ưu hiệu năng trực tiếp trong file \texttt{.ktr}:
+
+\begin{table}[H]
+\centering
+\caption{Các tham số hiệu năng của Pentaho Transformation}
+\label{tab:perf_params}
+\begin{tabular}{lrp{6cm}}
+\hline
+\textbf{Tham số} & \textbf{Giá trị} & \textbf{Tác dụng} \\
+\hline
+\texttt{size\_rowset} & 10.000 & Dung lượng hàng đợi giữa các step \\
+\texttt{sleep\_time\_empty} & 50 ms & Thời gian chờ khi buffer rỗng \\
+\texttt{sleep\_time\_full} & 50 ms & Thời gian chờ khi buffer đầy \\
+\texttt{feedback\_size} & 50.000 & Ngưỡng hiển thị tiến trình xử lý \\
+\texttt{buffer\_size} (CSV) & 50.000 & Số bản ghi đọc trước vào bộ nhớ \\
+Batch commit (Dim) & 100 & Số bản ghi/lần commit cho bảng chiều \\
+Batch commit (Fact) & 1.000 & Số bản ghi/lần commit cho bảng sự kiện \\
+Dim cache size & 9.999 & Số bản ghi cache tránh truy vấn CSDL \\
+\hline
+\end{tabular}
+\end{table}
+
+Việc sử dụng \textbf{batch insert} với kích thước 1.000 bản ghi cho bảng fact giúp giảm đáng kể số lần round-trip đến PostgreSQL so với insert từng dòng. Cache kích thước 9.999 cho các bảng chiều gần như loại bỏ hoàn toàn các truy vấn lookup lặp lại, vì bộ dữ liệu Water Potability chỉ có 3--4 giá trị phân loại duy nhất cho mỗi chiều.
+
+\subsubsection{Phân tích chất lượng dữ liệu sau ETL}
+
+Dựa trên kết quả từ bước EDA (phân tích khám phá dữ liệu) và cấu hình xử lý NULL trong pipeline, chất lượng dữ liệu sau ETL được đánh giá như sau:
+
+\begin{table}[H]
+\centering
+\caption{Tổng kết chất lượng dữ liệu trước và sau ETL}
+\label{tab:data_quality}
+\begin{tabular}{lccl}
+\hline
+\textbf{Thuộc tính} & \textbf{\% NULL (trước)} & \textbf{\% NULL (sau)} & \textbf{Phương pháp xử lý} \\
+\hline
+\texttt{ph} & $\sim$14.98\% & 0\% & Điền mean (7.08) \\
+\texttt{Sulfate} & $\sim$23.84\% & 0\% & Điền mean (333.77 mg/L) \\
+\texttt{Trihalomethanes} & $\sim$4.93\% & 0\% & Điền mean (66.39 $\mu$g/L) \\
+Các thuộc tính khác & 0\% & 0\% & Không cần xử lý \\
+\hline
+\end{tabular}
+\end{table}
+
+Việc điền giá trị trung bình (mean imputation) là lựa chọn phù hợp vì:
+\begin{itemize}
+    \item Phân phối của các thuộc tính xấp xỉ phân phối chuẩn (đã xác nhận qua EDA).
+    \item Giá trị mean không tạo ra các giá trị ngoại lệ (outlier) mới.
+    \item Đảm bảo tính toàn vẹn referential integrity khi nạp vào bảng fact.
+\end{itemize}
+
+\subsubsection{Tính đúng đắn của phân loại chiều}
+
+Hai bảng chiều \texttt{Dim\_Acidity} và \texttt{Dim\_Hardness} sử dụng các ngưỡng phân loại dựa trên tiêu chuẩn quốc tế:
+
+\begin{itemize}
+    \item \textbf{Độ pH}: Ngưỡng 6.5 và 8.5 tuân theo tiêu chuẩn WHO (World Health Organization) về chất lượng nước uống - nước an toàn có pH trong khoảng 6.5--8.5.
+    \item \textbf{Độ cứng}: Các ngưỡng $<$60, $60-120$, $120-180$ và $\geq180 mg/L$ (CaCO$_3$) tương ứng với phân loại nước mềm, cứng vừa, cứng và rất cứng theo thang phân loại của USGS (United States Geological Survey).
+\end{itemize}
+
+\subsection{Nhận xét tổng thể}
+
+Quy trình ETL triển khai bằng Pentaho Data Integration đã đáp ứng đầy đủ các yêu cầu của một pipeline kho dữ liệu chuyên nghiệp:
+
+\begin{enumerate}
+    \item \textbf{Tính đầy đủ (Completeness)}: Toàn bộ 3.276 mẫu nước được nạp vào kho dữ liệu sau khi xử lý giá trị thiếu.
+    \item \textbf{Tính nhất quán (Consistency)}: Khóa chiều được sinh ra nhất quán thông qua cơ chế \texttt{Combination Lookup/Update}, tránh trùng lặp trong bảng chiều.
+    \item \textbf{Tính lũy đẳng (Idempotency)}: Pipeline có thể chạy lại nhiều lần mà không gây lỗi nhờ cơ chế lookup-before-insert.
+    \item \textbf{Khả năng truy vấn (Queryability)}: Mô hình Star Schema cho phép các câu truy vấn phân tích đa chiều hiệu quả, ví dụ: thống kê tỉ lệ nước an toàn theo nhóm độ cứng hoặc độ axit.
+    \item \textbf{Khả năng mở rộng (Scalability)}: Kiến trúc Docker + batch processing cho phép mở rộng khi kích thước dữ liệu tăng mà không cần thay đổi logic ETL.
+\end{enumerate}
+
+Hạn chế chính của quy trình hiện tại là chưa có cơ chế \textbf{incremental load} thực sự (chỉ kiểm tra bảng chiều, không kiểm tra bảng fact), do đó nếu chạy lại pipeline trên cùng bộ dữ liệu sẽ tạo ra các bản ghi trùng lặp trong \texttt{fact\_water\_sample}. Trong tương lai, có thể bổ sung bước kiểm tra trùng lặp hoặc sử dụng chiến lược \textit{upsert} cho bảng fact.

@@ -1,0 +1,247 @@
+[
+ {
+  "test": "Man hinh 'Tổng quan' khong loi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Man hinh 'Tổng quan' co KPI",
+  "ok": true,
+  "detail": "7"
+ },
+ {
+  "test": "Man hinh 'Tổng quan' vua 1440x800, khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Man hinh 'Lỗi giao trễ' khong loi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Man hinh 'Lỗi giao trễ' co KPI",
+  "ok": true,
+  "detail": "5"
+ },
+ {
+  "test": "Man hinh 'Lỗi giao trễ' vua 1440x800, khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Man hinh 'Chi tiết seller' khong loi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Man hinh 'Chi tiết seller' co KPI",
+  "ok": true,
+  "detail": "6"
+ },
+ {
+  "test": "Man hinh 'Chi tiết seller' vua 1440x800, khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Man hinh 'Bảng kế hoạch' khong loi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Man hinh 'Bảng kế hoạch' co KPI",
+  "ok": true,
+  "detail": "4"
+ },
+ {
+  "test": "Man hinh 'Bảng kế hoạch' vua 1440x800, khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Man hinh 'What-if tuyến' khong loi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Man hinh 'What-if tuyến' co KPI",
+  "ok": true,
+  "detail": "4"
+ },
+ {
+  "test": "Man hinh 'What-if tuyến' vua 1440x800, khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Man hinh 'Kiểm chứng' khong loi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Man hinh 'Kiểm chứng' co KPI",
+  "ok": true,
+  "detail": "4"
+ },
+ {
+  "test": "Man hinh 'Kiểm chứng' vua 1440x800, khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Co chu thich KPI tu metrics.yml",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "GMV tren giao dien khop SQL",
+  "ok": true,
+  "detail": "863k / 863,265.53"
+ },
+ {
+  "test": "So don tren giao dien khop SQL",
+  "ok": true,
+  "detail": "6.145"
+ },
+ {
+  "test": "Ty le tre tren giao dien khop SQL",
+  "ok": true,
+  "detail": "8,4% / 389/4642"
+ },
+ {
+  "test": "Doi as-of lam so GMV doi",
+  "ok": true,
+  "detail": "863k -> 838k"
+ },
+ {
+  "test": "Sau khi doi as-of khong loi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Bang co 4 cot",
+  "ok": true,
+  "detail": "4"
+ },
+ {
+  "test": "Dung ten cac cot",
+  "ok": true,
+  "detail": "['Gọi ngay', 'Hỗ trợ vận hành', 'Email tự động', 'Chưa xử lý']"
+ },
+ {
+  "test": "Cac cot nam ngang hang nhau",
+  "ok": true,
+  "detail": "[18, 291, 564, 837]"
+ },
+ {
+  "test": "Co the tren bang",
+  "ok": true,
+  "detail": "[16, 8, 7, 14]"
+ },
+ {
+  "test": "Cac so nam tren bang keo",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Bam the hien chi tiet seller do",
+  "ok": true,
+  "detail": "3d871de0"
+ },
+ {
+  "test": "Bam the khong lam mat the",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Keo tha chuyen the giua cot",
+  "ok": true,
+  "detail": "[16, 8, 7, 14] -> [15, 8, 7, 15]"
+ },
+ {
+  "test": "Keo tha lam tien da dung doi",
+  "ok": true,
+  "detail": "2.000 BRL -> 1.950 BRL"
+ },
+ {
+  "test": "Keo tha lam GMV ky vong doi",
+  "ok": true,
+  "detail": "24.882 BRL -> 23.766 BRL"
+ },
+ {
+  "test": "Sau keo tha khong loi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Sau keo tha van khong phai cuon",
+  "ok": true,
+  "detail": "doc 0px"
+ },
+ {
+  "test": "So the tren tieu de cot cap nhat",
+  "ok": true,
+  "detail": "['15', '8', '7', '15']"
+ },
+ {
+  "test": "CSV phan anh thao tac keo tay",
+  "ok": true,
+  "detail": "['Chưa xử lý']"
+ },
+ {
+  "test": "CSV co ly do cho moi dong",
+  "ok": true,
+  "detail": "45"
+ },
+ {
+  "test": "Vuot rang buoc thi co canh bao",
+  "ok": true,
+  "detail": "sau 1 lan keo tiep"
+ },
+ {
+  "test": "Dat lai tra ve de xuat",
+  "ok": true,
+  "detail": "2.000 BRL"
+ },
+ {
+  "test": "What-if hua them ngay lam ty le tre doi",
+  "ok": true,
+  "detail": "4,6% -> 2,7%"
+ },
+ {
+  "test": "Moc som nhat: 'Tổng quan' khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Moc som nhat: 'Lỗi giao trễ' khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Moc som nhat: 'Chi tiết seller' khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Moc som nhat: 'Bảng kế hoạch' khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Moc som nhat: 'What-if tuyến' khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Moc som nhat: 'Kiểm chứng' khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Khong co loi JavaScript",
+  "ok": true,
+  "detail": ""
+ }
+]

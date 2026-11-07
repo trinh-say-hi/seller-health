@@ -1,0 +1,4 @@
+# Giu nguyen byte cua du lieu: setup kiem tra hash CSV theo data/manifest.json
+data/olist/raw/** -text
+data/funnel/raw/** -text
+data/sample/** -text

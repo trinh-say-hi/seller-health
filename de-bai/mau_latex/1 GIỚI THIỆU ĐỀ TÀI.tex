@@ -1,0 +1,64 @@
+\section{Tổng quan bài toán}
+\subsection{Bối cảnh và đặt vấn đề}
+\hspace{17pt}Trong thời đại công nghệ 4.0 hiện nay, việc ứng dụng phân tích dữ liệu và trí tuệ nhân tạo vào các lĩnh vực đời sống, đặc biệt là quản lý tài nguyên thiên nhiên và bảo vệ sức khỏe cộng đồng, đã trở thành một xu hướng tất yếu. Nước sạch là yếu tố sống còn đối với sự tồn tại của con người; tuy nhiên, việc xác định chất lượng nước một cách nhanh chóng và chính xác vẫn luôn là thách thức lớn đối với nhiều khu vực. 
+
+\hspace{17pt}Ngành khoa học dữ liệu nói chung và ứng dụng kho dữ liệu (Data Warehouse) nói riêng cung cấp các công cụ mạnh mẽ để lưu trữ, tích hợp và phân tích khối lượng lớn các chỉ số hóa lý của nước. Từ đó, chúng giúp các chuyên gia đưa ra những quyết định kịp thời và chuẩn xác về mức độ an toàn của nguồn nước, cảnh báo người dùng và cơ quan quản lý ngay khi phát hiện tiềm ẩn nguy cơ dịch bệnh hay ô nhiễm hóa chất.
+
+\subsection{Mục tiêu nghiên cứu}
+% XÂY DỰNG KHO DỮ LIỆU TÍCH HỢP QUY TRÌNH ETL BẰNG PENTAHO % VÀ ỨNG DỤNG THUẬT TOÁN HỌC
+% MÁY PHÂN LỚP TRONG DỰ BÁO ĐỘ AN TOÀN CỦA
+% NGUỒN NƯỚC
+\hspace{17pt}Xuất phát từ yêu cầu thực tiễn đó, đề tài \textbf{Xây dựng kho dữ liệu tích hợp quy trình ETL bằng Pentaho và ứng dụng các thuật toán học máy phân lớp trong dự báo độ an toàn của nguồn nước} được thực hiện nhằm mục đích ứng dụng các quy trình ETL hiện đại và các mô hình học máy vào việc tự động phân loại chất lượng nguồn nước. 
+
+\hspace{17pt}Mục tiêu cốt lõi của đề tài là xây dựng thành công một kho dữ liệu hoàn chỉnh từ các nguồn dữ liệu thô ban đầu, thực hiện chuẩn hóa dữ liệu thông qua quy trình ETL bằng công nghệ Pentaho, và cuối cùng là huấn luyện các mô hình học máy (như Random Forest, SVM, XGBoost) để dự đoán khả năng uống được (potability) của nước dựa trên các thành phần hóa lý cốt lõi. 
+
+\textit{(*) Lưu ý: Toàn bộ mã nguồn (Source code) của dự án được đóng gói và lưu trữ công khai \href{https://github.com/Shootingstar2608/data_warehouse_assignment}{\color{blue} tại đây.}}
+
+\subsection{Phạm vi nghiên cứu}
+\hspace{17pt}Để đảm bảo tính khả thi và tập trung giải quyết triệt để bài toán đã đặt ra, đề tài được giới hạn trong các phạm vi cụ thể sau:
+\begin{itemize}
+    \item \textbf{Về mặt dữ liệu:} Nghiên cứu chỉ tập trung khai thác và phân tích trên bộ dữ liệu tĩnh (static data) "Water Quality and Potability" được cung cấp công khai, không tiến hành thu thập dữ liệu thời gian thực (real-time streaming) hay lấy mẫu nước trực tiếp từ môi trường tự nhiên.
+    \item \textbf{Về công nghệ và công cụ:} Quá trình ETL được giới hạn thiết kế trên nền tảng \texttt{Pentaho Data Integration (PDI)}. Quá trình tiền xử lý dữ liệu, huấn luyện và đánh giá mô hình học máy được lập trình bằng ngôn ngữ Python, kết hợp sử dụng các thư viện tính toán khoa học chuyên dụng như \texttt{Scikit-learn}, \texttt{XGBoost}, và \texttt{Pandas}. Cơ sở dữ liệu lưu trữ kho được vận hành trên \texttt{PostgreSQL}.
+    \item \textbf{Về tính ứng dụng:} Kết quả của đề tài dừng lại ở việc xây dựng thành công quy trình xử lý dữ liệu và tạo ra một hệ thống phần mềm mang tính chất Hỗ trợ ra quyết định (Decision Support System - DSS). Mô hình không nhằm mục đích thay thế hoàn toàn các tiêu chuẩn kiểm định an toàn y tế và sinh hóa thực tế của các cơ quan thẩm quyền.
+\end{itemize}
+
+\subsection{Mô tả tập dữ liệu}
+\hspace{17pt}Bộ dữ liệu về nguồn nước được sử dụng trong dự án thuộc lĩnh vực liên quan đến môi trường và chăm sóc sức khỏe cộng đồng, được thu thập và trích xuất từ nền tảng \href{https://www.kaggle.com/datasets/uom190346a/water-quality-and-potability}{\color{blue} Kaggle Dataset}. 
+
+\hspace{17pt}File dữ liệu đầu vào mang tên \textbf{``water\_potability.csv''} tập hợp thông tin của 3.276 mẫu nước khác nhau. Mỗi mẫu nước được ghi nhận với các chỉ số hóa lý quan trọng cùng một nhãn đánh giá mức độ an toàn cuối cùng. Thách thức lớn nhất của bộ dữ liệu này là sự tồn tại của các giá trị khuyết thiếu (missing data) đáng kể ở các cột quan trọng như nồng độ pH và Sulfate, đòi hỏi phải có bước tiền xử lý cẩn thận.
+
+\hspace{17pt}Dữ liệu gốc bao gồm 10 cột dữ liệu với ý nghĩa và kiểu dữ liệu tương ứng như sau:
+% \begin{itemize}
+%     \item \textbf{ph:} Độ pH của nước, chỉ số đánh giá tính axit - kiềm (float64).
+%     \item \textbf{Hardness:} Độ cứng của nước, chủ yếu do muối canxi và magie (float64).
+%     \item \textbf{Solids:} Tổng lượng chất rắn hòa tan (TDS) trong nước (float64).
+%     \item \textbf{Chloramines:} Lượng Clo và Cloramin dùng làm chất khử trùng (float64).
+%     \item \textbf{Sulfate:} Lượng sunfat hòa tan trong nước (float64).
+%     \item \textbf{Conductivity:} Độ dẫn điện của nước (float64).
+%     \item \textbf{Organic\_carbon:} Lượng carbon hữu cơ tổng số (TOC) trong nước (float64).
+%     \item \textbf{Trihalomethanes:} Hóa chất sinh ra trong quá trình khử trùng bằng Clo (float64).
+%     \item \textbf{Turbidity:} Độ đục của nước, do các chất lơ lửng gây ra (float64).
+%     \item \textbf{Potability:} Nhãn an toàn, cho biết nước có uống được hay không (int64).
+% \end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Các thuộc tính trong bộ dữ liệu gốc}
+\label{tab:source_fields}
+\begin{tabular}{llp{7cm}} % Đã xóa các dấu "|" ở đây
+\toprule % Đường kẻ ngang trên cùng nét đậm
+\textbf{Thuộc tính} & \textbf{Kiểu dữ liệu} & \textbf{Mô tả} \\
+\midrule % Đường kẻ ngang mỏng phân cách tiêu đề
+\texttt{ph} & NUMBER & Độ pH của nước \\
+\texttt{Hardness} & NUMBER & Độ cứng của nước (mg/L) \\
+\texttt{Solids} & NUMBER & Tổng chất rắn hòa tan (ppm) \\
+\texttt{Chloramines} & NUMBER & Nồng độ chloramine (ppm) \\
+\texttt{Sulfate} & NUMBER & Nồng độ sulfate (mg/L) \\
+\texttt{Conductivity} & NUMBER & Độ dẫn điện ($\mu$S/cm) \\
+\texttt{Organic\_carbon} & NUMBER & Hàm lượng carbon hữu cơ (ppm) \\
+\texttt{Trihalomethanes} & NUMBER & Nồng độ trihalomethanes ($\mu$g/L) \\
+\texttt{Turbidity} & NUMBER & Độ đục của nước (NTU) \\
+\texttt{Potability} & INTEGER & Nhãn (không uống được/uống được) \\
+\bottomrule % Đường kẻ ngang dưới cùng nét đậm
+\end{tabular}
+\end{table}

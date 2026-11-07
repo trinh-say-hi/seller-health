@@ -1,0 +1,25 @@
+\section{Kết luận và Hướng phát triển tương lai}
+
+\subsection{Kết luận}
+Bài tập lớn đã nghiên cứu và thiết kế và triển khai thành công một quy trình hoàn chỉnh từ khâu thu thập, tiền xử lý dữ liệu (ETL), xây dựng Kho dữ liệu (Data Warehouse) đến việc phân tích trực quan và tích hợp mô hình Học máy dự đoán chất lượng nước (Water Potability). Bằng việc kết hợp các công cụ chuyên dụng như Pentaho và các thuật toán học máy, đồ án đã giải quyết tốt bài toán đánh giá độ an toàn của nguồn nước. Các kết quả nổi bật mà nhóm đã đạt được bao gồm:
+
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{Xây dựng thành công quy trình ETL và Kho dữ liệu:} Hệ thống đã xử lý và làm sạch bộ dữ liệu gốc, giải quyết triệt để các giá trị khuyết thiếu (như độ pH, Sulfate) bằng kỹ thuật điền khuyết trung bình (Mean Imputation). Từ đó, nhóm đã thiết kế và đổ dữ liệu thành công vào mô hình Đa chiều (Star Schema) với bảng Fact và các bảng Dimension, giúp tối ưu hóa việc lưu trữ và truy vấn phục vụ phân tích.
+    
+    \item \textbf{Trực quan hóa và phân tích dữ liệu (EDA) sâu sắc:} Thông qua các Dashboard trực quan, nhóm đã khám phá ra tính phi tuyến tính phức tạp của tập dữ liệu. Phân tích chỉ ra rằng không có một ngưỡng cố định đơn lẻ nào (như chỉ dựa vào độ pH hay Sulfate) có thể quyết định hoàn toàn độ an toàn của nước. Khám phá này là tiền đề định lượng vững chắc để áp dụng các mô hình AI có khả năng học được các biểu diễn phức tạp.
+    
+    \item \textbf{Triển khai mô hình Học máy dự đoán chất lượng nước:} Đồ án đã áp dụng và đánh giá thành công các thuật toán phân loại mạnh mẽ (như Random Forest, SVM, XGBoost). Các mô hình đã nắm bắt tốt sự tương tác đa chiều giữa 9 chỉ số hóa lý của nước, đưa ra kết quả dự đoán (An toàn / Không an toàn) với các chỉ số đánh giá độ chính xác (Accuracy, Precision, Recall, F1-Score) tương đối khả quan.
+    
+    \item \textbf{Xây dựng giao diện Web tương tác trực quan:} Thay vì chỉ dừng lại ở các đoạn mã (code) mô hình tĩnh, nhóm đã xây dựng thành công một ứng dụng Web cho phép người dùng điều chỉnh trực tiếp các thông số môi trường nước đầu vào. Hệ thống tích hợp trực tiếp với mô hình đã huấn luyện để trả về kết quả dự đoán tức thời kèm theo các cảnh báo trực quan, minh chứng cho tính ứng dụng thực tiễn cao của đề tài.
+\end{enumerate}
+
+\subsection{Hướng phát triển tương lai}
+Mặc dù kiến trúc hệ thống đã vận hành ổn định và mô hình đưa ra những dự đoán có giá trị, nhưng do giới hạn về mặt thời gian và tài nguyên, hệ thống vẫn có thể được nâng cấp để tiệm cận với tiêu chuẩn thực tế của doanh nghiệp ở các khía cạnh sau:
+
+\begin{itemize}
+    \item \textbf{Xử lý triệt để bài toán mất cân bằng dữ liệu:} Trong tập dữ liệu hiện tại, tỉ lệ mẫu nước Không an toàn (61\%) đang chiếm ưu thế hơn so với nhóm An toàn (39\%). Hướng nâng cấp sắp tới là áp dụng các kỹ thuật sinh mẫu nhân tạo mạnh mẽ hơn (như SMOTE) hoặc tinh chỉnh sâu siêu tham số (Hyperparameter tuning) để tăng độ nhạy (Recall) cho lớp dữ liệu thiểu số, tránh việc mô hình bị thiên lệch.
+    
+    \item \textbf{Tích hợp luồng dữ liệu thời gian thực từ cảm biến IoT:} Thay vì phụ thuộc vào thao tác nhập liệu thủ công trên giao diện web, hệ thống tương lai có thể được mở rộng để nhận luồng dữ liệu trực tiếp từ các hệ thống cảm biến đo chất lượng nước (IoT Sensors) đặt tại các hồ chứa hoặc trạm bơm. Kết hợp với Apache Kafka, ứng dụng sẽ trở thành một Pipeline cảnh báo ô nhiễm nguồn nước tự động theo thời gian thực (Real-time Alert System).
+    
+    \item \textbf{Triển khai Đám mây (Cloud Deployment) và MLOps:} Đưa toàn bộ hệ thống (Database, ETL Pipeline, Web App) từ môi trường máy chủ cục bộ lên các nền tảng đám mây như AWS hoặc Google Cloud. Đồng thời, xây dựng quy trình MLOps để mô hình Học máy có thể tự động thu thập dữ liệu mới, tái huấn luyện và cập nhật liên tục, đảm bảo độ chính xác lâu dài trong điều kiện môi trường tự nhiên liên tục biến đổi.
+\end{itemize}

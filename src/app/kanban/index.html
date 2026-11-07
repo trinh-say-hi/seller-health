@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body {margin: 0; padding: 0; font-family: "Source Sans 3", system-ui, sans-serif; color: #0b0b0b; background: transparent;}
+  #board {display: flex; gap: 6px; align-items: stretch;}
+  .sortable-container {flex: 1 1 0; min-width: 0; background: #f4f4f1; border-radius: 8px; display: flex; flex-direction: column;}
+  .sortable-container-header {display: flex; justify-content: space-between; align-items: baseline; padding: 5px 8px 3px; font-size: 13px; font-weight: 600;}
+  .count {font-weight: 400; color: #52514e; font-size: 12px;}
+  .sortable-container-body {flex: 0 0 auto; overflow-y: auto; padding: 0 5px 5px; display: flex; flex-direction: column; gap: 3px;}
+  .sortable-item {background: #fff; border: 1px solid #e8e7e3; border-radius: 6px; padding: 3px 7px; font-size: 11.5px; line-height: 1.3; cursor: grab; flex-shrink: 0; user-select: none;}
+  .sortable-item:hover {border-color: #9ec5f4;}
+  .sortable-item.selected {border-color: #2a78d6; box-shadow: inset 0 0 0 1px #2a78d6;}
+  .sortable-item.ghost {opacity: .35;}
+  .sortable-item.drag {cursor: grabbing; box-shadow: 0 2px 8px rgba(0,0,0,.2); transform: rotate(0deg);}
+  .id {font-weight: 600;}
+  .meta {color: #52514e;}
+  .flag {color: #184f95; font-weight: 600;}
+</style>
+</head>
+<body>
+<div id="board"></div>
+<script src="Sortable.min.js"></script>
+<script>
+  // Giao thuc component cua Streamlit, khong can thu vien ngoai.
+  function send(type, data) { window.parent.postMessage(Object.assign({isStreamlitMessage: true, type: type}, data), "*"); }
+  var built = null, selected = null, board = document.getElementById("board");
+
+  function state() {
+    var cols = {};
+    board.querySelectorAll(".sortable-container").forEach(function (c) {
+      cols[c.dataset.id] = Array.prototype.map.call(c.querySelectorAll(".sortable-item"), function (i) { return i.dataset.id; });
+    });
+    return {columns: cols, selected: selected};
+  }
+  function publish() { send("streamlit:setComponentValue", {value: state(), dataType: "json"}); }
+  function counts() {
+    board.querySelectorAll(".sortable-container").forEach(function (c) {
+      c.querySelector(".count").textContent = c.querySelectorAll(".sortable-item").length;
+    });
+  }
+  function build(args) {
+    board.innerHTML = "";
+    selected = null;
+    args.columns.forEach(function (col) {
+      var c = document.createElement("div"); c.className = "sortable-container"; c.dataset.id = col.id;
+      var h = document.createElement("div"); h.className = "sortable-container-header";
+      var name = document.createElement("span"); name.className = "column-title"; name.textContent = col.title;
+      var n = document.createElement("span"); n.className = "count";
+      h.appendChild(name); h.appendChild(n); c.appendChild(h);
+      var b = document.createElement("div"); b.className = "sortable-container-body"; b.style.height = args.height + "px";
+      col.items.forEach(function (it) {
+        var d = document.createElement("div"); d.className = "sortable-item"; d.dataset.id = it.id;
+        var a = document.createElement("div");
+        var i = document.createElement("span"); i.className = "id"; i.textContent = it.title; a.appendChild(i);
+        var s = document.createElement("span"); s.className = "meta"; s.textContent = " · " + it.state; a.appendChild(s);
+        var m = document.createElement("div"); m.className = "meta"; m.textContent = it.detail;
+        if (it.flag) { var f = document.createElement("span"); f.className = "flag"; f.textContent = " · " + it.flag; m.appendChild(f); }
+        d.appendChild(a); d.appendChild(m); b.appendChild(d);
+      });
+      c.appendChild(b); board.appendChild(c);
+      new Sortable(b, {group: "plan", animation: 120, forceFallback: true, fallbackTolerance: 3, ghostClass: "ghost", dragClass: "drag",
+        scroll: true, bubbleScroll: true, onEnd: function () { counts(); publish(); }});
+    });
+    counts();
+    send("streamlit:setFrameHeight", {height: document.documentElement.scrollHeight});
+  }
+  board.addEventListener("click", function (e) {
+    var card = e.target.closest(".sortable-item");
+    if (!card) { return; }
+    board.querySelectorAll(".selected").forEach(function (x) { x.classList.remove("selected"); });
+    card.classList.add("selected");
+    selected = card.dataset.id;
+    publish();
+  });
+  window.addEventListener("message", function (e) {
+    if (!e.data || e.data.type !== "streamlit:render") { return; }
+    // Chi dung lai khi de xuat doi, de thao tac keo tay khong bi mat moi lan Streamlit chay lai.
+    var args = e.data.args;
+    if (built !== args.version) { built = args.version; build(args); }
+  });
+  send("streamlit:componentReady", {apiVersion: 1});
+</script>
+</body>
+</html>

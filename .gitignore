@@ -1,0 +1,15 @@
+# Ban zip tai tu Kaggle, trung voi CSV trong raw/
+data/olist/*.zip
+data/funnel/*.zip
+
+# Moi truong va database
+.venv/
+*.duckdb
+*.duckdb.wal
+__pycache__/
+*.pyc
+
+# Thong tin dang nhap
+kaggle.json
+credentials.json
+.env

@@ -1,0 +1,632 @@
+[
+ {
+  "test": "Nguon: 9 file khop hash trong manifest",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Nguon: da ghi vao ops.source_manifest",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Nguon: hash sai thi bi chan",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Bronze: raw.order_items = 112,650",
+  "ok": true,
+  "detail": "112650"
+ },
+ {
+  "test": "Bronze: raw.order_payments = 103,886",
+  "ok": true,
+  "detail": "103886"
+ },
+ {
+  "test": "Bronze: raw.order_reviews = 99,224",
+  "ok": true,
+  "detail": "99224"
+ },
+ {
+  "test": "Bronze: raw.customers = 99,441",
+  "ok": true,
+  "detail": "99441"
+ },
+ {
+  "test": "Bronze: raw.sellers = 3,095",
+  "ok": true,
+  "detail": "3095"
+ },
+ {
+  "test": "Bronze: raw.products = 32,951",
+  "ok": true,
+  "detail": "32951"
+ },
+ {
+  "test": "Bronze: raw.geolocation = 1,000,163",
+  "ok": true,
+  "detail": "1000163"
+ },
+ {
+  "test": "Bronze: raw.category_translation = 71",
+  "ok": true,
+  "detail": "71"
+ },
+ {
+  "test": "Bronze: 99.441 don khac nhau",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Bronze: don co nhieu phien ban",
+  "ok": true,
+  "detail": "137236"
+ },
+ {
+  "test": "Bronze: raw.orders du cot dwh_",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "Bronze: raw.order_items du cot dwh_",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "Bronze: raw.order_payments du cot dwh_",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "Bronze: raw.order_reviews du cot dwh_",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "Bronze: raw.sellers du cot dwh_",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "Bronze: raw.geolocation du cot dwh_",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "Bronze: trang thai cuoi trung file nguon",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Bronze: khong dot nao thay moc sau ngay chot",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "Bronze: review den kho sau khi khach tra loi",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "Silver: ten thanh pho seller khong con ky tu la",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Silver: ten thanh pho seller da bo dau",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Silver: gom bien the Sao Paulo",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Silver: giu ten goc de truy vet",
+  "ok": true,
+  "detail": "41"
+ },
+ {
+  "test": "Silver: 19.015 ZIP trong geography",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Silver: toa do deu nam trong Brazil",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Silver: bo 2 danh muc thieu ban dich",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Silver: danh muc Unknown con 610",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Cach ly: 42 toa do ngoai Brazil",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Cach ly: khong co loi giao dich",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Cach ly: dong nao cung co ma loi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Gold: fact_order = 99.441 don",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Gold: fact_order khong trung don",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Gold: fact_review = 99.224",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Gold: fact_review khong trung (review_id, order_id)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Gold: 789 review_id dung cho nhieu don",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Gold: fact_order_seller khong trung (don, seller)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Gold: fact_sales_item = 112.650",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Gold: fact_sales_item khong trung",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Gold: fact_payment = 103.886",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Gold: 775 don khong co dong hang van duoc tinh",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Gold: 1.278 don nhieu seller",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Tien: tong gia dong hang = 13.591.643,70",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Tien: fact_order khong nhan dong",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Tien: fact_order_seller khong nhan dong",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Tien: GMV hop le = 13.494.400,74",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Tien: tong thanh toan khop nguon",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Tien: thanh toan khop hang + phi, 98.362 / 264 / 39",
+  "ok": true,
+  "detail": "(98362, 264, 39)"
+ },
+ {
+  "test": "Chong nhan dong: khong dem don tu fact_order_seller khi noi review",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Khong dong hang hop le nao roi vao seller khong ro",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Khong dong hang nao roi vao san pham khong ro",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Dim: dim_customer = 96.096 khach + 1",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Dim: dim_location co moi ZIP o moi nguon",
+  "ok": true,
+  "detail": "19177"
+ },
+ {
+  "test": "Dim: dim_location khong con toa do ngoai Brazil",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Dim: dim_location da noi vao fact",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Dim: dim_geography da bo",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Dim: dim_order_status du trang thai cua don",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "FK: fact_sales_item.product_key",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_sales_item.seller_key",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_sales_item.customer_key",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_sales_item.route_key",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_order_seller.seller_key",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_order_seller.route_key",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_order.customer_key",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_order.status_key",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_review.customer_key",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_seller_monthly.health_key",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_seller_monthly.seller_key",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_order.purchase_date_key co trong dim_date",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_order.delivered_date_key co trong dim_date",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_order.estimated_date_key co trong dim_date",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_order.carrier_date_key co trong dim_date",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_review.answered_date_key co trong dim_date",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "FK: fact_sales_item.shipping_limit_date_key co trong dim_date",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "Dim: 7 dimension tinh co khoa chinh",
+  "ok": true,
+  "detail": "7"
+ },
+ {
+  "test": "SCD2: moi seller dung 1 dong is_current",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "SCD2: khoang hieu luc lien tuc, khong chong",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "SCD2: chi doi khi hang giu nguyen 2 ky",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "SCD2: fact tro dung phien ban luc mua",
+  "ok": true,
+  "detail": "0"
+ },
+ {
+  "test": "SCD2: on dinh hon ban cu (duoi 5,75 dong moi seller)",
+  "ok": true,
+  "detail": "3.62"
+ },
+ {
+  "test": "Mini-dim: moi dong thang co ho so suc khoe",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Mini-dim: hang tren fact khop hang thang",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Periodic: moi seller x thang chi mot dong",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Accumulating: nhieu don cap nhat qua nhieu dot",
+  "ok": true,
+  "detail": "37221"
+ },
+ {
+  "test": "Review: don tre phan lon cham truoc khi nhan",
+  "ok": true,
+  "detail": "0.702"
+ },
+ {
+  "test": "Review: cham truoc khi nhan thap hon ro",
+  "ok": true,
+  "detail": "(1.66, 3.72)"
+ },
+ {
+  "test": "Log: du 26 dot va init deu ok",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Doi soat: moi dot 11 phep kiem tra",
+  "ok": true,
+  "detail": "286"
+ },
+ {
+  "test": "Doi soat: khong dong nao lech",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "CUBE: tong GMV = fact",
+  "ok": true,
+  "detail": "13,494,400.74"
+ },
+ {
+  "test": "CUBE: cong cac vung = tong",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "OLAP ROLL-UP co ket qua",
+  "ok": true,
+  "detail": "37 dong"
+ },
+ {
+  "test": "OLAP DRILL-DOWN co ket qua",
+  "ok": true,
+  "detail": "20 dong"
+ },
+ {
+  "test": "OLAP SLICE co ket qua",
+  "ok": true,
+  "detail": "21 dong"
+ },
+ {
+  "test": "OLAP DICE co ket qua",
+  "ok": true,
+  "detail": "19 dong"
+ },
+ {
+  "test": "OLAP PIVOT co ket qua",
+  "ok": true,
+  "detail": "9 dong"
+ },
+ {
+  "test": "OLAP CUBE co ket qua",
+  "ok": true,
+  "detail": "4 dong"
+ },
+ {
+  "test": "OLAP SCD2 co ket qua",
+  "ok": true,
+  "detail": "7 dong"
+ },
+ {
+  "test": "OLAP ROLE-PLAYING co ket qua",
+  "ok": true,
+  "detail": "1 dong"
+ },
+ {
+  "test": "OLAP: du 8 truy van",
+  "ok": true,
+  "detail": "8"
+ },
+ {
+  "test": "Doi chieu CSV: 1.338 seller hoat dong tai 01/03/2018",
+  "ok": true,
+  "detail": "1338"
+ },
+ {
+  "test": "Doi chieu CSV: gmv_90 tung seller",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Doi chieu CSV: orders_90 tung seller",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Doi chieu CSV: seller_late_rate tung seller",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "DSS: train cach test it nhat 45 ngay",
+  "ok": true,
+  "detail": "nho nhat 59 ngay"
+ },
+ {
+  "test": "DSS: moi seller 1 khuyen nghi moi as-of",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "DSS: moi khuyen nghi deu co ly do",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "DSS: ke hoach mac dinh trong rang buoc",
+  "ok": true,
+  "detail": "toi da 2000 BRL, 39 suat"
+ },
+ {
+  "test": "DSS: moi as-of co de xuat tra phi",
+  "ok": true,
+  "detail": "it nhat 2000 BRL"
+ },
+ {
+  "test": "Toi uu: giai dung bai tinh tay",
+  "ok": true,
+  "detail": "{'a': 'OPS', 'b': 'CALL', 'c': 'NONE', 'd': 'NONE'}"
+ },
+ {
+  "test": "Toi uu: ton trong gioi han suat",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Toi uu: ngan sach 0 khong chon gi tra phi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Catalog: moi cot o Gold, DSS, van hanh deu co mo ta",
+  "ok": true,
+  "detail": "313/313"
+ },
+ {
+  "test": "Catalog: moi bang deu co mo ta",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Catalog: da sinh data_catalog.md",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Metrics: moi KPI du truong bat buoc",
+  "ok": true,
+  "detail": "27"
+ },
+ {
+  "test": "Metrics: giao dien chi dung KPI co dinh nghia",
+  "ok": true,
+  "detail": "27 KPI"
+ },
+ {
+  "test": "Tai lieu: co naming_conventions.md",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Tai lieu: co requirements.md",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Watermark: dot da nap duoc bo qua",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Chay lai dot cuoi khong tao dong trung",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Cong chat luong: mat dong o Gold thi dung dot",
+  "ok": true,
+  "detail": "Doi soat dot 2018-10 khong khop: So dong hang raw.order_items->core.fact_sales_item: 112,6"
+ },
+ {
+  "test": "Cong chat luong: dot loi ghi failed kem noi dung",
+  "ok": true,
+  "detail": "failed"
+ },
+ {
+  "test": "Cong chat luong: watermark khong tien, lan sau chay lai",
+  "ok": true,
+  "detail": ""
+ }
+]

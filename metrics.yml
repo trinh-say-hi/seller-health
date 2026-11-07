@@ -1,0 +1,172 @@
+# Danh muc KPI: mot noi duy nhat dinh nghia chi so. Giao dien doc file nay de hien chu thich.
+# Moi chi so gom: label, definition, formula, window, source. caveat la tuy chon.
+
+gmv:
+  label: GMV
+  definition: Tổng tiền hàng của các đơn không bị hủy, chưa gồm phí vận chuyển.
+  formula: Σ price, đơn hợp lệ mua trong tháng
+  window: Tháng ngay trước as-of
+  source: mart.kpi_monthly
+orders:
+  label: Số đơn
+  definition: Số đơn không bị hủy mua trong tháng.
+  formula: Đếm order_id khác nhau
+  window: Tháng ngay trước as-of
+  source: mart.kpi_monthly
+active_sellers_month:
+  label: Seller có bán
+  definition: Số seller có ít nhất một đơn không bị hủy trong tháng.
+  formula: Đếm seller_id khác nhau
+  window: Tháng ngay trước as-of
+  source: mart.kpi_monthly
+late_rate_month:
+  label: Tỷ lệ đơn trễ hẹn
+  definition: Trong các đơn đến ngày hẹn trong tháng, tỷ lệ chưa giao hoặc giao sau ngày hẹn, biết tại lúc chốt tháng.
+  formula: Số đơn trễ / số đơn đến hạn
+  window: Đơn có ngày hẹn trong tháng
+  source: mart.kpi_monthly
+  caveat: Tính theo ngày hẹn, nên khác với tỷ lệ tính theo tháng mua.
+avg_review_month:
+  label: Review trung bình
+  definition: Điểm trung bình của các review được khách trả lời trong tháng.
+  formula: Trung bình review_score
+  window: Review trả lời trong tháng
+  source: mart.kpi_monthly
+new_at_risk:
+  label: Mới vào Nguy cơ
+  definition: Seller đang ở hạng Nguy cơ trong khi tháng trước chưa ở hạng này.
+  formula: So hạng tháng ở hai mốc as-of
+  window: Mốc as-of và mốc liền trước
+  source: mart.seller_features
+gmv_at_risk:
+  label: GMV rủi ro 45 ngày
+  definition: Ước tính phần GMV 45 ngày tới đang có rủi ro, trên toàn bộ seller hoạt động.
+  formula: Σ p_decline × gmv_90 / 2
+  window: 45 ngày sau as-of
+  source: dss.recommendation
+  caveat: Là ước tính, không phải số đã mất.
+delivered_orders:
+  label: Đơn đã giao
+  definition: Số đơn có ngày khách nhận trong 90 ngày trước as-of.
+  formula: Đếm đơn trong fact_order
+  window: 90 ngày trước as-of
+  source: core.fact_order
+customer_late_rate:
+  label: Trễ hẹn với khách
+  definition: Tỷ lệ đơn khách nhận sau ngày hẹn, so theo ngày.
+  formula: Số đơn khách trễ / số đơn đã giao
+  window: 90 ngày trước as-of
+  source: core.fact_order
+late_seller_ok:
+  label: Đơn trễ, seller đúng hạn
+  definition: Trong các đơn khách nhận trễ, tỷ lệ mọi seller đều bàn giao đúng hạn. Phần trễ nằm ở khâu sau seller.
+  formula: Số đơn (khách trễ và seller không trễ) / số đơn khách trễ
+  window: 90 ngày trước as-of
+  source: core.fact_order
+seller_late_rate:
+  label: Seller giao vận chuyển trễ
+  definition: Tỷ lệ đơn có seller bàn giao cho vận chuyển sau hạn.
+  formula: Số đơn có seller trễ / số đơn đã giao
+  window: 90 ngày trước as-of
+  source: core.fact_order
+reviewed_before_delivery:
+  label: Đơn trễ chấm trước khi nhận
+  definition: Trong các review của đơn khách nhận trễ, tỷ lệ khách trả lời khi chưa nhận được hàng.
+  formula: Số review trả lời trước lúc nhận / số review của đơn trễ
+  window: Đơn đã giao trong 90 ngày trước as-of
+  source: core.fact_review
+  caveat: Olist gửi khảo sát sau ngày hẹn, dù đã giao hay chưa. Vì vậy review thấp ở đơn trễ không hoàn toàn phản ánh sản phẩm.
+gmv_90:
+  label: GMV 90 ngày
+  definition: Tổng GMV của seller trong 90 ngày trước as-of.
+  formula: Σ price
+  window: 90 ngày trước as-of
+  source: mart.seller_features
+p_decline:
+  label: Khả năng sụt GMV
+  definition: Xác suất GMV 45 ngày tới thấp hơn một nửa mức bình thường, do mô hình Logistic Regression dự báo.
+  formula: Mô hình; mức bình thường là gmv_90 / 2
+  window: 45 ngày sau as-of
+  source: dss.recommendation
+  caveat: Chưa hiệu chỉnh, dùng để xếp thứ tự, không đọc như tỷ lệ chính xác.
+p_dormant:
+  label: Khả năng tạm ngừng
+  definition: Xác suất seller không có GMV trong 45 ngày tới. Chỉ để tham khảo, không tham gia quyết định.
+  formula: Mô hình
+  window: 45 ngày sau as-of
+  source: dss.recommendation
+ops_score:
+  label: Điểm vận hành
+  definition: Điểm 0–100 từ giao vận chuyển, trễ hẹn và review. Chỉ để tham khảo, luật dùng trực tiếp tỷ lệ giao vận chuyển trễ.
+  formula: 100 × (0,5 × (1 − trễ seller) + 0,2 × (1 − trễ khách) + 0,3 × (review − 1) / 4)
+  window: 90 ngày trước as-of
+  source: dss.recommendation
+tier_month:
+  label: Hạng tháng
+  definition: Hạng tính theo luật tại đúng mốc as-of, có thể đổi mỗi tháng.
+  formula: Xem mục công thức [F16]
+  window: Tại as-of
+  source: mart.seller_features
+tier_stable:
+  label: Hạng ổn định
+  definition: Hạng trong dim_seller (SCD2), chỉ đổi khi hạng tháng giữ nguyên 2 kỳ liên tiếp.
+  formula: Xem mục công thức [F16a]
+  window: Tại as-of
+  source: core.dim_seller
+plan_cost:
+  label: Tiền đã dùng
+  definition: Tổng chi phí của các hành động đang chọn.
+  formula: Σ chi phí theo hành động
+  window: Kế hoạch hiện tại
+  source: Tính trên giao diện
+plan_slots:
+  label: Suất đã dùng
+  definition: Tổng công sức nhân viên. Gọi dùng 1 suất, hỗ trợ dùng 2 suất.
+  formula: Σ suất theo hành động
+  window: Kế hoạch hiện tại
+  source: Tính trên giao diện
+plan_risk:
+  label: GMV rủi ro trong kế hoạch
+  definition: Tổng GMV rủi ro của các seller được gọi hoặc hỗ trợ.
+  formula: Σ p_decline × gmv_90 / 2, seller có hành động trả phí
+  window: 45 ngày sau as-of
+  source: Tính trên giao diện
+plan_saved:
+  label: Giữ được (giả định)
+  definition: GMV kỳ vọng giữ được theo giả định hiệu quả can thiệp.
+  formula: Σ p_decline × gmv_90 / 2 × hiệu quả giả định
+  window: 45 ngày sau as-of
+  source: Tính trên giao diện
+  caveat: Không phải số đo được, dữ liệu không có hiệu quả can thiệp thật.
+route_late:
+  label: Tỷ lệ trễ
+  definition: Tỷ lệ đơn lịch sử của tuyến sẽ trễ nếu hứa thêm N ngày.
+  formula: Số đơn có delay_days > N / số đơn
+  window: Đơn mua từ 180 đến 60 ngày trước as-of, đã giao
+  source: core.fact_order_seller
+  caveat: Giả định thời gian giao không đổi, không đo được tác động lên số đơn.
+route_promise:
+  label: Lời hẹn trung bình
+  definition: Số ngày hẹn trung bình sau khi cộng N ngày.
+  formula: Trung bình (ngày hẹn − ngày mua) + N
+  window: Đơn mua từ 180 đến 60 ngày trước as-of, đã giao
+  source: core.fact_order_seller
+route_need:
+  label: Cần hứa thêm
+  definition: Số ngày nhỏ nhất cần cộng để tỷ lệ trễ đạt mục tiêu.
+  formula: N nhỏ nhất trong [−10, 20] có tỷ lệ trễ ≤ mục tiêu
+  window: Đơn mua từ 180 đến 60 ngày trước as-of, đã giao
+  source: core.fact_order_seller
+hit_rate:
+  label: Gọi trúng
+  definition: Tỷ lệ seller được chọn thật sự sụt GMV ở 45 ngày sau. Không có nghĩa can thiệp đã thành công.
+  formula: Số seller được chọn có decline / số seller được chọn
+  window: 03–07/2018
+  source: dss.eval_lists
+loss_share:
+  label: Bao phủ GMV mất
+  definition: Phần GMV mất toàn sàn nằm ở các seller được chọn.
+  formula: Σ loss của seller được chọn / Σ loss toàn bộ
+  window: 03–07/2018
+  source: dss.eval_lists
+  caveat: Một phần GMV mất là biến động tự nhiên, nên chỉ số này thiên về seller lớn.

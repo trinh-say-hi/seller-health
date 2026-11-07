@@ -1,0 +1,444 @@
+# Mo ta bang va cot. src/etl/catalog.py nap vao kho bang COMMENT ON va sinh docs/data_catalog.md.
+# common: mo ta dung chung cho cot trung ten; cot trong tung bang se ghi de neu nghia khac.
+
+common:
+  order_id: Mã đơn, khóa tự nhiên từ nguồn.
+  seller_id: Mã seller, khóa tự nhiên từ nguồn.
+  seller_key: Khóa thay thế, trỏ tới dòng dim_seller có hiệu lực lúc mua.
+  customer_key: Khóa thay thế, trỏ tới dim_customer.
+  product_key: Khóa thay thế, trỏ tới dim_product.
+  route_key: Khóa thay thế, trỏ tới dim_route.
+  location_key: Khóa thay thế của một ZIP.
+  customer_location_key: ZIP của khách, trỏ tới dim_location.
+  seller_location_key: ZIP của seller, trỏ tới dim_location.
+  status_key: Trạng thái đơn, trỏ tới dim_order_status.
+  health_key: Hồ sơ sức khỏe, trỏ tới dim_seller_health.
+  purchase_date_key: Ngày mua, trỏ tới dim_date.
+  approved_date_key: Ngày duyệt, trỏ tới dim_date.
+  carrier_date_key: Ngày bàn giao cho vận chuyển, trỏ tới dim_date.
+  delivered_date_key: Ngày khách nhận, trỏ tới dim_date.
+  estimated_date_key: Ngày hẹn giao, trỏ tới dim_date.
+  shipping_limit_date_key: Hạn bàn giao cho vận chuyển, trỏ tới dim_date.
+  purchase_ts: Thời điểm mua.
+  approved_ts: Thời điểm duyệt.
+  carrier_ts: Thời điểm bàn giao cho vận chuyển.
+  delivered_ts: Thời điểm khách nhận.
+  estimated_ts: Ngày hẹn giao.
+  shipping_limit_ts: Hạn seller phải bàn giao cho vận chuyển.
+  days_to_approve: Số ngày từ lúc mua đến lúc duyệt.
+  days_to_carrier: Số ngày từ lúc mua đến lúc bàn giao vận chuyển.
+  days_in_transit: Số ngày từ lúc bàn giao vận chuyển đến lúc khách nhận.
+  delay_days: Ngày nhận trừ ngày hẹn, dương là trễ.
+  customer_late: Khách nhận sau ngày hẹn, so theo ngày.
+  seller_late: Seller bàn giao vận chuyển sau hạn.
+  review_score: Điểm review, từ 1 đến 5.
+  first_review_ts: Lúc khách đầu tiên trả lời review của đơn.
+  has_comment: Review có nội dung.
+  freight_total: Tổng phí vận chuyển.
+  n_items: Số dòng hàng.
+  n_versions: Số phiên bản của đơn trong raw.orders.
+  dwh_batch: Đợt nạp.
+  dwh_first_batch: Đợt đầu tiên thấy đơn.
+  dwh_last_batch: Đợt gần nhất đơn thay đổi.
+  as_of: Mốc thời gian giả lập, chỉ thấy dữ liệu trước mốc này.
+  month: Ngày đầu tháng.
+  region: Vùng của Brazil.
+  state: Mã bang.
+  city: Tên thành phố đã chuẩn hóa.
+  zip_prefix: 5 chữ số đầu của mã bưu chính.
+  category_en: Danh mục sản phẩm tiếng Anh.
+  health_tier: Hạng sức khỏe.
+  gmv_90: GMV 90 ngày trước as-of.
+  avg_review: Review trung bình.
+  n_orders: Số đơn.
+  seller_late_rate: Tỷ lệ sản phẩm chưa bàn giao hoặc bàn giao sau hạn.
+  p_decline: Xác suất sụt GMV do mô hình dự báo, chưa hiệu chỉnh.
+  p_dormant: Xác suất tạm ngừng 45 ngày do mô hình dự báo, chưa hiệu chỉnh.
+  ops_score: Điểm vận hành 0-100, chỉ để hiển thị.
+  expected_saved: GMV kỳ vọng giữ được theo giả định hiệu quả.
+  batch: Đợt nạp.
+  table_name: Tên bảng liên quan.
+
+tables:
+  raw.orders: {layer: Bronze, kind: Dữ liệu gốc, grain: 1 phiên bản của 1 đơn, description: "Đơn hàng dạng chữ. Mỗi lần trạng thái đổi thêm một phiên bản. Các mốc chưa xảy ra được che để giả lập nguồn gửi theo tháng."}
+  raw.order_items: {layer: Bronze, kind: Dữ liệu gốc, grain: 1 dòng hàng, description: Dòng hàng nguyên văn từ nguồn.}
+  raw.order_payments: {layer: Bronze, kind: Dữ liệu gốc, grain: 1 phần thanh toán, description: Thanh toán nguyên văn từ nguồn.}
+  raw.order_reviews: {layer: Bronze, kind: Dữ liệu gốc, grain: 1 review theo đơn, description: Review nguyên văn. Đến kho vào tháng khách trả lời.}
+  raw.customers: {layer: Bronze, kind: Dữ liệu gốc, grain: 1 customer_id, description: Khách hàng nguyên văn. Nạp một lần.}
+  raw.sellers: {layer: Bronze, kind: Dữ liệu gốc, grain: 1 seller, description: Seller nguyên văn. Nạp một lần.}
+  raw.products: {layer: Bronze, kind: Dữ liệu gốc, grain: 1 sản phẩm, description: Sản phẩm nguyên văn. Nạp một lần.}
+  raw.geolocation: {layer: Bronze, kind: Dữ liệu gốc, grain: 1 tọa độ quan sát, description: Tọa độ theo ZIP nguyên văn. Nạp một lần.}
+  raw.category_translation: {layer: Bronze, kind: Dữ liệu gốc, grain: 1 danh mục, description: Bản dịch danh mục nguyên văn. Nạp một lần.}
+
+  stg.geography: {layer: Silver, kind: Master đã sạch, grain: 1 ZIP, description: "Trung vị tọa độ theo ZIP, đã bỏ tọa độ ngoài Brazil. Tên thành phố đã bỏ dấu."}
+  stg.sellers: {layer: Silver, kind: Master đã sạch, grain: 1 seller, description: "Seller với tên thành phố đã sửa. Giữ tên gốc ở city_raw, cách sửa ở city_source."}
+  stg.customers: {layer: Silver, kind: Master đã sạch, grain: 1 customer_id, description: Khách với tên thành phố đã sửa.}
+  stg.products: {layer: Silver, kind: Master đã sạch, grain: 1 sản phẩm, description: Sản phẩm có danh mục tiếng Anh và thể tích.}
+  stg.category_translation: {layer: Silver, kind: Master đã sạch, grain: 1 danh mục, description: Bản dịch của nguồn cộng 2 bản dịch bổ sung.}
+
+  core.dim_date:
+    layer: Gold
+    kind: Dimension, nhiều vai trò
+    grain: 1 ngày
+    description: Lịch từ 2016 đến 2020, dùng cho ngày mua, duyệt, bàn giao, nhận và hẹn.
+    columns:
+      date_key: Khóa dạng YYYYMMDD.
+      full_date: Ngày.
+      year: Năm.
+      quarter: Quý.
+      year_month: Năm-tháng.
+      week: Tuần trong năm.
+      day_of_week: Thứ trong tuần, 1 là thứ Hai.
+      is_weekend: Thứ Bảy hoặc Chủ nhật.
+      is_holiday_br: Ngày lễ toàn quốc của Brazil.
+      is_black_friday: Ngày Black Friday.
+  core.dim_location:
+    layer: Gold
+    kind: Dimension
+    grain: 1 ZIP
+    description: Mọi ZIP xuất hiện ở khách, seller hoặc geolocation. Dùng cho cả vị trí khách và seller.
+    columns:
+      lat: Vĩ độ trung vị.
+      lng: Kinh độ trung vị.
+      has_coordinates: ZIP có tọa độ hợp lệ.
+  core.dim_customer:
+    layer: Gold
+    kind: Dimension
+    grain: 1 customer_unique_id
+    description: Khách theo người, không theo đơn. Vị trí lúc mua lấy từ customer_location_key trên fact.
+    columns:
+      customer_unique_id: Mã người mua từ nguồn.
+      city: Thành phố xuất hiện nhiều nhất của khách.
+      state: Bang xuất hiện nhiều nhất của khách.
+  core.dim_product:
+    layer: Gold
+    kind: Dimension
+    grain: 1 sản phẩm
+    description: Sản phẩm và thuộc tính.
+    columns:
+      product_id: Mã sản phẩm từ nguồn.
+      weight_g: Cân nặng, gram.
+      volume_cm3: Thể tích, cm³.
+      size_group: Nhóm kích thước theo thể tích.
+      photos_qty: Số ảnh.
+  core.dim_route:
+    layer: Gold
+    kind: Dimension
+    grain: 1 cặp bang seller và bang khách
+    description: Tuyến giao hàng theo cặp bang, không phải một lộ trình xe cụ thể.
+    columns:
+      seller_state: Bang seller.
+      customer_state: Bang khách.
+      route_name: Tên tuyến, ví dụ SP->RJ.
+      same_state: Cùng một bang.
+      distance_km: Khoảng cách giữa tâm hai bang, chỉ là xấp xỉ.
+  core.dim_order_status:
+    layer: Gold
+    kind: Dimension
+    grain: 1 trạng thái
+    description: Trạng thái đơn và thứ tự trong quy trình.
+    columns:
+      status: Tên trạng thái.
+      stage: Thứ tự trong quy trình.
+      is_delivered: Trạng thái đã giao.
+      is_canceled: Trạng thái hủy hoặc không có hàng.
+  core.dim_seller_health:
+    layer: Gold
+    kind: Mini-dimension
+    grain: 1 tổ hợp hồ sơ sức khỏe
+    description: Thuộc tính thay đổi nhanh được tách khỏi dim_seller. fact_seller_monthly trỏ tới đây.
+    columns:
+      health_tier: Hạng tháng.
+      size_band: Nhóm số đơn 90 ngày.
+      late_band: Nhóm tỷ lệ giao vận chuyển trễ.
+      review_band: Nhóm review trung bình.
+  core.dim_seller:
+    layer: Gold
+    kind: Dimension, SCD Type 2
+    grain: 1 phiên bản của seller
+    description: Seller và hạng ổn định. Chỉ thêm phiên bản khi hạng tháng giữ nguyên 2 kỳ liên tiếp. Hạng do hệ thống tính.
+    columns:
+      seller_key: Khóa thay thế của phiên bản.
+      health_tier: Hạng ổn định.
+      valid_from: Có hiệu lực từ.
+      valid_to: Có hiệu lực đến, không gồm thời điểm này.
+      is_current: Phiên bản hiện hành.
+
+  core.fact_sales_item:
+    layer: Gold
+    kind: Transaction fact
+    grain: 1 sản phẩm trong 1 đơn
+    description: Doanh số. Đây là nguồn chuẩn của GMV.
+    columns:
+      order_item_id: Thứ tự dòng hàng trong đơn.
+      price: Giá sản phẩm.
+      freight_value: Phí vận chuyển của dòng.
+      qty: Số lượng, luôn là 1 vì nguồn tách từng sản phẩm thành một dòng.
+      is_valid_sale: Đơn không bị hủy.
+  core.fact_order:
+    layer: Gold
+    kind: Accumulating snapshot
+    grain: 1 đơn
+    description: Vòng đời đơn, cập nhật qua các đợt. Dùng bảng này để đếm đơn và tính trễ hẹn.
+    columns:
+      any_seller_late: Có ít nhất một seller của đơn bàn giao trễ.
+      n_sellers: Số seller trong đơn.
+      items_price_total: Tổng tiền hàng.
+      order_total: Tiền hàng cộng phí vận chuyển.
+      payment_total: Tổng thanh toán. Có thể khác order_total do lãi trả góp.
+      payment_count: Số dòng thanh toán.
+      review_score: Điểm trung bình các review của đơn.
+      is_canceled: Đơn hủy hoặc không có hàng.
+      has_status_date_mismatch: Trạng thái và ngày nhận mâu thuẫn.
+      has_chronology_issue: Thứ tự các mốc bất thường.
+  core.fact_order_seller:
+    layer: Gold
+    kind: Accumulating snapshot
+    grain: 1 đơn × 1 seller
+    description: Trách nhiệm bàn giao của từng seller. Các mốc và review lặp lại theo seller, không dùng bảng này để đếm đơn.
+    columns:
+      order_status: Trạng thái đơn.
+      order_value: Tiền hàng của seller trong đơn.
+      freight_total: Phí vận chuyển của seller trong đơn.
+      n_items: Số dòng hàng của seller trong đơn.
+      shipping_limit_ts: Hạn bàn giao muộn nhất của seller trong đơn.
+  core.fact_review:
+    layer: Gold
+    kind: Transaction fact
+    grain: 1 review × 1 đơn
+    description: Từng review. Có cờ để biết khách chấm trước hay sau khi nhận hàng.
+    columns:
+      review_id: Mã review. Một mã có thể dùng cho nhiều đơn.
+      created_date_key: Ngày gửi khảo sát, trỏ tới dim_date.
+      answered_date_key: Ngày khách trả lời, trỏ tới dim_date.
+      created_ts: Ngày gửi khảo sát.
+      answered_ts: Lúc khách trả lời.
+      has_title: Review có tiêu đề.
+      answer_hours: Số giờ từ lúc gửi đến lúc trả lời.
+      is_before_delivery: Khách trả lời khi chưa nhận hàng hoặc đơn chưa giao.
+  core.fact_payment:
+    layer: Gold
+    kind: Transaction fact
+    grain: 1 phần thanh toán
+    description: Thanh toán. Không phân bổ về dòng hàng.
+    columns:
+      payment_sequential: Thứ tự thanh toán trong đơn.
+      payment_type: Hình thức thanh toán.
+      payment_installments: Số kỳ trả góp.
+      payment_value: Số tiền.
+  core.fact_seller_monthly:
+    layer: Gold
+    kind: Periodic snapshot
+    grain: 1 seller × 1 tháng
+    description: Tình trạng seller, đóng băng lúc chốt tháng. Mỗi chỉ số tính theo tháng xảy ra sự kiện.
+    columns:
+      month_key: Ngày đầu tháng, trỏ tới dim_date.
+      n_items: Số dòng hàng trong tháng.
+      gmv: GMV trong tháng.
+      gmv_prev_3m_avg: GMV trung bình 3 tháng trước.
+      seller_late_rate: Tỷ lệ giao vận chuyển trễ, sản phẩm có hạn trong tháng.
+      customer_late_rate: Tỷ lệ khách nhận trễ, sản phẩm có ngày hẹn trong tháng.
+      avg_review: Review trung bình, review trả lời trong tháng.
+      avg_days_to_carrier: Số ngày tới vận chuyển trung bình, bàn giao trong tháng.
+      avg_days_in_transit: Số ngày vận chuyển trung bình, nhận trong tháng.
+      days_since_last_sale: Số ngày từ đơn gần nhất tới lúc chốt tháng.
+      n_categories: Số danh mục đã bán trong tháng.
+
+  mart.seller_features:
+    layer: Gold
+    kind: Mart, đóng băng lúc chốt đợt
+    grain: 1 seller × 1 as-of
+    description: Đầu vào của DSS. Seller có đơn hợp lệ trong 90 ngày trước as-of.
+    columns:
+      orders_90: Số đơn 90 ngày.
+      gmv_30: GMV 30 ngày.
+      orders_30: Số đơn 30 ngày.
+      trend: GMV 30 ngày so với trung bình 90 ngày.
+      recency: Số ngày từ đơn gần nhất.
+      tenure: Số ngày từ đơn đầu tiên.
+      n_cat: Số danh mục trong 90 ngày.
+      cust_late_rate: Tỷ lệ sản phẩm chưa nhận hoặc nhận sau hẹn.
+      days_to_carrier: Số ngày tới vận chuyển trung bình.
+      n_limit_known: Số sản phẩm đã qua hạn bàn giao.
+      n_cust_late_orders: Số đơn khách trễ.
+      n_cust_late_seller_ok: Số đơn khách trễ mà seller đúng hạn.
+      health_tier: Hạng tháng.
+  mart.seller_tier_monthly:
+    layer: Gold
+    kind: Mart, đóng băng lúc chốt đợt
+    grain: 1 seller × 1 as-of
+    description: Hạng tháng của mọi seller, kể cả không hoạt động. Dùng để xét điều kiện giữ hạng 2 kỳ.
+    columns:
+      health_tier: Hạng tháng.
+  mart.kpi_monthly:
+    layer: Gold
+    kind: Mart, CUBE
+    grain: 1 tháng × vùng × danh mục, kèm các dòng tổng
+    description: KPI toàn sàn tính sẵn. Mỗi thước đo theo tháng xảy ra sự kiện, đóng băng lúc chốt.
+    columns:
+      is_all_region: Dòng tổng của mọi vùng.
+      is_all_category: Dòng tổng của mọi danh mục.
+      gmv: GMV đơn mua trong tháng.
+      n_sellers: Số seller có bán.
+      n_due_orders: Số đơn đến ngày hẹn trong tháng.
+      n_late_orders: Số đơn đến hạn mà chưa giao hoặc giao trễ.
+      avg_review: Review trung bình, trả lời trong tháng.
+  mart.route_delivery:
+    layer: Gold
+    kind: Mart, đóng băng lúc chốt đợt
+    grain: 1 tuyến × 1 as-of
+    description: Thống kê giao hàng theo tuyến, đơn đã giao mua trong 180 ngày trước as-of.
+    columns:
+      route_name: Tên tuyến.
+      seller_state: Bang seller.
+      customer_state: Bang khách.
+      median_days: Trung vị số ngày từ mua đến nhận.
+      p90_days: Phân vị 90 số ngày từ mua đến nhận.
+      avg_promise_days: Số ngày hẹn trung bình.
+      late_rate: Tỷ lệ khách nhận trễ.
+      late_seller_ok_share: Trong đơn trễ, tỷ lệ seller đúng hạn.
+
+  dss.labels:
+    layer: DSS
+    kind: Nhãn huấn luyện
+    grain: 1 seller × 1 as-of
+    description: Kết quả 45 ngày sau as-of, chỉ có khi nhìn lại quá khứ. Không phải feature.
+    columns:
+      gmv_next45: GMV 45 ngày sau as-of.
+      dormant: Không có GMV trong 45 ngày.
+      decline: GMV 45 ngày thấp hơn một nửa mức bình thường.
+      loss: Phần GMV thiếu so với mức bình thường.
+      returned_later: Có bán lại sau cửa sổ 45 ngày.
+  dss.scores:
+    layer: DSS
+    kind: Kết quả mô hình
+    grain: 1 seller × 1 as-of
+    description: Điểm rủi ro train cuốn theo thời gian.
+    columns:
+      value_45: Mức GMV 45 ngày bình thường, bằng gmv_90 / 2.
+  dss.recommendation:
+    layer: DSS
+    kind: Kế hoạch mặc định
+    grain: 1 seller × 1 as-of
+    description: Phân khúc, hành động và lý do với tham số mặc định.
+    columns:
+      segment: Phân khúc theo bảng luật.
+      action: Hành động, gồm CALL, OPS, EMAIL, NONE.
+      reason: Lý do bằng chữ.
+      rank: Thứ tự ưu tiên.
+      cost: Chi phí hành động.
+      gmv_risk: GMV rủi ro, bằng p_decline × gmv_90 / 2.
+  dss.model_coef:
+    layer: DSS
+    kind: Kết quả mô hình
+    grain: 1 feature × 1 mục tiêu × 1 as-of
+    description: Hệ số Logistic Regression trên feature đã chuẩn hóa.
+    columns:
+      target: Mục tiêu dự báo.
+      feature: Tên feature.
+      coef: Hệ số.
+  dss.eval_auc:
+    layer: DSS
+    kind: Đánh giá
+    grain: 1 mục tiêu × 1 as-of
+    description: Chất lượng mô hình so với cách đơn giản.
+    columns:
+      target: Mục tiêu dự báo.
+      n: Số seller.
+      base_rate: Tỷ lệ gốc.
+      auc_model: AUC của mô hình.
+      auc_no_ops: AUC khi bỏ chỉ số vận hành.
+      auc_recency: AUC khi chỉ dùng số ngày không bán.
+      train_n: Số dòng train.
+      train_max_as_of: Mốc train mới nhất.
+  dss.eval_lists:
+    layer: DSS
+    kind: Đánh giá
+    grain: 1 cách chọn × 1 phạm vi × 1 as-of
+    description: So sánh các cách chọn seller trên kết quả thật.
+    columns:
+      scope: Phạm vi, top50 hoặc plan.
+      list_name: Tên cách chọn.
+      k: Số seller được chọn.
+      hit_rate: Tỷ lệ gọi trúng.
+      dormant_rate: Tỷ lệ tạm ngừng trong danh sách.
+      loss_share: Phần GMV mất nằm trong danh sách.
+      loss: Tổng GMV mất trong danh sách.
+  dss.sensitivity:
+    layer: DSS
+    kind: Đánh giá
+    grain: 1 kịch bản × 1 as-of
+    description: Danh sách thay đổi thế nào khi giả định đổi.
+    columns:
+      case_name: Tên kịch bản.
+      n_base: Số seller của phương án gốc.
+      n_case: Số seller của kịch bản.
+      jaccard: Mức trùng với phương án gốc.
+      expected_saved_base: GMV kỳ vọng giữ của phương án gốc.
+  dss.default_params:
+    layer: DSS
+    kind: Tham số
+    grain: 1 bộ tham số
+    description: Tham số mặc định đã dùng.
+    columns:
+      params_json: Tham số dạng JSON.
+
+  ops.etl_log:
+    layer: Vận hành
+    kind: Nhật ký
+    grain: 1 đợt
+    description: Kết quả từng đợt nạp. Đợt không ở trạng thái ok sẽ được chạy lại.
+    columns:
+      watermark: Mốc đã nạp tới.
+      orders_versions: Số phiên bản đơn nạp trong đợt.
+      items: Số dòng hàng nạp.
+      payments: Số dòng thanh toán nạp.
+      reviews: Số review nạp.
+      rows_loaded: Tổng số dòng nạp.
+      rows_rejected: Số dòng bị cách ly.
+      sellers_tier_changed: Số seller đổi hạng ổn định.
+      run_at: Thời điểm chạy.
+      duration_s: Số giây.
+      status: Trạng thái, ok hoặc failed.
+      error_message: Nội dung lỗi nếu có.
+  ops.quarantine:
+    layer: Vận hành
+    kind: Cách ly
+    grain: 1 dòng lỗi
+    description: Dòng không qua được kiểm tra hợp lệ, không đi tiếp vào Gold.
+    columns:
+      row_key: Khóa của dòng lỗi.
+      reason_code: Mã lỗi.
+      reason: Mô tả lỗi.
+  ops.dq_issue:
+    layer: Vận hành
+    kind: Chất lượng dữ liệu
+    grain: 1 quy tắc
+    description: Bất thường đã phát hiện và cách xử lý.
+    columns:
+      rule_name: Tên quy tắc.
+      n_rows: Số dòng hoặc số đơn liên quan.
+      handling: Cách xử lý.
+  ops.layer_reconciliation:
+    layer: Vận hành
+    kind: Cổng chất lượng
+    grain: 1 phép kiểm tra × 1 đợt
+    description: Đối soát số dòng và số tiền giữa các lớp, lũy kế tới đợt. Lệch thì đợt bị dừng.
+    columns:
+      check_name: Tên phép kiểm tra.
+      layer_from: Bảng gốc.
+      layer_to: Bảng đích.
+      value_from: Giá trị ở bảng gốc.
+      value_to: Giá trị ở bảng đích.
+      difference: Chênh lệch.
+      is_ok: Khớp.
+  ops.source_manifest:
+    layer: Vận hành
+    kind: Nguồn gốc dữ liệu
+    grain: 1 file nguồn
+    description: Hash và số dòng của file nguồn đã kiểm tra khi nạp.
+    columns:
+      file_name: Tên file.
+      sha256: Hash SHA-256.
+      n_rows: Số dòng.
+      verified_at: Thời điểm kiểm tra.
