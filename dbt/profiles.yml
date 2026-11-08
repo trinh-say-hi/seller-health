@@ -1,0 +1,7 @@
+seller_health:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "C:/Users/hp/AppData/Local/seller_health/olist.duckdb"
+      threads: 4

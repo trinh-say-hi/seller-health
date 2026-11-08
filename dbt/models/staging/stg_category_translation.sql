@@ -1,0 +1,10 @@
+{{ config(materialized='view') }}
+
+SELECT product_category_name, product_category_name_english
+FROM {{ source('raw', 'category_translation') }}
+UNION ALL
+SELECT * FROM (
+    VALUES
+        ('pc_gamer', 'pc_gamer'),
+        ('portateis_cozinha_e_preparadores_de_alimentos', 'portable_kitchen_and_food_preparators')
+) v(a, b)

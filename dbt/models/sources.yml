@@ -1,0 +1,25 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    description: "Tầng Bronze: Dữ liệu thô Olist dạng chuỗi kèm metadata envelope."
+    tables:
+      - name: orders
+        description: "Các phiên bản của đơn hàng (99.441 đơn, 137.236 phiên bản)."
+      - name: order_items
+        description: "112.650 dòng sản phẩm được bán."
+      - name: order_payments
+        description: "103.886 giao dịch thanh toán."
+      - name: order_reviews
+        description: "99.224 đánh giá của khách hàng."
+      - name: customers
+        description: "99.441 dòng khách hàng (96.096 khách duy nhất)."
+      - name: sellers
+        description: "3.095 người bán."
+      - name: products
+        description: "32.951 sản phẩm."
+      - name: geolocation
+        description: "1.000.163 tọa độ GPS trên 19.015 ZIP."
+      - name: category_translation
+        description: "71 danh mục dịch sang tiếng Anh."

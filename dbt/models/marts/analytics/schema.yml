@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: mart_kpi_monthly
+    description: "Multi-dimensional monthly KPI performance cube across regions and product categories"
+    columns:
+      - name: month
+        tests:
+          - not_null
+
+  - name: mart_seller_features
+    description: "90-day frozen feature store for decision support scoring and health tier assignment"
+    columns:
+      - name: seller_id
+        tests:
+          - not_null
+      - name: health_tier
+        tests:
+          - not_null
+
+  - name: mart_route_delivery
+    description: "Cross-state interstate shipping performance, transit duration medians and SLA delivery statistics"
+    columns:
+      - name: route_key
+        tests:
+          - not_null
