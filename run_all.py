@@ -6,7 +6,15 @@ Hay tat app truoc khi chay, vi app dang giu file database.
 import subprocess
 import sys
 
-for module in ["src.etl.build", "src.dss.run", "src.etl.catalog", "tests.test_system"]:
+MODULES = [
+    "src.etl.build",
+    "src.dss.run",
+    "src.etl.catalog",
+    "tests.test_system",
+    "tests.test_lakehouse_medallion",
+]
+
+for module in MODULES:
     print(f"\n=== {module} ===", flush=True)
     code = subprocess.call([sys.executable, "-m", module])
     if code:

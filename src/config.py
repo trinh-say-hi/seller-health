@@ -4,6 +4,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "olist" / "raw"
+LAKE_DIR = ROOT / "data" / "lake"
+BRONZE_LAKE = LAKE_DIR / "bronze"
+SILVER_LAKE = LAKE_DIR / "silver"
+GOLD_LAKE = LAKE_DIR / "gold"
 SQL_DIR = ROOT / "src" / "sql"
 EVIDENCE_DIR = ROOT / "evidence"
 

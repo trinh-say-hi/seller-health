@@ -13,7 +13,14 @@ import time
 import duckdb
 import pandas as pd
 
-from src.config import DB_PATH, FIRST_BATCH, LAST_BATCH, RAW_DIR, ROOT, SQL_DIR
+from src.config import DB_PATH, FIRST_BATCH, LAST_BATCH, RAW_DIR, ROOT, SQL_DIR, LAKE_DIR
+from src.etl.lakehouse import (
+    ensure_lake_dirs,
+    init_lakehouse_metadata,
+    export_bronze_lake,
+    update_silver_batch_metrics,
+    export_gold_lake
+)
 
 SOURCES = {
     "orders": "olist_orders_dataset.csv",
@@ -103,6 +110,10 @@ def init(con):
     n_rejected = con.execute("SELECT count(*) FROM ops.quarantine WHERE dwh_batch = 'init'").fetchone()[0]
     n_loaded = sum(con.execute(f"SELECT count(*) FROM raw.{t}").fetchone()[0] for t in MASTER)
     con.execute("INSERT INTO ops.etl_log VALUES ('init', NULL, 0, 0, 0, 0, ?, ?, 0, ?, 0, 'ok', NULL)", [n_loaded, n_rejected, stamp])
+    
+    # Khoi tao True Medallion Ledgers & Bronze Lakehouse
+    init_lakehouse_metadata(con)
+    export_bronze_lake(con, "init")
 
 
 def run_batch(con, batch, force=False):
@@ -135,6 +146,10 @@ def run_batch(con, batch, force=False):
         con.execute("INSERT INTO ops.etl_log VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NULL)", [
             batch, cutoff, counts["orders"], counts["order_items"], counts["order_payments"], counts["order_reviews"],
             sum(counts.values()), rejected, changed, stamp, round(time.time() - start, 2), "ok"])
+        
+        # True Medallion: Export batch Parquet ZSTD va cap nhat ledger
+        export_bronze_lake(con, batch)
+        update_silver_batch_metrics(con, batch)
     except Exception as exc:
         con.execute("DELETE FROM ops.etl_log WHERE batch = ?", [batch])
         con.execute("INSERT INTO ops.etl_log VALUES (?,?,0,0,0,0,0,0,0,?,?,'failed',?)",
@@ -186,6 +201,11 @@ def build():
         row = con.execute("SELECT rows_loaded, sellers_tier_changed, duration_s FROM ops.etl_log WHERE batch = ?", [batch]).fetchone()
         print(f"  dot {batch}: {row[0]:>7} dong, {row[1]:>5} seller doi hang, {row[2]:.1f}s", flush=True)
     record_dq(con)
+    
+    # Export Gold layer ra Parquet ZSTD
+    gold_summary = export_gold_lake(con)
+    print(f"Lakehouse Gold Parquet xong: {len(gold_summary)} tables exported.")
+    
     con.execute("CHECKPOINT")
     con.close()
     print(f"Kho xong sau {time.time() - start:.1f}s: {DB_PATH}")

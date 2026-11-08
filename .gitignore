@@ -13,3 +13,6 @@ __pycache__/
 kaggle.json
 credentials.json
 .env
+
+# Lakehouse generated parquets
+data/lake/

@@ -1,6 +1,8 @@
 -- Cac lop cua kho: raw (Bronze) -> stg (Silver) -> core, mart (Gold), cong voi dss (ket qua) va ops (van hanh)
 CREATE SCHEMA IF NOT EXISTS raw;
 CREATE SCHEMA IF NOT EXISTS stg;
+CREATE SCHEMA IF NOT EXISTS bronze;
+CREATE SCHEMA IF NOT EXISTS silver;
 CREATE SCHEMA IF NOT EXISTS core;
 CREATE SCHEMA IF NOT EXISTS mart;
 CREATE SCHEMA IF NOT EXISTS dss;
@@ -19,6 +21,23 @@ CREATE TABLE ops.layer_reconciliation (
     value_from DOUBLE, value_to DOUBLE, difference DOUBLE, is_ok BOOLEAN
 );
 CREATE TABLE ops.source_manifest (file_name VARCHAR, table_name VARCHAR, sha256 VARCHAR, n_rows BIGINT, verified_at TIMESTAMP);
+
+-- True Medallion Ledgers & Quarantine Architecture
+CREATE TABLE ops.ingestion_batches (
+    batch_id VARCHAR, source_file VARCHAR, file_hash VARCHAR, row_count BIGINT, ingested_at TIMESTAMP, status VARCHAR
+);
+
+CREATE TABLE silver.quarantine_records (
+    quarantine_id VARCHAR, source_table VARCHAR, error_code VARCHAR,
+    failed_column VARCHAR, failed_value VARCHAR, raw_payload VARCHAR,
+    batch_id VARCHAR, detected_at TIMESTAMP
+);
+
+CREATE TABLE silver.processing_batches (
+    batch_id VARCHAR, table_name VARCHAR,
+    input_rows BIGINT, accepted_rows BIGINT, quarantined_rows BIGINT, deduplicated_rows BIGINT,
+    clean_rate_pct DOUBLE, processed_at TIMESTAMP
+);
 
 CREATE MACRO core.region_of(s) AS CASE
     WHEN s IN ('AC','AM','AP','PA','RO','RR','TO') THEN 'Norte'

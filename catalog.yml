@@ -442,3 +442,15 @@ tables:
       sha256: Hash SHA-256.
       n_rows: Số dòng.
       verified_at: Thời điểm kiểm tra.
+  ops.ingestion_batches:
+    layer: Vận hành
+    kind: Sổ cái mẻ nạp Lakehouse
+    grain: 1 mẻ nạp file
+    description: Sổ cái theo dõi các mẻ nạp Parquet ZSTD bất biến của tầng Bronze Lakehouse.
+    columns:
+      batch_id: Mã đợt nạp hoặc init.
+      source_file: Tên file Parquet nén.
+      file_hash: Mã băm fingerprint kiểm soát toàn vẹn.
+      row_count: Số dòng dữ liệu trong mẻ.
+      ingested_at: Thời điểm nạp vào Lakehouse.
+      status: Trạng thái mẻ nạp (COMMITTED).
