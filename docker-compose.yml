@@ -1,0 +1,6 @@
+services:
+  app:
+    build: .
+    image: seller-health-dw-dss
+    ports:
+      - "8501:8501"
