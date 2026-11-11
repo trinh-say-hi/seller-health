@@ -1,6 +1,4 @@
-target/compiled/
-target/run/
-target/partial_parse.msgpack
-target/graph.gpickle
+target/
+.user.yml
 dbt_packages/
 logs/
