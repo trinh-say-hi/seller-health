@@ -143,3 +143,14 @@ docs/         thiết kế, data catalog, quy tắc đặt tên, yêu cầu, sơ
 catalog.yml   mô tả bảng và cột
 metrics.yml   định nghĩa KPI
 ```
+
+## Báo cáo
+
+Báo cáo PDF nằm ở `report/BaoCao_SellerHealth_CO4031.pdf`, nội dung ở `report/bao_cao.html`. Mọi biểu đồ được vẽ lại từ kho và từ `evidence/`, không gõ tay số liệu. Sau khi sửa nội dung hoặc dựng lại kho:
+
+```powershell
+python report/make_figures.py   # vẽ lại biểu đồ SVG từ kho
+python report/build_pdf.py      # xuất PDF bằng Edge và Paged.js (cần playwright trong requirements-dev.txt)
+```
+
+Ô tô vàng trên bìa và ở Phụ lục A là thông tin nhóm cần điền: số nhóm, MSSV, thành viên, link video, phân công.

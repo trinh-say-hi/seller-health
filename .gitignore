@@ -13,3 +13,7 @@ __pycache__/
 kaggle.json
 credentials.json
 .env
+
+# File tam khi xuat bao cao
+report/_print.html
+report/_review.html
