@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import streamlit as st
 import streamlit.components.v1 as components
 
-from src.app.common import (BLUE, MUTED, ORANGE, brl, flash, kpi, note, num, pct, points, q, short, show, signed_pct, style, table, title)
+from src.app.common import (BLUE, MUTED, ORANGE, brl, flash, guide_banner, kpi, note, num, pct, points, q, short, show, signed_pct, style, table, title)
 from src.config import EVIDENCE_DIR
 from src.dss.optimize import budget_curve, build_plan, cost_of, gain, slots_of, summarize
 from src.dss.rules import ACTION_LABEL, CALL, EMAIL, NONE, OPS, Params
@@ -85,6 +85,7 @@ def apply_moves(plan, moved: dict, p: Params):
 
 
 def board(as_of):
+    guide_banner("Bước 4/6", "Kế hoạch can thiệp (DSS)", "Với ngân sách và số suất nhân sự tháng này, ta nên làm gì với ai?", "MILP chọn tập seller có lợi ích kỳ vọng cao nhất trong ngân sách và số suất. Có thể kéo thẻ giữa các cột để điều chỉnh.")
     p = _controls()
     pj = json.dumps(p.as_dict(), sort_keys=True)
     plan = _plan(as_of, pj)
@@ -105,7 +106,8 @@ def board(as_of):
         moved = {r.seller_id: r.action for r in members.itertuples()}
     current = apply_moves(plan, moved, p)
     s, s0 = summarize(current), summarize(plan)
-    edited = sum(1 for sid, a in moved.items() if plan.loc[plan.seller_id == sid, "action"].iloc[0] != a)
+    orig = dict(zip(plan.seller_id, plan.action))
+    edited = sum(1 for sid, a in moved.items() if sid in orig and orig[sid] != a)
 
     with summary_box:
         m = st.columns(4)
@@ -150,6 +152,7 @@ def board(as_of):
 
 
 def route_whatif(as_of):
+    guide_banner("Bước 5/6", "Giả lập đàm phán hẹn giao", "Hứa thêm N ngày với khách hàng thì tỷ lệ đơn trễ trên tuyến giảm bao nhiêu?", "Chọn tuyến (ví dụ SP->CE), kéo 'Hứa thêm (ngày)' để xem tỷ lệ trễ thay đổi, và đặt 'Mục tiêu tỷ lệ trễ' để biết cần hứa thêm bao nhiêu ngày.")
     routes = q("SELECT route_name, n_orders FROM mart.route_delivery WHERE as_of = CAST(? AS DATE) ORDER BY n_orders DESC", (as_of,))
     c1, c2, c3 = st.columns(3)
     route = c1.selectbox("Tuyến (bang seller → bang khách)", routes.route_name.tolist())
@@ -200,6 +203,7 @@ def route_whatif(as_of):
 
 
 def validation(as_of):
+    guide_banner("Bước 6/6", "Kiểm chứng trên dữ liệu quá khứ", "Các tháng trước, danh sách đề xuất trúng bao nhiêu so với chọn theo GMV?", "So hai tiêu chí: DSS gọi trúng seller sụt giảm nhiều hơn, nhưng chọn theo GMV bao phủ nhiều GMV mất hơn ở phần lớn các tháng.")
     lists = q("SELECT * FROM dss.eval_lists ORDER BY as_of")
     plan = lists[lists.scope == "plan"]
     pv = plan.pivot(index="as_of", columns="list_name", values=["hit_rate", "loss_share"])
