@@ -3,6 +3,7 @@
 Chay: python run_all.py
 Hay tat app truoc khi chay, vi app dang giu file database.
 """
+import shutil
 import subprocess
 import sys
 
@@ -19,4 +20,12 @@ for module in MODULES:
     code = subprocess.call([sys.executable, "-m", module])
     if code:
         sys.exit(code)
+
+if shutil.which("dbt"):
+    print("\n=== dbt staging & test ===", flush=True)
+    subprocess.call(["dbt", "run", "--select", "staging", "--project-dir", "dbt", "--profiles-dir", "dbt"])
+    dbt_code = subprocess.call(["dbt", "test", "--project-dir", "dbt", "--profiles-dir", "dbt"])
+    if dbt_code:
+        sys.exit(dbt_code)
+
 print("\nXong. Mo app: python -m streamlit run src/app/app.py")
