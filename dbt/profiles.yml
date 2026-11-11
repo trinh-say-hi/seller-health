@@ -3,5 +3,5 @@ seller_health:
   outputs:
     dev:
       type: duckdb
-      path: "C:/Users/hp/AppData/Local/seller_health/olist.duckdb"
+      path: "{{ env_var('OLIST_DB', env_var('LOCALAPPDATA', '.') ~ '/seller_health/olist.duckdb') }}"
       threads: 4
