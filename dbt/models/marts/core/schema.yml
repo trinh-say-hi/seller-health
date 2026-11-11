@@ -124,5 +124,4 @@ models:
         tests:
           - not_null
       - name: seller_id
-        tests:
-          - not_null
+        description: "Seller ID (NULL for orders without items, seller_key = -1)"

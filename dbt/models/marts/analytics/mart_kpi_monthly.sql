@@ -1,4 +1,4 @@
-{{ config(materialized='table') }}
+{{ config(materialized='table', alias='kpi_monthly') }}
 
 WITH _w AS (
     SELECT 

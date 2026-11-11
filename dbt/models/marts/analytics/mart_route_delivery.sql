@@ -1,4 +1,4 @@
-{{ config(materialized='table') }}
+{{ config(materialized='table', alias='route_delivery') }}
 
 WITH latest_cutoff AS (
     SELECT coalesce(max(delivered_ts), TIMESTAMP '2018-10-17') AS c

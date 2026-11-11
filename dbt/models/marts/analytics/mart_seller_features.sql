@@ -1,4 +1,4 @@
-{{ config(materialized='table') }}
+{{ config(materialized='table', alias='seller_features') }}
 
 WITH latest_cutoff AS (
     SELECT coalesce(max(purchase_ts), TIMESTAMP '2018-09-03') AS c
