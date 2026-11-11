@@ -51,6 +51,12 @@ div[data-testid="stRadio"] [role="radiogroup"] {gap: 0; flex-wrap: nowrap;}
 [data-testid="stMetric"] {gap: 0 !important;}
 [data-testid="stMetricChart"] {height: 30px !important; overflow: hidden; margin-top: 1px;}
 [data-testid="stMetricChart"] svg {height: 30px !important; width: 100%;}
+.guide-banner {background: linear-gradient(135deg, #f0f6ff 0%, #eaf2fc 100%); border-left: 3.5px solid #2a78d6; border-radius: 6px; padding: 3px 10px; margin: 1px 0 3px 0; display: flex; align-items: center; gap: 10px; font-size: 12px; line-height: 1.3;}
+.gb-step {background: #2a78d6; color: white; font-weight: 700; font-size: 10.5px; padding: 1px 6px; border-radius: 3px; white-space: nowrap;}
+.gb-title {font-weight: 600; color: #184f95; white-space: nowrap;}
+.gb-title span {font-weight: 400; color: #52514e;}
+.gb-action {color: #222; font-size: 11.5px; margin-left: auto; text-align: right;}
+.gb-action b {color: #184f95;}
 </style>
 """
 
@@ -144,6 +150,18 @@ def title(text, sub=None):
 def flash(text, good=False):
     """Thong bao mot dong, chiem it cho hon st.error. Co dau hieu bang chu, khong chi dua vao mau."""
     st.markdown(f'<p class="flash {"good" if good else "bad"}">{"✓" if good else "⚠"} {html.escape(text)}</p>', unsafe_allow_html=True)
+
+
+def guide_banner(step: str, title_text: str, question: str, action: str):
+    """Thanh huong dan nhanh o dau moi man hinh giup nguoi dung ro vai tro va hanh dong."""
+    st.markdown(
+        f'<div class="guide-banner">'
+        f'<div class="gb-step">{html.escape(step)}</div>'
+        f'<div class="gb-title">{html.escape(title_text)}: <span>{html.escape(question)}</span></div>'
+        f'<div class="gb-action">👉 <b>Mục tiêu:</b> {html.escape(action)}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def note(text):

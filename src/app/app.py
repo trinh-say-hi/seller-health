@@ -24,9 +24,18 @@ if not DB_PATH.exists():
 SCREENS = {"Tổng quan": overview, "Lỗi giao trễ": blame, "Chi tiết seller": seller, "Bảng kế hoạch": board,
            "What-if tuyến": route_whatif, "Kiểm chứng": validation}
 
-c1, c2, c3 = st.columns([1.05, 5, 1.6], vertical_alignment="center")
-c1.markdown('<div class="brand">Seller Health<span>Olist 2016–2018</span></div>', unsafe_allow_html=True)
-screen = c2.radio("Màn hình", list(SCREENS), horizontal=True, label_visibility="collapsed")
+SCREEN_NAMES = {
+    "Tổng quan": "1. 📊 Tổng quan",
+    "Lỗi giao trễ": "2. 🚚 Lỗi giao trễ",
+    "Chi tiết seller": "3. 🔍 Chi tiết seller",
+    "Bảng kế hoạch": "4. 🎯 Kế hoạch (DSS)",
+    "What-if tuyến": "5. ⏱️ What-if tuyến",
+    "Kiểm chứng": "6. 🧪 Kiểm chứng"
+}
+
+c1, c2, c3 = st.columns([1.1, 5, 1.5], vertical_alignment="center")
+c1.markdown('<div class="brand">Seller Health<span>DSS Giữ chân người bán</span></div>', unsafe_allow_html=True)
+screen = c2.radio("Màn hình", list(SCREENS), horizontal=True, label_visibility="collapsed", format_func=lambda s: SCREEN_NAMES.get(s, s))
 asofs = [str(d)[:10] for d in q("SELECT DISTINCT as_of FROM dss.recommendation ORDER BY 1").as_of]
 as_of = c3.select_slider("Hôm nay là ngày (as-of)", asofs, value="2018-07-01", format_func=lambda d: pd.Timestamp(d).strftime("%d/%m/%Y"),
                          help="Tua thời gian: mọi màn hình chỉ thấy dữ liệu trước ngày này. Riêng Kiểm chứng dùng kết quả các tháng đã biết.")
