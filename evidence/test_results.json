@@ -587,12 +587,12 @@
  {
   "test": "Metrics: moi KPI du truong bat buoc",
   "ok": true,
-  "detail": "27"
+  "detail": "32"
  },
  {
   "test": "Metrics: giao dien chi dung KPI co dinh nghia",
   "ok": true,
-  "detail": "27 KPI"
+  "detail": "32 KPI"
  },
  {
   "test": "Tai lieu: co naming_conventions.md",

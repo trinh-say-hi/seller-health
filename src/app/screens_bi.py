@@ -8,7 +8,7 @@ from src.app.common import (BLUE, LIGHT_BLUE, MUTED, ORANGE, SEQ, TIER_ORDER, br
                             signed_pct, style, table, title)
 from src.dss.rules import ACTION_LABEL
 
-H1 = 206
+H1 = 202
 H2 = 232
 
 

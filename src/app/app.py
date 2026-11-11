@@ -12,6 +12,7 @@ import streamlit as st
 from src.app.common import apply_css, q
 from src.app.screens_bi import blame, overview, seller
 from src.app.screens_dss import board, route_whatif, validation
+from src.app.screens_olap import olap
 from src.config import DB_PATH
 
 st.set_page_config(page_title="Seller Health", layout="wide", initial_sidebar_state="collapsed")
@@ -22,15 +23,17 @@ if not DB_PATH.exists():
     st.stop()
 
 SCREENS = {"Tổng quan": overview, "Lỗi giao trễ": blame, "Chi tiết seller": seller, "Bảng kế hoạch": board,
-           "What-if tuyến": route_whatif, "Kiểm chứng": validation}
+           "What-if tuyến": route_whatif, "Kiểm chứng": validation,
+           "Đa chiều": olap}
 
 SCREEN_NAMES = {
     "Tổng quan": "1. 📊 Tổng quan",
     "Lỗi giao trễ": "2. 🚚 Lỗi giao trễ",
     "Chi tiết seller": "3. 🔍 Chi tiết seller",
-    "Bảng kế hoạch": "4. 🎯 Kế hoạch (DSS)",
+    "Bảng kế hoạch": "4. 🎯 Bảng kế hoạch (DSS)",
     "What-if tuyến": "5. ⏱️ What-if tuyến",
-    "Kiểm chứng": "6. 🧪 Kiểm chứng"
+    "Kiểm chứng": "6. 🧪 Kiểm chứng",
+    "Đa chiều": "7. 🧭 Đa chiều (OLAP)",
 }
 
 c1, c2, c3 = st.columns([1.1, 5, 1.5], vertical_alignment="center")

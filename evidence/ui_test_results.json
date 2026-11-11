@@ -90,6 +90,21 @@
   "detail": "doc 0px, ngang 0px"
  },
  {
+  "test": "Man hinh 'Đa chiều' khong loi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Man hinh 'Đa chiều' co KPI",
+  "ok": true,
+  "detail": "5"
+ },
+ {
+  "test": "Man hinh 'Đa chiều' vua 1440x800, khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
   "test": "Co chu thich KPI tu metrics.yml",
   "ok": true,
   "detail": ""
@@ -236,6 +251,11 @@
  },
  {
   "test": "Moc som nhat: 'Kiểm chứng' khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Moc som nhat: 'Đa chiều' khong cuon",
   "ok": true,
   "detail": "doc 0px, ngang 0px"
  },

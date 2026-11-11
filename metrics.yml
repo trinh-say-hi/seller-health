@@ -170,3 +170,35 @@ loss_share:
   window: 03–07/2018
   source: dss.eval_lists
   caveat: Một phần GMV mất là biến động tự nhiên, nên chỉ số này thiên về seller lớn.
+olap_gmv:
+  label: GMV
+  definition: Tổng tiền hàng của các dòng hàng không bị hủy trong lát cắt đang chọn.
+  formula: Σ price
+  window: Đơn mua trong khoảng thời gian đã chọn, trước as-of
+  source: core.fact_sales_item
+olap_orders:
+  label: Số đơn
+  definition: Số đơn không bị hủy có ít nhất một dòng hàng thuộc lát cắt.
+  formula: Đếm order_id khác nhau
+  window: Đơn mua trong khoảng thời gian đã chọn, trước as-of
+  source: core.fact_sales_item
+  caveat: Một đơn có hàng thuộc nhiều danh mục được đếm ở mỗi danh mục, nên cộng các danh mục lớn hơn tổng.
+olap_sellers:
+  label: Số seller
+  definition: Số seller có bán trong lát cắt.
+  formula: Đếm seller_id khác nhau
+  window: Đơn mua trong khoảng thời gian đã chọn, trước as-of
+  source: core.fact_sales_item
+olap_late_rate:
+  label: Tỷ lệ trễ hẹn
+  definition: Trong các đơn đã tới ngày hẹn trước as-of, tỷ lệ chưa giao hoặc giao sau ngày hẹn.
+  formula: Số đơn trễ / số đơn đến hạn
+  window: Đơn mua trong khoảng đã chọn, ngày hẹn trước as-of
+  source: core.fact_order_seller
+  caveat: Tính theo tháng mua, nên khác với tỷ lệ theo tháng đến hạn ở màn Tổng quan.
+olap_review:
+  label: Review trung bình
+  definition: Điểm review trung bình của các cặp đơn × seller, chỉ tính review đã có trước as-of.
+  formula: Trung bình review_score theo đơn × seller
+  window: Đơn mua trong khoảng đã chọn, review trước as-of
+  source: core.fact_order_seller

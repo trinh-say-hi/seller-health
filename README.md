@@ -72,7 +72,7 @@ CSV chỉ có trạng thái cuối của đơn. Vì vậy mỗi đợt che đi c
 
 Tài liệu: [thiết kế và báo cáo](docs/thiet-ke-he-thong.md) · [data catalog](docs/data_catalog.md) · [quy tắc đặt tên](docs/naming_conventions.md) · [yêu cầu](docs/requirements.md) · [định nghĩa KPI](metrics.yml) · [truy vấn OLAP](src/sql/olap_examples.sql).
 
-## Sáu màn hình
+## Bảy màn hình
 
 Mỗi màn hình vừa khung 1440 × 800, không phải cuộn.
 
@@ -84,6 +84,7 @@ Mỗi màn hình vừa khung 1440 × 800, không phải cuộn.
 | Bảng kế hoạch | Với ngân sách này thì làm gì với ai? (kéo thả) | Danh sách hành động, xuất CSV |
 | What-if tuyến | Hứa thêm N ngày thì tỷ lệ trễ còn bao nhiêu? | Có đổi lời hẹn không |
 | Kiểm chứng | Các tháng trước danh sách trúng bao nhiêu? | Có nên tin hệ thống không |
+| Đa chiều (OLAP) | Số liệu dồn ở đâu? Đi sâu từ vùng xuống bang, thành phố, seller thì thấy gì? | Khoanh vùng cần xem kỹ; drill-down, roll-up, slice, dice, pivot trên lớp core |
 
 ## Thành phần DSS
 

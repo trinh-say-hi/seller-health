@@ -15,8 +15,8 @@ from src.config import DB_PATH, EVIDENCE_DIR
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else EVIDENCE_DIR / "screenshots"
 OUT.mkdir(parents=True, exist_ok=True)
 URL = "http://localhost:8599"
-SCREENS = ["Tổng quan", "Lỗi giao trễ", "Chi tiết seller", "Bảng kế hoạch", "What-if tuyến", "Kiểm chứng"]
-ASCII = dict(zip(SCREENS, ["tong_quan", "loi_giao_tre", "chi_tiet_seller", "bang_ke_hoach", "whatif_tuyen", "kiem_chung"]))
+SCREENS = ["Tổng quan", "Lỗi giao trễ", "Chi tiết seller", "Bảng kế hoạch", "What-if tuyến", "Kiểm chứng", "Đa chiều"]
+ASCII = dict(zip(SCREENS, ["tong_quan", "loi_giao_tre", "chi_tiet_seller", "bang_ke_hoach", "whatif_tuyen", "kiem_chung", "da_chieu"]))
 results = []
 
 
