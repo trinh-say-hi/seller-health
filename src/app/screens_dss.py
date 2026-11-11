@@ -105,7 +105,8 @@ def board(as_of):
         moved = {r.seller_id: r.action for r in members.itertuples()}
     current = apply_moves(plan, moved, p)
     s, s0 = summarize(current), summarize(plan)
-    edited = sum(1 for sid, a in moved.items() if plan.loc[plan.seller_id == sid, "action"].iloc[0] != a)
+    orig = dict(zip(plan.seller_id, plan.action))
+    edited = sum(1 for sid, a in moved.items() if sid in orig and orig[sid] != a)
 
     with summary_box:
         m = st.columns(4)
