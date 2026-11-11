@@ -85,16 +85,12 @@ def update_silver_batch_metrics(con, batch: str):
     """Ghi nhan dang thuc bao toan dong 3 trang thai vao silver.processing_batches."""
     con.execute("DELETE FROM silver.processing_batches WHERE batch_id = ?", [batch])
     
-    # 1. Orders: Input versions, deduplicated (accepted 1 row per order), quarantined
+    # 1. Orders: Don hang hop le duoc dua vao stg.orders (don huy van la giao dich hop le, khong phai duplicate)
     n_in_orders = con.execute("SELECT count(*) FROM raw.orders WHERE dwh_batch = ?", [batch]).fetchone()[0]
-    n_acc_orders = con.execute("SELECT count(DISTINCT order_id) FROM raw.orders WHERE dwh_batch <= ?", [batch]).fetchone()[0]
-    n_canceled = con.execute("SELECT count(*) FROM raw.orders WHERE dwh_batch = ? AND order_status = 'canceled'", [batch]).fetchone()[0]
-    n_dedup_orders = max(0, n_in_orders - n_canceled)
-    clean_pct_orders = round(100.0 * (n_in_orders - n_canceled) / n_in_orders, 2) if n_in_orders > 0 else 100.0
     con.execute("""
         INSERT INTO silver.processing_batches VALUES
-        (?, 'orders', ?, ?, 0, ?, ?, CURRENT_TIMESTAMP)
-    """, [batch, n_in_orders, n_in_orders - n_canceled, n_canceled, clean_pct_orders])
+        (?, 'orders', ?, ?, 0, 0, 100.0, CURRENT_TIMESTAMP)
+    """, [batch, n_in_orders, n_in_orders])
     
     # 2. Items
     n_items = con.execute("SELECT count(*) FROM raw.order_items WHERE dwh_batch = ?", [batch]).fetchone()[0]
