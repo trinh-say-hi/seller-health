@@ -45,6 +45,10 @@ def overview(as_of):
     gmv_change = last.gmv / prev.gmv - 1 if prev.gmv else None
     late_change = last.late_rate - prev.late_rate if pd.notna(last.late_rate) and pd.notna(prev.late_rate) else None
     trail = df.tail(12)
+    # Xu huong rui ro qua cac moc as-of: so seller hang Nguy co va tong GMV rui ro (chi co tu khi DSS bat dau cham diem)
+    risk_trail = q("""SELECT f.as_of, count(*) FILTER (WHERE f.health_tier = 'Nguy cơ') AS n_risk, sum(r.gmv_risk) AS gmv_risk
+                      FROM mart.seller_features f LEFT JOIN dss.recommendation r USING (as_of, seller_id)
+                      WHERE f.as_of <= CAST(? AS DATE) GROUP BY 1 ORDER BY 1""", (as_of,)).tail(12)
     g = st.columns([3, 2, 2], gap="medium")
     kgroup(g[0], "Doanh số tháng", BLUE)
     kgroup(g[1], "Giao hàng và đánh giá", ORANGE)
@@ -55,8 +59,8 @@ def overview(as_of):
     kpi(m[2], "active_sellers_month", num(last.n_sellers), f"{int(last.n_sellers - prev.n_sellers):+d}", chart=trail.n_sellers.tolist())
     kpi(m[3], "late_rate_month", pct(last.late_rate), points(late_change), chart=trail.late_rate.tolist(), tone="inverse")
     kpi(m[4], "avg_review_month", num(last.avg_review, 2), None if pd.isna(last.avg_review - prev.avg_review) else f"{last.avg_review - prev.avg_review:+.2f}".replace(".", ","), chart=trail.avg_review.tolist())
-    kpi(m[5], "new_at_risk", num(len(new_risk)), f"{n_risk} seller Nguy cơ", tone="off")
-    kpi(m[6], "gmv_at_risk", compact(cur.gmv_risk.sum()), f"{num(len(cur))} seller hoạt động", tone="off")
+    kpi(m[5], "new_at_risk", num(len(new_risk)), f"{n_risk} seller Nguy cơ", tone="off", chart=risk_trail.n_risk.tolist())
+    kpi(m[6], "gmv_at_risk", compact(cur.gmv_risk.sum()), f"{num(len(cur))} seller hoạt động", tone="off", chart=risk_trail.gmv_risk.tolist())
 
     c1, c2, c3 = st.columns(3)
     with c1:

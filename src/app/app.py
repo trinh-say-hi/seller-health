@@ -10,7 +10,7 @@ if str(ROOT) not in sys.path:
 import pandas as pd
 import streamlit as st
 
-from src.app.common import apply_css, fit_to_page, q
+from src.app.common import apply_css, q
 from src.app.screens_bi import blame, overview, seller
 from src.app.screens_dss import board, route_whatif, validation
 from src.app.screens_olap import olap
@@ -42,7 +42,6 @@ with st.sidebar:
     screen = st.radio("Màn hình", list(SCREENS), label_visibility="collapsed", format_func=LABELS.get)
     st.markdown('<div class="sidenote">1–3: phát hiện vấn đề · 4–5: ra quyết định · 6: kiểm chứng · 7: tự khám phá dữ liệu.<br>'
                 'Bấm « ở trên để thu gọn sidebar.</div>', unsafe_allow_html=True)
-    fit_to_page()
 
 step, name, question, goal = META[screen]
 t1, t2 = st.columns([4.4, 1.6], vertical_alignment="center")

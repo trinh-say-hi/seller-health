@@ -27,9 +27,9 @@ header[data-testid="stHeader"] * {pointer-events: auto;}
 [data-testid="stMainMenu"], [data-testid="stToolbarActions"], [data-testid="stAppDeployButton"], [data-testid="stDecoration"], [data-testid="stStatusWidget"] {display: none !important;}
 [data-testid="stExpandSidebarButton"] {background: var(--sh-card); border: 1px solid var(--sh-line); border-radius: 8px; box-shadow: var(--sh-shadow);}
 .stApp {background: var(--sh-page);}
-.block-container, [data-testid="stMainBlockContainer"] {padding: 0.55rem 1.25rem 0.4rem 1.25rem !important; max-width: 100% !important;}
+.block-container, [data-testid="stMainBlockContainer"] {padding: 0.55rem clamp(0.75rem, 1.3vw, 1.5rem) 0.25rem clamp(0.75rem, 1.3vw, 1.5rem) !important; max-width: 100% !important;}
 [data-testid="stVerticalBlock"] {gap: 0.5rem;}
-[data-testid="stHorizontalBlock"] {gap: 0.75rem;}
+[data-testid="stHorizontalBlock"] {gap: clamp(0.5rem, 0.8vw, 0.9rem);}
 [data-testid="stMarkdown"], [data-testid="stMarkdownContainer"] {margin-bottom: 0 !important;}
 
 /* Sidebar dieu huong */
@@ -51,32 +51,31 @@ header[data-testid="stHeader"] * {pointer-events: auto;}
 .topbar {padding-left: 44px; display: flex; flex-direction: column; gap: 2px;}
 .topbar .tb-row {display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
 .topbar .tb-step {background: var(--sh-blue); color: #fff; font-weight: 700; font-size: 10.5px; padding: 2px 7px; border-radius: 4px; white-space: nowrap;}
-.topbar .tb-title {font-size: 19px; font-weight: 700; color: var(--sh-ink); line-height: 1.2;}
-.topbar .tb-q {font-size: 13px; color: var(--sh-muted);}
-.topbar .tb-goal {font-size: 12px; color: #2b3340; line-height: 1.35;}
+.topbar .tb-title {font-size: clamp(16px, 1.35vw, 21px); font-weight: 700; color: var(--sh-ink); line-height: 1.2;}
+.topbar .tb-q {font-size: clamp(12px, 0.9vw, 14px); color: var(--sh-muted);}
+.topbar .tb-goal {font-size: clamp(11px, 0.85vw, 13px); color: #2b3340; line-height: 1.35;}
 .topbar .tb-goal b {color: var(--sh-blue-ink);}
 
 /* The KPI: o trang rieng, nhan duoc xuong dong thay vi bi cat */
 [data-testid="stMetric"] {background: var(--sh-card); border: 1px solid var(--sh-line); border-radius: 10px; padding: 8px 12px 6px 12px; box-shadow: var(--sh-shadow); gap: 0 !important;}
 [data-testid="stMetric"] > div {gap: 0;}
 [data-testid="stMetricLabel"] {font-size: 12px; color: var(--sh-muted); min-height: 0;}
-[data-testid="stMetricLabel"] p, [data-testid="stMetricLabel"] div {font-size: 12px; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.25;}
-[data-testid="stMetricValue"] {font-size: 22px; line-height: 1.25; font-weight: 650; color: var(--sh-ink);}
+[data-testid="stMetricLabel"] p, [data-testid="stMetricLabel"] div {font-size: clamp(11px, 0.85vw, 13px); white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.25;}
+[data-testid="stMetricValue"] {font-size: clamp(18px, 1.55vw, 26px); line-height: 1.25; font-weight: 650; color: var(--sh-ink);}
 [data-testid="stMetricDelta"] {font-size: 11.5px;}
 [data-testid="stMetricDelta"] div {white-space: normal !important; overflow: visible !important; text-overflow: clip !important;}
 [data-testid="stMetricChart"] {height: 28px !important; overflow: hidden; margin-top: 2px;}
 [data-testid="stMetricChart"] svg {height: 28px !important; width: 100%;}
 .kgroup {font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--sh-muted); display: flex; align-items: center; gap: 6px; margin: 0 0 -2px 2px;}
 .kgroup i {display: inline-block; width: 8px; height: 8px; border-radius: 2px;}
-[data-testid="stHorizontalBlock"]:has(.kgroup) [data-testid="stMetric"] {min-height: 128px;}
 
 /* Moi bieu do va bang co tieu de nam trong mot o trang rieng */
 [data-testid="stColumn"]:has(> [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"] .ct) {background: var(--sh-card); border: 1px solid var(--sh-line); border-radius: 10px; padding: 8px 10px 6px 10px; box-shadow: var(--sh-shadow);}
-.ct {font-size: 13.5px; font-weight: 600; line-height: 1.25; margin: 0 0 0 2px; color: var(--sh-ink);}
-.cs {font-size: 11.5px; font-weight: 400; color: var(--sh-muted); line-height: 1.25; margin: 0 0 0 2px;}
+.ct {font-size: clamp(12px, 0.95vw, 15px); font-weight: 600; line-height: 1.25; margin: 0 0 0 2px; color: var(--sh-ink);}
+.cs {font-size: clamp(10.5px, 0.8vw, 12.5px); font-weight: 400; color: var(--sh-muted); line-height: 1.25; margin: 0 0 0 2px;}
 p.note {font-size: 12px !important; color: var(--sh-muted); line-height: 1.3; margin: 0;}
-.tbl {overflow: auto; border: 1px solid var(--sh-line); border-radius: 8px;}
-.tbl table {width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums;}
+.tbl {overflow: auto; max-width: 100%; border: 1px solid var(--sh-line); border-radius: 8px;}
+.tbl table {width: 100%; border-collapse: collapse; font-size: clamp(11px, 0.88vw, 13.5px); font-variant-numeric: tabular-nums;}
 .tbl th {position: sticky; top: 0; background: #f6f8fb; color: var(--sh-muted); font-weight: 600; text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--sh-line); white-space: nowrap;}
 .tbl td {padding: 4px 8px; border-bottom: 1px solid #eef1f5; color: var(--sh-ink); white-space: nowrap;}
 .tbl tr:last-child td {border-bottom: none;}
@@ -97,31 +96,6 @@ p.note {font-size: 12px !important; color: var(--sh-muted); line-height: 1.3; ma
 </style>
 """
 
-
-# Thu nho ca trang theo ti le, giong "Fit to page" cua Power BI: thiet ke tren khung 1440 x 800,
-# roi thu nho phan noi dung cho vua cua so (khong phong to qua 100%: Plotly va bang du lieu tu do lai kich thuoc
-# theo pixel man hinh, phong to se bi nhan doi). Ma chay trong trang cha, cai mot lan.
-FIT_W, FIT_H = 1440, 800
-_FIT_PARENT = (
-    "(function(){var CW=%d,CH=%d;"
-    "function fit(){var m=document.querySelector('[data-testid=stMain]'),b=document.querySelector('[data-testid=stMainBlockContainer]');"
-    "if(!m||!b)return;var k=Math.min(m.clientWidth/CW,window.innerHeight/CH);k=Math.max(0.45,Math.min(k,1));"
-    "b.style.zoom=String(k);b.style.width=(m.clientWidth/k)+'px';b.style.maxWidth='none';document.documentElement.dataset.fit=k.toFixed(3);}"
-    "window.__shFit=fit;window.addEventListener('resize',fit);var hooked=null;"
-    "new MutationObserver(function(){var m=document.querySelector('[data-testid=stMain]');"
-    "if(m&&m!==hooked){hooked=m;new ResizeObserver(fit).observe(m);}fit();})"
-    ".observe(document.body,{childList:true,subtree:true});fit();})();"
-) % (FIT_W, FIT_H)
-_FIT_JS = (
-    "(function(){var w=window.parent,d=w.document;"
-    "if(d.getElementById('sh-fit')){if(w.__shFit)w.__shFit();return;}"
-    "var s=d.createElement('script');s.id='sh-fit';s.textContent=%r;d.head.appendChild(s);})();"
-) % _FIT_PARENT
-
-
-def fit_to_page():
-    """Cai bo thu nho ca trang. Goi trong sidebar de iframe rong khong chiem cho cua noi dung."""
-    st.iframe(f"<script>{_FIT_JS}</script>", height=1)
 
 
 def apply_css():

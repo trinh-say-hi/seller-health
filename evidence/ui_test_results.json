@@ -147,7 +147,7 @@
  {
   "test": "Cac cot nam ngang hang nhau",
   "ok": true,
-  "detail": "[21, 293, 565, 837]"
+  "detail": "[20, 292, 564, 836]"
  },
  {
   "test": "Co the tren bang",
