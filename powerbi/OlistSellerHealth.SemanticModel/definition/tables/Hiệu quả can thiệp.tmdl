@@ -1,0 +1,24 @@
+/// Tham số what-if: hiệu quả giả định của gọi điện và hỗ trợ vận hành (0–100%). DSS mặc định dùng 8–30% tùy nhóm.
+table 'Hiệu quả can thiệp'
+	lineageTag: 0d8a8887-e549-565b-ade0-a905c81a0b99
+
+	measure 'Hiệu quả đang chọn' = SELECTEDVALUE ( 'Hiệu quả can thiệp'[Hiệu quả can thiệp], 0.2 )
+		formatString: 0%
+		displayFolder: DSS
+		lineageTag: b3cd6d32-5a3e-5c0a-b126-884b01c9d07c
+
+	column 'Hiệu quả can thiệp'
+		dataType: double
+		formatString: 0%
+		lineageTag: d2a927e3-8455-54a7-b048-3abfd655c6e8
+		summarizeBy: none
+		sourceColumn: [Hiệu quả can thiệp]
+
+		annotation SummarizationSetBy = User
+
+	partition 'Hiệu quả can thiệp' = calculated
+		mode: import
+		source = SELECTCOLUMNS ( GENERATESERIES ( 0, 1, 0.05 ), "Hiệu quả can thiệp", [Value] )
+
+	annotation PBI_Id = 7a3f0c51d2e94b0c8b1f6e2d4c5a9b10
+

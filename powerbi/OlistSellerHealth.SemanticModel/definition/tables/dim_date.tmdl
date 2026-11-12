@@ -1,0 +1,142 @@
+/// Lịch từ 2016 đến 2020, dùng cho ngày mua, duyệt, bàn giao, nhận và hẹn.
+table dim_date
+	lineageTag: e8664cf1-c36b-5b32-b749-14095ea1e468
+	dataCategory: Time
+
+	/// Khóa dạng YYYYMMDD.
+	column date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d4428dbc-d01c-5f2c-a750-dfe9ec055055
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày.
+	column full_date
+		dataType: dateTime
+		isUnique
+		formatString: dd/MM/yyyy
+		lineageTag: 530a9f2e-61e9-50b9-9a88-6535d31019f6
+		summarizeBy: none
+		sourceColumn: full_date
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Năm.
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 0d76ee0b-3c0e-56a6-9e2e-647447c33be9
+		summarizeBy: none
+		sourceColumn: year
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Quý.
+	column quarter
+		dataType: int64
+		formatString: 0
+		lineageTag: 1c021d28-607f-5471-85b8-67f9c632b449
+		summarizeBy: none
+		sourceColumn: quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Tháng trong năm, 1 đến 12.
+	column month
+		dataType: int64
+		formatString: 0
+		lineageTag: 79ecc24f-b612-5d5a-86a2-cc19c7994e84
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Năm-tháng.
+	column year_month
+		dataType: string
+		lineageTag: c1f91148-dcb9-574a-a1ed-682c329ec6ac
+		summarizeBy: none
+		sourceColumn: year_month
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Tuần trong năm.
+	column week
+		dataType: int64
+		formatString: 0
+		lineageTag: 3f5a31c0-f425-5558-9e2a-51f2b656aea6
+		summarizeBy: none
+		sourceColumn: week
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Thứ trong tuần, 1 là thứ Hai.
+	column day_of_week
+		dataType: int64
+		formatString: 0
+		lineageTag: 82285093-28a7-5a67-b233-7e961c1afc7e
+		summarizeBy: none
+		sourceColumn: day_of_week
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Thứ Bảy hoặc Chủ nhật.
+	column is_weekend
+		dataType: boolean
+		lineageTag: c29bf6f6-554d-5661-b488-bb4a22a7887d
+		summarizeBy: none
+		sourceColumn: is_weekend
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày lễ toàn quốc của Brazil.
+	column is_holiday_br
+		dataType: boolean
+		lineageTag: a004ed38-4569-5335-975b-6a7075a6fa03
+		summarizeBy: none
+		sourceColumn: is_holiday_br
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày Black Friday.
+	column is_black_friday
+		dataType: boolean
+		lineageTag: d09ff4d8-cdab-5dcf-bd8b-bfe62aa0b44d
+		summarizeBy: none
+		sourceColumn: is_black_friday
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy Lịch
+		lineageTag: 84acf62b-9aef-554b-a461-34af2140a3de
+
+		level Năm
+			lineageTag: dcf05cb9-caba-5a95-873e-e23b41e02c01
+			column: year
+
+		level Quý
+			lineageTag: a3991e13-0e71-5f11-9701-207162193124
+			column: quarter
+
+		level Tháng
+			lineageTag: f1cebfbe-c370-586f-a6e5-beef33221b95
+			column: year_month
+
+		level Ngày
+			lineageTag: f3474def-2956-58c1-ab42-96d139b14053
+			column: full_date
+
+	partition dim_date = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "dim_date.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

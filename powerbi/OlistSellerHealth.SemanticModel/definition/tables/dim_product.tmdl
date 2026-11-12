@@ -1,0 +1,91 @@
+/// Sản phẩm và thuộc tính.
+table dim_product
+	lineageTag: 068c314b-594b-520f-b5ed-db050a704714
+
+	/// Khóa thay thế, trỏ tới dim_product.
+	column product_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ef791893-e490-59ff-a432-9832e808b3f4
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Mã sản phẩm từ nguồn.
+	column product_id
+		dataType: string
+		lineageTag: a86f3668-9b65-513e-879f-78cfd54d2c30
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Danh mục sản phẩm tiếng Anh.
+	column category_en
+		dataType: string
+		lineageTag: 66944013-3cda-5f0f-912c-b023f5a36e71
+		summarizeBy: none
+		sourceColumn: category_en
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Cân nặng, gram.
+	column weight_g
+		dataType: double
+		lineageTag: 95cd09a7-4d43-5e46-91c5-75bfffaa160e
+		summarizeBy: none
+		sourceColumn: weight_g
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Thể tích, cm³.
+	column volume_cm3
+		dataType: double
+		lineageTag: 7871ba68-e133-5b94-88f2-35f305917b24
+		summarizeBy: none
+		sourceColumn: volume_cm3
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Nhóm kích thước theo thể tích.
+	column size_group
+		dataType: string
+		lineageTag: d1e29530-b01d-5079-9749-1a6dc2c1bba7
+		summarizeBy: none
+		sourceColumn: size_group
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số ảnh.
+	column photos_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 12cf9eed-791f-5fb5-9d65-d515ec1bbca6
+		summarizeBy: none
+		sourceColumn: photos_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Sản phẩm'
+		lineageTag: eb3d6dd9-6646-5551-b73c-ec7d28afe3d6
+
+		level 'Danh mục'
+			lineageTag: 48d1be44-6f52-5ffa-ab2f-3ced0a43dd0b
+			column: category_en
+
+		level 'Sản phẩm'
+			lineageTag: 7988f5e4-1450-5e4b-84b0-e5952bc16812
+			column: product_id
+
+	partition dim_product = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "dim_product.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

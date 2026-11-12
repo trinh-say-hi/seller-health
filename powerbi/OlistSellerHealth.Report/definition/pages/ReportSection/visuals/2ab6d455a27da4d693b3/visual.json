@@ -1,0 +1,83 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "2ab6d455a27da4d693b3",
+  "position": {
+    "x": 20,
+    "y": 192,
+    "z": 8,
+    "width": 760,
+    "height": 252,
+    "tabOrder": 8
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_date"
+                        }
+                      },
+                      "Hierarchy": "Lịch"
+                    }
+                  },
+                  "Level": "Tháng"
+                }
+              },
+              "queryRef": "dim_date.Lịch.Tháng",
+              "nativeQueryRef": "Lịch Tháng"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "kpi_monthly"
+                    }
+                  },
+                  "Property": "GMV tháng"
+                }
+              },
+              "queryRef": "kpi_monthly.GMV tháng",
+              "nativeQueryRef": "GMV tháng"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'GMV theo tháng mua'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

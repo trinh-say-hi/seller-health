@@ -1,0 +1,103 @@
+/// Mọi ZIP xuất hiện ở khách, seller hoặc geolocation. Dùng cho cả vị trí khách và seller.
+table dim_location
+	lineageTag: 4227e5a3-c453-5ee0-9f39-42a2ff674076
+
+	/// Khóa thay thế của một ZIP.
+	column location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 70bc3e18-2799-5dd4-8c55-06160bbb6b4d
+		summarizeBy: none
+		sourceColumn: location_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// 5 chữ số đầu của mã bưu chính.
+	column zip_prefix
+		dataType: string
+		lineageTag: e36879b3-fa4d-5077-ad15-cca5afe5a4b8
+		summarizeBy: none
+		sourceColumn: zip_prefix
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Tên thành phố đã chuẩn hóa.
+	column city
+		dataType: string
+		lineageTag: 24baa973-883d-5fac-b8b4-caf5d593f1dc
+		summarizeBy: none
+		sourceColumn: city
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Mã bang.
+	column state
+		dataType: string
+		lineageTag: 26bd485a-2d36-50c1-a7e2-737b88c516b6
+		summarizeBy: none
+		sourceColumn: state
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Vùng của Brazil.
+	column region
+		dataType: string
+		lineageTag: 37b08ece-fe16-5459-a8df-418d6d592e8f
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Vĩ độ trung vị.
+	column lat
+		dataType: double
+		lineageTag: 1c82f822-2d51-5e89-8b69-4f90e1755531
+		summarizeBy: none
+		sourceColumn: lat
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Kinh độ trung vị.
+	column lng
+		dataType: double
+		lineageTag: e896f39f-1ff4-5113-a76a-38d3911d7e89
+		summarizeBy: none
+		sourceColumn: lng
+
+		annotation SummarizationSetBy = Automatic
+
+	/// ZIP có tọa độ hợp lệ.
+	column has_coordinates
+		dataType: boolean
+		lineageTag: 95bb7970-4555-51b6-a504-1f969334b35f
+		summarizeBy: none
+		sourceColumn: has_coordinates
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Địa lý khách'
+		lineageTag: 3a554a71-ba21-51c8-b7e0-f0d6889576ce
+
+		level Vùng
+			lineageTag: 41c3ba81-61be-54c2-8b1d-6624efef13dc
+			column: region
+
+		level Bang
+			lineageTag: 3364732d-adf5-5eee-9664-4e2244267d30
+			column: state
+
+		level 'Thành phố'
+			lineageTag: 23c4cd10-bead-52c3-b57c-abcd1f24d80c
+			column: city
+
+	partition dim_location = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "dim_location.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

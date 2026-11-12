@@ -18,7 +18,7 @@ import duckdb
 from dagster import (AssetCheckResult, AssetCheckSeverity, AssetExecutionContext, AssetSelection, DefaultScheduleStatus, Definitions,
                      Failure, MaterializeResult, MetadataValue, ScheduleDefinition, asset, asset_check, define_asset_job)
 
-from src.config import EVIDENCE_DIR, RELEASES_DIR, ROOT
+from src.config import EVIDENCE_DIR, RELEASES_DIR, ROOT, current_db
 from src.pipeline import release
 
 N_BATCHES = 26
@@ -166,15 +166,29 @@ def kho_phat_hanh(context: AssetExecutionContext) -> MaterializeResult:
                                        "quay_lui": MetadataValue.md("`python -m src.pipeline.release rollback`")})
 
 
+# ---------------------------------------------------------------- Lop trinh bay (Power BI)
+@asset(group_name="phat_hanh", deps=[kho_phat_hanh],
+       description="Xuat cac bang Gold (dim, fact, mart.kpi_monthly, de xuat DSS) cua ban dang dung ra Parquet cho mo hinh Power BI trong powerbi/.")
+def xuat_parquet(context: AssetExecutionContext) -> MaterializeResult:
+    from src.pipeline import powerbi_export
+    start = time.time()
+    info = powerbi_export.export(current_db())
+    rows = "| Bảng | Số dòng |\n|---|---:|\n" + "\n".join(f"| {k} | {v:,} |" for k, v in info["rows"].items())
+    return MaterializeResult(metadata={"ban_phat_hanh": info["release"], "thu_muc": info["out_dir"], "as_of": info["as_of"],
+                                       "thoi_gian_s": round(time.time() - start, 1), "so_dong": MetadataValue.md(rows)})
+
+
 dung_lai_toan_bo = define_asset_job("dung_lai_toan_bo", selection=AssetSelection.all(),
-                                    description="Kiem tra nguon, nap 26 dot, DSS, catalog, test, roi phat hanh.")
-chay_lai_dss = define_asset_job("chay_lai_dss", selection=AssetSelection.assets(dss_khuyen_nghi, danh_muc_du_lieu, kho_phat_hanh),
+                                    description="Kiem tra nguon, nap 26 dot, DSS, catalog, test, phat hanh, roi xuat Parquet cho Power BI.")
+chay_lai_dss = define_asset_job("chay_lai_dss", selection=AssetSelection.assets(dss_khuyen_nghi, danh_muc_du_lieu, kho_phat_hanh, xuat_parquet),
                                 description="Giu nguyen kho, chi tinh lai DSS (vi du sau khi doi tham so), test roi phat hanh.")
+xuat_power_bi = define_asset_job("xuat_power_bi", selection=AssetSelection.assets(xuat_parquet),
+                                 description="Chi xuat lai Parquet tu ban dang dung cho Power BI.")
 
 defs = Definitions(
-    assets=[nguon_csv, kho_du_lieu, dss_khuyen_nghi, danh_muc_du_lieu, kho_phat_hanh],
+    assets=[nguon_csv, kho_du_lieu, dss_khuyen_nghi, danh_muc_du_lieu, kho_phat_hanh, xuat_parquet],
     asset_checks=[doi_soat_cac_lop, bat_thuong_du_lieu, kiem_thu_he_thong],
-    jobs=[dung_lai_toan_bo, chay_lai_dss],
+    jobs=[dung_lai_toan_bo, chay_lai_dss, xuat_power_bi],
     # Lam moi kho hang ngay luc 2 gio sang (muc bao tri kho, chuong 3). Mac dinh tat, bat trong giao dien Dagster.
     schedules=[ScheduleDefinition(job=dung_lai_toan_bo, cron_schedule="0 2 * * *", execution_timezone="Asia/Ho_Chi_Minh",
                                   default_status=DefaultScheduleStatus.STOPPED)],

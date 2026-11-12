@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "214cb9470f33df47289c",
+  "position": {
+    "x": 20,
+    "y": 84,
+    "z": 4,
+    "width": 301,
+    "height": 96,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "kpi_monthly"
+                    }
+                  },
+                  "Property": "GMV tháng"
+                }
+              },
+              "queryRef": "kpi_monthly.GMV tháng",
+              "nativeQueryRef": "GMV tháng"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,213 @@
+/// Đề xuất DSS ở mỗi mốc as-of (dss.recommendation), gắn seller_key của dòng dim_seller hiện hành.
+table dss_recommendation
+	lineageTag: df045456-e9a3-5619-93eb-c1b464aae85a
+
+	/// gmv_at_risk: Σ p_decline × gmv_90 / 2 ở mốc as-of cuối của lát cắt. Là ước tính, không phải số đã mất.
+	measure 'GMV rủi ro 45 ngày' =
+			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			RETURN
+			    CALCULATE ( SUM ( dss_recommendation[gmv_risk] ), dss_recommendation[as_of_key] = asOf )
+		formatString: #,0
+		displayFolder: DSS
+		lineageTag: 8efb3e14-6049-5c9b-82b3-f6024137080f
+
+	/// Số seller có hành động CALL ở mốc as-of cuối.
+	measure 'Seller được đề xuất gọi' =
+			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			RETURN
+			    CALCULATE ( COUNTROWS ( dss_recommendation ), dss_recommendation[as_of_key] = asOf, dss_recommendation[action] = "CALL" )
+		formatString: #,0
+		displayFolder: DSS
+		lineageTag: e1a83821-9f0b-5461-b863-f05d65b7d7cb
+
+	/// Số seller có hành động OPS ở mốc as-of cuối.
+	measure 'Seller được đề xuất hỗ trợ' =
+			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			RETURN
+			    CALCULATE ( COUNTROWS ( dss_recommendation ), dss_recommendation[as_of_key] = asOf, dss_recommendation[action] = "OPS" )
+		formatString: #,0
+		displayFolder: DSS
+		lineageTag: 1f9c36af-381c-5968-8610-a16b7b6836ba
+
+	/// plan_cost: Tổng chi phí các hành động trong kế hoạch MILP ở mốc as-of cuối.
+	measure 'Tiền đã dùng' =
+			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			RETURN
+			    CALCULATE ( SUM ( dss_recommendation[cost] ), dss_recommendation[as_of_key] = asOf )
+		formatString: #,0
+		displayFolder: DSS
+		lineageTag: b7fd9cd6-fbda-5618-9d78-6e4850427461
+
+	/// plan_risk: Tổng GMV rủi ro của các seller được gọi hoặc hỗ trợ.
+	measure 'GMV rủi ro trong kế hoạch' =
+			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			RETURN
+			    CALCULATE (
+			        SUM ( dss_recommendation[gmv_risk] ),
+			        dss_recommendation[as_of_key] = asOf,
+			        dss_recommendation[action] IN { "CALL", "OPS" }
+			    )
+		formatString: #,0
+		displayFolder: DSS
+		lineageTag: 639161e8-5dfd-5c4a-80b2-cc007bc3b344
+
+	/// plan_saved: GMV kỳ vọng giữ được theo các hệ số hiệu quả mặc định của DSS. Không phải số đo được.
+	measure 'Giữ được (mô hình)' =
+			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			RETURN
+			    CALCULATE ( SUM ( dss_recommendation[expected_saved] ), dss_recommendation[as_of_key] = asOf )
+		formatString: #,0
+		displayFolder: DSS
+		lineageTag: 055d1ba6-a00e-5ca9-8c53-b0275dc4f4a7
+
+	/// What-if: GMV rủi ro trong kế hoạch × hiệu quả can thiệp chọn trên thanh trượt. Giả định, không phải số đo được.
+	measure 'Giữ được (what-if)' = [GMV rủi ro trong kế hoạch] * [Hiệu quả đang chọn]
+		formatString: #,0
+		displayFolder: DSS
+		lineageTag: dee8c8b1-6335-567c-92d2-1dec68f4891b
+
+	/// Mốc as-of dạng YYYYMMDD, trỏ tới dim_date.
+	column as_of_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 0ac88012-a023-5bbb-a147-d32e943b96b7
+		summarizeBy: none
+		sourceColumn: as_of_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Mã seller, khóa tự nhiên từ nguồn.
+	column seller_id
+		dataType: string
+		lineageTag: a27cda5c-3da3-5782-a25b-0d908f3796fe
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Nhóm seller.
+	column segment
+		dataType: string
+		lineageTag: 456b2568-b9c7-582f-908f-5237022ba20f
+		summarizeBy: none
+		sourceColumn: segment
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Hành động đề xuất: CALL, OPS, EMAIL, NONE.
+	column action
+		dataType: string
+		lineageTag: 3f3998ed-a3d1-56c4-bff7-a3a1b42f41bd
+		summarizeBy: none
+		sourceColumn: action
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Lý do đề xuất.
+	column reason
+		dataType: string
+		lineageTag: bce99675-ab94-5cec-9cf1-10642daf6134
+		summarizeBy: none
+		sourceColumn: reason
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Thứ hạng ưu tiên.
+	column rank
+		dataType: int64
+		formatString: 0
+		lineageTag: 29008cbc-8c1d-5004-9d97-0a930b676eb0
+		summarizeBy: none
+		sourceColumn: rank
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Chi phí hành động, BRL.
+	column cost
+		dataType: double
+		lineageTag: a6fce57d-ec98-506e-912f-782803efcb84
+		summarizeBy: none
+		sourceColumn: cost
+
+		annotation SummarizationSetBy = Automatic
+
+	/// GMV kỳ vọng giữ được theo giả định hiệu quả.
+	column expected_saved
+		dataType: double
+		lineageTag: 33b7e64f-3c4b-5c78-a333-5cb5e209fa89
+		summarizeBy: none
+		sourceColumn: expected_saved
+
+		annotation SummarizationSetBy = Automatic
+
+	/// p_decline × gmv_90 / 2.
+	column gmv_risk
+		dataType: double
+		lineageTag: c8eccc06-b445-54d7-a2cb-3064f4807aea
+		summarizeBy: none
+		sourceColumn: gmv_risk
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Xác suất sụt GMV do mô hình dự báo, chưa hiệu chỉnh.
+	column p_decline
+		dataType: double
+		formatString: 0.0%
+		lineageTag: e3be5315-0d03-5dec-a98f-4f2d92019bb6
+		summarizeBy: none
+		sourceColumn: p_decline
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Xác suất tạm ngừng 45 ngày do mô hình dự báo, chưa hiệu chỉnh.
+	column p_dormant
+		dataType: double
+		formatString: 0.0%
+		lineageTag: ca8f9dae-9557-5d85-839f-b8e56bd63782
+		summarizeBy: none
+		sourceColumn: p_dormant
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Điểm vận hành 0-100, chỉ để hiển thị.
+	column ops_score
+		dataType: double
+		lineageTag: dd08014a-593e-5253-acda-6be4c86db650
+		summarizeBy: none
+		sourceColumn: ops_score
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Mốc thời gian giả lập, chỉ thấy dữ liệu trước mốc này.
+	column as_of
+		dataType: dateTime
+		isHidden
+		formatString: dd/MM/yyyy
+		lineageTag: 80c9165d-6459-5f64-91ac-ad250040aef1
+		summarizeBy: none
+		sourceColumn: as_of
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khóa thay thế, trỏ tới dòng dim_seller có hiệu lực lúc mua.
+	column seller_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 165d5769-28dd-5837-99a3-60234c81416f
+		summarizeBy: none
+		sourceColumn: seller_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dss_recommendation = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "dss_recommendation.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

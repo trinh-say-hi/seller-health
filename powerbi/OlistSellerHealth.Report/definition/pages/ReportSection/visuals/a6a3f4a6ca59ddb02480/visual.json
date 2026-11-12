@@ -1,0 +1,83 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "a6a3f4a6ca59ddb02480",
+  "position": {
+    "x": 792,
+    "y": 456,
+    "z": 11,
+    "width": 468,
+    "height": 248,
+    "tabOrder": 11
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_date"
+                        }
+                      },
+                      "Hierarchy": "Lịch"
+                    }
+                  },
+                  "Level": "Tháng"
+                }
+              },
+              "queryRef": "dim_date.Lịch.Tháng",
+              "nativeQueryRef": "Lịch Tháng"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "kpi_monthly"
+                    }
+                  },
+                  "Property": "Seller có bán tháng"
+                }
+              },
+              "queryRef": "kpi_monthly.Seller có bán tháng",
+              "nativeQueryRef": "Seller có bán tháng"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Seller có bán theo tháng'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

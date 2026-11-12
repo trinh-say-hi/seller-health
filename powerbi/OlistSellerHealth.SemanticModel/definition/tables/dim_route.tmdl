@@ -1,0 +1,70 @@
+/// Tuyến giao hàng theo cặp bang, không phải một lộ trình xe cụ thể.
+table dim_route
+	lineageTag: 0b62a095-6fcc-5d57-b0e8-395a825b5fa0
+
+	/// Khóa thay thế, trỏ tới dim_route.
+	column route_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 0ae51545-76fd-5a85-a79d-ffe797e36be0
+		summarizeBy: none
+		sourceColumn: route_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Bang seller.
+	column seller_state
+		dataType: string
+		lineageTag: aab5f3cd-75d9-5bb9-a731-06dd3240da13
+		summarizeBy: none
+		sourceColumn: seller_state
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Bang khách.
+	column customer_state
+		dataType: string
+		lineageTag: 51048366-d94c-5bfd-91fb-c116f4ed329b
+		summarizeBy: none
+		sourceColumn: customer_state
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Tên tuyến, ví dụ SP->RJ.
+	column route_name
+		dataType: string
+		lineageTag: 59237eb5-5793-5894-9e0e-94cc8bd84a42
+		summarizeBy: none
+		sourceColumn: route_name
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Cùng một bang.
+	column same_state
+		dataType: boolean
+		lineageTag: 8a49c428-888c-5d11-a238-722945401495
+		summarizeBy: none
+		sourceColumn: same_state
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khoảng cách giữa tâm hai bang, chỉ là xấp xỉ.
+	column distance_km
+		dataType: double
+		lineageTag: dd2b9546-8e16-5d35-88f9-fe8ed0ad1fab
+		summarizeBy: none
+		sourceColumn: distance_km
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_route = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "dim_route.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

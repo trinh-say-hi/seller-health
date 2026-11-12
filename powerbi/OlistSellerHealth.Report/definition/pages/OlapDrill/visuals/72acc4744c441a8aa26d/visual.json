@@ -1,0 +1,144 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "72acc4744c441a8aa26d",
+  "position": {
+    "x": 20,
+    "y": 192,
+    "z": 8,
+    "width": 700,
+    "height": 512,
+    "tabOrder": 8
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_seller"
+                        }
+                      },
+                      "Hierarchy": "Địa lý seller"
+                    }
+                  },
+                  "Level": "Vùng"
+                }
+              },
+              "queryRef": "dim_seller.Địa lý seller.Vùng",
+              "nativeQueryRef": "Địa lý seller Vùng"
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_seller"
+                        }
+                      },
+                      "Hierarchy": "Địa lý seller"
+                    }
+                  },
+                  "Level": "Bang"
+                }
+              },
+              "queryRef": "dim_seller.Địa lý seller.Bang",
+              "nativeQueryRef": "Địa lý seller Bang"
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_seller"
+                        }
+                      },
+                      "Hierarchy": "Địa lý seller"
+                    }
+                  },
+                  "Level": "Thành phố"
+                }
+              },
+              "queryRef": "dim_seller.Địa lý seller.Thành phố",
+              "nativeQueryRef": "Địa lý seller Thành phố"
+            }
+          ]
+        },
+        "Columns": {
+          "projections": [
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_date"
+                        }
+                      },
+                      "Hierarchy": "Lịch"
+                    }
+                  },
+                  "Level": "Năm"
+                }
+              },
+              "queryRef": "dim_date.Lịch.Năm",
+              "nativeQueryRef": "Lịch Năm"
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_item"
+                    }
+                  },
+                  "Property": "GMV"
+                }
+              },
+              "queryRef": "fact_sales_item.GMV",
+              "nativeQueryRef": "GMV"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'GMV theo địa lý seller × năm'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

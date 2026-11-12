@@ -1,0 +1,83 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "4d4b1c57952ebc6e5218",
+  "position": {
+    "x": 20,
+    "y": 456,
+    "z": 10,
+    "width": 760,
+    "height": 248,
+    "tabOrder": 10
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_date"
+                        }
+                      },
+                      "Hierarchy": "Lịch"
+                    }
+                  },
+                  "Level": "Tháng"
+                }
+              },
+              "queryRef": "dim_date.Lịch.Tháng",
+              "nativeQueryRef": "Lịch Tháng"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "kpi_monthly"
+                    }
+                  },
+                  "Property": "Review TB tháng"
+                }
+              },
+              "queryRef": "kpi_monthly.Review TB tháng",
+              "nativeQueryRef": "Review TB tháng"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Review trung bình theo tháng trả lời'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

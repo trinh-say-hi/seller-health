@@ -1,0 +1,125 @@
+/// Seller và hạng ổn định. Chỉ thêm phiên bản khi hạng tháng giữ nguyên 2 kỳ liên tiếp. Hạng do hệ thống tính.
+table dim_seller
+	lineageTag: 01bca72d-4096-5c70-9f46-175a368729aa
+
+	/// Khóa thay thế của phiên bản.
+	column seller_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 39088e51-760a-5b8e-93aa-35017970d02c
+		summarizeBy: none
+		sourceColumn: seller_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Mã seller, khóa tự nhiên từ nguồn.
+	column seller_id
+		dataType: string
+		lineageTag: a7f658a4-3d5c-53dd-87fc-88e3c0009947
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	/// 5 chữ số đầu của mã bưu chính.
+	column zip_prefix
+		dataType: string
+		lineageTag: 0b100960-dd91-55a7-8d8e-f2c307ab551d
+		summarizeBy: none
+		sourceColumn: zip_prefix
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Tên thành phố đã chuẩn hóa.
+	column city
+		dataType: string
+		lineageTag: 0d7a6718-8b7a-546c-929a-8d84472e6f5c
+		summarizeBy: none
+		sourceColumn: city
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Mã bang.
+	column state
+		dataType: string
+		lineageTag: 1c20473a-624b-5df7-bcbb-d74897a44f9f
+		summarizeBy: none
+		sourceColumn: state
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Vùng của Brazil.
+	column region
+		dataType: string
+		lineageTag: 225060ef-f6b1-5139-a2ca-b3d187a9dd11
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Hạng ổn định.
+	column health_tier
+		dataType: string
+		lineageTag: 0e4fecca-aacc-5c70-8230-58d991cbe52e
+		summarizeBy: none
+		sourceColumn: health_tier
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Có hiệu lực từ.
+	column valid_from
+		dataType: dateTime
+		isHidden
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: 3b38e3df-acec-5cda-9a2f-3c68289696e1
+		summarizeBy: none
+		sourceColumn: valid_from
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Có hiệu lực đến, không gồm thời điểm này.
+	column valid_to
+		dataType: dateTime
+		isHidden
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: c2d2c6e5-2956-561b-af8d-f9bea5b67ed4
+		summarizeBy: none
+		sourceColumn: valid_to
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Phiên bản hiện hành.
+	column is_current
+		dataType: boolean
+		lineageTag: 1c97ffd5-d033-56ac-bcf1-4b3c236edb9e
+		summarizeBy: none
+		sourceColumn: is_current
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Địa lý seller'
+		lineageTag: 12ac8adf-746b-5523-a5e1-bf497db96408
+
+		level Vùng
+			lineageTag: 37effe8c-539c-5c5c-9c6c-f9d15e6ac3b6
+			column: region
+
+		level Bang
+			lineageTag: ab6f255d-3a63-5804-a978-c0ef143f2c01
+			column: state
+
+		level 'Thành phố'
+			lineageTag: c52d463f-3525-5454-b5eb-158e7f2b0576
+			column: city
+
+	partition dim_seller = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "dim_seller.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

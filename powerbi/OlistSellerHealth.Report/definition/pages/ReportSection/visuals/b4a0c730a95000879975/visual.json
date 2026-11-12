@@ -1,0 +1,83 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "b4a0c730a95000879975",
+  "position": {
+    "x": 792,
+    "y": 192,
+    "z": 9,
+    "width": 468,
+    "height": 252,
+    "tabOrder": 9
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_date"
+                        }
+                      },
+                      "Hierarchy": "Lịch"
+                    }
+                  },
+                  "Level": "Tháng"
+                }
+              },
+              "queryRef": "dim_date.Lịch.Tháng",
+              "nativeQueryRef": "Lịch Tháng"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "kpi_monthly"
+                    }
+                  },
+                  "Property": "Tỷ lệ trễ hẹn tháng"
+                }
+              },
+              "queryRef": "kpi_monthly.Tỷ lệ trễ hẹn tháng",
+              "nativeQueryRef": "Tỷ lệ trễ hẹn tháng"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Tỷ lệ trễ hẹn theo tháng hẹn'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

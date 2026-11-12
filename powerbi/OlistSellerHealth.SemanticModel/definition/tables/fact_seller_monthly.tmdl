@@ -1,0 +1,186 @@
+/// Tình trạng seller, đóng băng lúc chốt tháng. Mỗi chỉ số tính theo tháng xảy ra sự kiện.
+table fact_seller_monthly
+	lineageTag: 5da11274-f6bd-59a3-b09e-cc700acb9502
+
+	/// Số seller trong snapshot tháng cuối của lát cắt. Bán cộng dồn (semi-additive): không cộng qua các tháng.
+	measure 'Seller (snapshot cuối kỳ)' =
+			VAR thangCuoi = MAX ( fact_seller_monthly[month] )
+			RETURN
+			    CALCULATE ( DISTINCTCOUNT ( fact_seller_monthly[seller_id] ), fact_seller_monthly[month] = thangCuoi )
+		formatString: #,0
+		displayFolder: Sức khỏe seller
+		lineageTag: 74f65f75-f685-5c27-8cb9-a0709d137d36
+
+	/// Tổng GMV theo snapshot seller × tháng.
+	measure 'GMV seller tháng' = SUM ( fact_seller_monthly[gmv] )
+		formatString: #,0.00
+		displayFolder: Sức khỏe seller
+		lineageTag: 1ff72d88-4822-5378-a0ab-376fc0a73eee
+
+	/// Ngày đầu tháng.
+	column month
+		dataType: dateTime
+		formatString: dd/MM/yyyy
+		lineageTag: 2551bcfc-aa50-54e0-889a-485e097a5cfe
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày đầu tháng dạng YYYYMMDD, trỏ tới dim_date.
+	column month_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: dea271cc-5172-53e1-a700-09715d24c0e5
+		summarizeBy: none
+		sourceColumn: month_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khóa thay thế, trỏ tới dòng dim_seller có hiệu lực lúc mua.
+	column seller_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8e77e6e3-5b8f-5cbd-86a6-ab902c7d9c18
+		summarizeBy: none
+		sourceColumn: seller_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Hồ sơ sức khỏe, trỏ tới dim_seller_health.
+	column health_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 65686481-b654-54fe-bf69-42857b5c1fd7
+		summarizeBy: none
+		sourceColumn: health_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Mã seller, khóa tự nhiên từ nguồn.
+	column seller_id
+		dataType: string
+		lineageTag: 3bba4e02-bf03-535b-a038-8247fa4c6dc8
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số đơn.
+	column n_orders
+		dataType: int64
+		formatString: 0
+		lineageTag: 80358b66-edb1-5a49-9a59-62983d49e509
+		summarizeBy: none
+		sourceColumn: n_orders
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số dòng hàng trong tháng.
+	column n_items
+		dataType: int64
+		formatString: 0
+		lineageTag: ea5c66ca-bdef-5c6d-9549-c85727ed0c08
+		summarizeBy: none
+		sourceColumn: n_items
+
+		annotation SummarizationSetBy = Automatic
+
+	/// GMV, BRL.
+	column gmv
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 3f94ad14-1863-5ac6-9158-db696bca0a3d
+		summarizeBy: none
+		sourceColumn: gmv
+
+		annotation SummarizationSetBy = Automatic
+
+	/// GMV trung bình 3 tháng trước.
+	column gmv_prev_3m_avg
+		dataType: double
+		lineageTag: 4313e7ff-14c2-5219-837f-7dc366bec6f7
+		summarizeBy: none
+		sourceColumn: gmv_prev_3m_avg
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Tỷ lệ giao vận chuyển trễ, sản phẩm có hạn trong tháng.
+	column seller_late_rate
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 84d3ee17-dbd8-537e-a92c-e9025afeeeb6
+		summarizeBy: none
+		sourceColumn: seller_late_rate
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Tỷ lệ khách nhận trễ, sản phẩm có ngày hẹn trong tháng.
+	column customer_late_rate
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 26de260a-1cdf-5385-b02f-a528144d7128
+		summarizeBy: none
+		sourceColumn: customer_late_rate
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Review trung bình, review trả lời trong tháng.
+	column avg_review
+		dataType: double
+		lineageTag: c48b0547-672d-5c4c-b181-6aa68b9747b7
+		summarizeBy: none
+		sourceColumn: avg_review
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số ngày tới vận chuyển trung bình, bàn giao trong tháng.
+	column avg_days_to_carrier
+		dataType: double
+		lineageTag: 12e7c6e1-56a1-51de-9d2e-94ad024b2e9c
+		summarizeBy: none
+		sourceColumn: avg_days_to_carrier
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số ngày vận chuyển trung bình, nhận trong tháng.
+	column avg_days_in_transit
+		dataType: double
+		lineageTag: bd0d825a-0fc8-5f3e-b866-0d2e8862b275
+		summarizeBy: none
+		sourceColumn: avg_days_in_transit
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số ngày từ đơn gần nhất tới lúc chốt tháng.
+	column days_since_last_sale
+		dataType: double
+		lineageTag: 71bc600d-9a15-59ea-af1e-ad6aeca93969
+		summarizeBy: none
+		sourceColumn: days_since_last_sale
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số danh mục đã bán trong tháng.
+	column n_categories
+		dataType: int64
+		formatString: 0
+		lineageTag: 213dd23f-bbbb-56dd-b6d7-465db29f892b
+		summarizeBy: none
+		sourceColumn: n_categories
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_seller_monthly = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "fact_seller_monthly.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

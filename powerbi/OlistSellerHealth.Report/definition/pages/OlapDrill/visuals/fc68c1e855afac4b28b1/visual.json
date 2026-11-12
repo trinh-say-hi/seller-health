@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "fc68c1e855afac4b28b1",
+  "position": {
+    "x": 959,
+    "y": 84,
+    "z": 7,
+    "width": 301,
+    "height": 96,
+    "tabOrder": 7
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_order_seller"
+                    }
+                  },
+                  "Property": "Tỷ lệ trễ hẹn"
+                }
+              },
+              "queryRef": "fact_order_seller.Tỷ lệ trễ hẹn",
+              "nativeQueryRef": "Tỷ lệ trễ hẹn"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

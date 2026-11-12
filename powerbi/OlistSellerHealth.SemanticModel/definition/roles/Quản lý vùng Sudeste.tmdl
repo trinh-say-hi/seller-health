@@ -1,0 +1,8 @@
+/// Quản lý vùng chỉ thấy seller ở vùng Sudeste. Lọc dim_region, lan qua dim_seller tới mọi fact theo seller và qua kpi_monthly.
+role 'Quản lý vùng Sudeste'
+	modelPermission: read
+
+	tablePermission dim_region = dim_region[region] = "Sudeste"
+
+	annotation PBI_Id = d788a062d6de4b9e9b72e67a37c5f33f
+

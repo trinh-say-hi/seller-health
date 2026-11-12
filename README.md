@@ -40,6 +40,7 @@ Venv và database nằm ở `%LOCALAPPDATA%\seller_health`, ngoài OneDrive, đ�
 .\run_pipeline.ps1                          # giao diện Dagster tại http://localhost:3000
 .\run_pipeline.ps1 -Job dung_lai_toan_bo    # chạy toàn bộ, không mở giao diện
 .\run_pipeline.ps1 -Job chay_lai_dss        # giữ kho, chỉ tính lại DSS, test rồi phát hành
+.\run_pipeline.ps1 -Job xuat_power_bi      # chỉ xuất lại Parquet cho Power BI
 python -m src.pipeline.release status       # bản đang dùng, bản trước
 python -m src.pipeline.release rollback     # quay về bản trước
 ```
@@ -51,10 +52,40 @@ python -m src.pipeline.release rollback     # quay về bản trước
 | `dss_khuyen_nghi` | dss | `src.dss.run`: logistic, luật, MILP, đánh giá ngược | — |
 | `danh_muc_du_lieu` | dss | `src.etl.catalog`: mô tả cột, `docs/data_catalog.md` | `kiem_thu_he_thong` (**chặn**): `tests.test_system` |
 | `kho_phat_hanh` | phat_hanh | trỏ `current.json` sang bản mới | — |
+| `xuat_parquet` | phat_hanh | `src.pipeline.powerbi_export`: bảng Gold ra Parquet cho Power BI | — |
 
 Các asset chỉ bọc các bước sẵn có, không viết lại logic, nên số liệu giống hệt `run_all.py`. Mỗi lần chạy dựng vào `releases/olist_run_<id>.duckdb`; check **chặn** không đạt thì các asset sau bị bỏ qua và app vẫn dùng bản cũ. App đọc `current.json` ở mỗi lần tải trang nên tự sang bản mới. Thư mục chỉ giữ bản đang dùng và bản trước. Lịch làm mới hằng ngày lúc 2 giờ sáng có sẵn nhưng mặc định tắt, bật trong giao diện Dagster.
 
 Vì sao không ghi đè lên file cũ: app giữ file kho ở chế độ chỉ đọc, và DuckDB khóa file nên tiến trình khác không mở để ghi được. Ngoài ra, một đợt lỗi giữa chừng sẽ làm hỏng kho đang dùng.
+
+## Lớp Power BI (OLAP server, RLS, DSS generator)
+
+Streamlit giữ phần MILP, Kanban và what-if theo seller. Power BI thêm một OLAP server thật: mô hình Tabular nạp vào VertiPaq, có quan hệ star, measure DAX, hierarchy để drill và phân quyền theo dòng (RLS).
+
+```powershell
+.\run_pipeline.ps1 -Job xuat_power_bi      # chỉ xuất lại Parquet từ bản đang dùng
+python -m src.pipeline.powerbi_export      # như trên, không qua Dagster
+```
+
+Sau đó mở `powerbi/OlistSellerHealth.pbip` bằng Power BI Desktop rồi bấm **Refresh**. Asset `xuat_parquet` chạy sau `kho_phat_hanh`, nên job `dung_lai_toan_bo` và `chay_lai_dss` cũng tự xuất lại. Parquet nằm ở `%LOCALAPPDATA%\seller_health\powerbi\`, kèm `manifest.json` ghi bản phát hành và số dòng. Máy khác thì đổi tham số `ThuMucParquet` (Transform data > Edit parameters).
+
+| Thành phần | Nội dung |
+|---|---|
+| Bảng | 7 dimension (`dim_date`, `dim_region`, `dim_seller` SCD2, `dim_product`, `dim_location`, `dim_route`, `dim_seller_health`), 3 fact (`fact_sales_item`, `fact_order_seller`, `fact_seller_monthly`), bảng tổng hợp `kpi_monthly` và `dss_recommendation` |
+| Quan hệ | 19 quan hệ một-nhiều, lọc một chiều. `dim_date` nhiều vai: ngày mua đang hoạt động; ngày hẹn và ngày nhận là quan hệ không hoạt động, measure bật bằng `USERELATIONSHIP` |
+| Hierarchy | Lịch (năm → quý → tháng → ngày), Địa lý seller và Địa lý khách (vùng → bang → thành phố), Sản phẩm (danh mục → sản phẩm) |
+| Measure | 32 measure dịch từ `metrics.yml`, chia thư mục: KPI tháng (chốt sổ), OLAP bán hàng, Giao hàng và review, Sức khỏe seller, DSS |
+| RLS | Role **Quản lý vùng Sudeste**: `dim_region[region] = "Sudeste"`, lan qua `dim_seller` tới mọi fact theo seller và qua `kpi_monthly` |
+| What-if | Bảng tham số **Hiệu quả can thiệp** (0–100%), measure *Giữ được (what-if)* = GMV rủi ro trong kế hoạch × hiệu quả chọn |
+
+Hai nhóm KPI có chủ ý tách nhau:
+
+- **KPI tháng (chốt sổ)** đọc `mart.kpi_monthly`, là số biết được tại lúc chốt từng tháng. Nếu tính lại từ fact cuối cùng thì review lệch nhẹ, vì điểm review còn đổi sau ngày chốt. Khi có lọc vùng, danh mục, hoặc khi RLS ẩn dòng tổng, measure tự chuyển từ dòng tổng của CUBE sang cộng các dòng chi tiết. Review TB và Seller có bán không cộng được qua nhiều tháng, nên chỉ hiện khi lát cắt đúng một dòng.
+- **OLAP** tính trên fact theo trạng thái cuối của kho (as-of = ngày chốt đợt cuối), cùng định nghĩa với màn OLAP của Streamlit.
+
+MOLAP, ROLAP và HOLAP trên mô hình này: chế độ Import hiện tại là MOLAP (dữ liệu nén cột trong VertiPaq). Đổi partition sang DirectQuery thì thành ROLAP, truy vấn đẩy xuống nguồn. Chế độ Dual hoặc bảng aggregation Import đặt trên fact DirectQuery là HOLAP. `kpi_monthly` chính là một bảng aggregation dựng sẵn bằng CUBE ở kho.
+
+Đối chiếu với DuckDB (chạy DAX qua Power BI Modeling MCP trên Desktop): mỗi tháng của GMV, số đơn, seller có bán, đơn đến hạn, đơn trễ, tỷ lệ trễ và review trung bình đều khớp `mart.kpi_monthly`. Các measure OLAP khớp truy vấn của màn OLAP. Cả hai được kiểm cho toàn sàn và dưới role Sudeste.
 
 ## Kiến trúc
 
@@ -159,6 +190,7 @@ src/pipeline/ Dagster (asset, asset check, job, lịch) và quản lý bản ph�
 src/sql/      schema, staging, dimension, từng đợt, đối soát, truy vấn OLAP
 src/dss/      điểm số, luật, tối ưu
 src/app/      giao diện Streamlit, component kéo thả tự viết
+powerbi/      Power BI Project (PBIP): mô hình TMDL, 3 trang báo cáo PBIR
 tests/        kiểm thử
 scripts/      manifest, sơ đồ, thử khả thi, chọn ngưỡng, dữ liệu mẫu
 evidence/     số liệu và hình cho báo cáo

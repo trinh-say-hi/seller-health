@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "bb80ab5fc22424def938",
+  "position": {
+    "x": 646,
+    "y": 84,
+    "z": 6,
+    "width": 301,
+    "height": 96,
+    "tabOrder": 6
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dss_recommendation"
+                    }
+                  },
+                  "Property": "Seller được đề xuất hỗ trợ"
+                }
+              },
+              "queryRef": "dss_recommendation.Seller được đề xuất hỗ trợ",
+              "nativeQueryRef": "Seller được đề xuất hỗ trợ"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

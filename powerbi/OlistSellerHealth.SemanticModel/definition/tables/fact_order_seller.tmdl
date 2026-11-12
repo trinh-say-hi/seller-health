@@ -1,0 +1,507 @@
+/// Grain đơn × seller (core.fact_order_seller) cộng các cờ tính sẵn lúc xuất: is_valid_sale, is_due, is_late, is_review_known.
+table fact_order_seller
+	lineageTag: 295fa696-a2a2-5bf2-914a-40b64d98d99f
+
+	/// Đơn mua trong lát cắt đã tới ngày hẹn trước as-of.
+	measure 'Đơn đến hạn' =
+			-- fact_order_seller khong noi toi dim_product: khi loc san pham, chi giu cap don x seller co dong hang hop le thuoc lat cat (qua os_key)
+			IF (
+			    ISCROSSFILTERED ( dim_product ),
+			    CALCULATE (
+			        DISTINCTCOUNT ( fact_order_seller[order_id] ),
+			        fact_order_seller[is_valid_sale] = TRUE (),
+			        fact_order_seller[is_due] = TRUE (),
+			        TREATAS ( CALCULATETABLE ( VALUES ( fact_sales_item[os_key] ), fact_sales_item[is_valid_sale] = TRUE () ), fact_order_seller[os_key] )
+			    ),
+			    CALCULATE (
+			        DISTINCTCOUNT ( fact_order_seller[order_id] ),
+			        fact_order_seller[is_valid_sale] = TRUE (),
+			        fact_order_seller[is_due] = TRUE ()
+			    )
+			)
+		formatString: #,0
+		displayFolder: Giao hàng và review
+		lineageTag: d3b4be1f-6c9c-5346-802d-339bb43ff7c0
+
+	/// Đơn đến hạn mà chưa giao hoặc giao sau ngày hẹn.
+	measure 'Đơn trễ hẹn' =
+			VAR denHan = [Đơn đến hạn]
+			VAR tre =
+			    IF (
+			        ISCROSSFILTERED ( dim_product ),
+			        CALCULATE (
+			            DISTINCTCOUNT ( fact_order_seller[order_id] ),
+			            fact_order_seller[is_valid_sale] = TRUE (),
+			            fact_order_seller[is_due] = TRUE (),
+			            fact_order_seller[is_late] = TRUE (),
+			            TREATAS ( CALCULATETABLE ( VALUES ( fact_sales_item[os_key] ), fact_sales_item[is_valid_sale] = TRUE () ), fact_order_seller[os_key] )
+			        ),
+			        CALCULATE (
+			            DISTINCTCOUNT ( fact_order_seller[order_id] ),
+			            fact_order_seller[is_valid_sale] = TRUE (),
+			            fact_order_seller[is_due] = TRUE (),
+			            fact_order_seller[is_late] = TRUE ()
+			        )
+			    )
+			RETURN
+			    IF ( NOT ISBLANK ( denHan ), tre + 0 )
+		formatString: #,0
+		displayFolder: Giao hàng và review
+		lineageTag: f4ac4583-175e-52c0-a97a-b007772b925e
+
+	/// olap_late_rate: Số đơn trễ / số đơn đến hạn, theo tháng mua.
+	measure 'Tỷ lệ trễ hẹn' = DIVIDE ( [Đơn trễ hẹn], [Đơn đến hạn] )
+		formatString: 0.00%
+		displayFolder: Giao hàng và review
+		lineageTag: 430072d8-9757-5a20-b4ee-809f2d075139
+
+	/// Như Tỷ lệ trễ hẹn nhưng dim_date đóng vai ngày hẹn (quan hệ không hoạt động estimated_date_key).
+	measure 'Tỷ lệ trễ hẹn theo ngày hẹn' = CALCULATE ( [Tỷ lệ trễ hẹn], USERELATIONSHIP ( fact_order_seller[estimated_date_key], dim_date[date_key] ) )
+		formatString: 0.00%
+		displayFolder: Giao hàng và review
+		lineageTag: 05cf7b83-46e8-5ac4-b9fb-c60629972f3b
+
+	/// olap_review: Điểm review trung bình theo cặp đơn × seller.
+	measure 'Review TB' =
+			IF (
+			    ISCROSSFILTERED ( dim_product ),
+			    CALCULATE (
+			        AVERAGE ( fact_order_seller[review_score] ),
+			        fact_order_seller[is_valid_sale] = TRUE (),
+			        fact_order_seller[is_review_known] = TRUE (),
+			        TREATAS ( CALCULATETABLE ( VALUES ( fact_sales_item[os_key] ), fact_sales_item[is_valid_sale] = TRUE () ), fact_order_seller[os_key] )
+			    ),
+			    CALCULATE (
+			        AVERAGE ( fact_order_seller[review_score] ),
+			        fact_order_seller[is_valid_sale] = TRUE (),
+			        fact_order_seller[is_review_known] = TRUE ()
+			    )
+			)
+		formatString: 0.000
+		displayFolder: Giao hàng và review
+		lineageTag: 237bfe82-e99b-550a-87ac-673cf8a585cc
+
+	/// delivered_orders: Số đơn có ngày khách nhận trong lát cắt (dim_date đóng vai ngày nhận).
+	measure 'Đơn đã giao' =
+			CALCULATE (
+			    DISTINCTCOUNT ( fact_order_seller[order_id] ),
+			    NOT ISBLANK ( fact_order_seller[delivered_ts] ),
+			    USERELATIONSHIP ( fact_order_seller[delivered_date_key], dim_date[date_key] )
+			)
+		formatString: #,0
+		displayFolder: Giao hàng và review
+		lineageTag: 8f0e7bf3-2e26-576b-8bf1-fee93101df99
+
+	/// customer_late_rate: Số đơn khách nhận trễ / số đơn đã giao.
+	measure 'Trễ hẹn với khách' =
+			VAR tre = CALCULATE (
+			    DISTINCTCOUNT ( fact_order_seller[order_id] ),
+			    NOT ISBLANK ( fact_order_seller[delivered_ts] ),
+			    fact_order_seller[customer_late] = TRUE (),
+			    USERELATIONSHIP ( fact_order_seller[delivered_date_key], dim_date[date_key] )
+			)
+			RETURN
+			    DIVIDE ( tre, [Đơn đã giao] )
+		formatString: 0.00%
+		displayFolder: Giao hàng và review
+		lineageTag: 2f91dbe4-dc8b-5dc1-b7f9-dc0ed8ed2249
+
+	/// seller_late_rate: Số đơn có seller bàn giao vận chuyển sau hạn / số đơn đã giao.
+	measure 'Seller giao vận chuyển trễ' =
+			VAR tre = CALCULATE (
+			    DISTINCTCOUNT ( fact_order_seller[order_id] ),
+			    NOT ISBLANK ( fact_order_seller[delivered_ts] ),
+			    fact_order_seller[seller_late] = TRUE (),
+			    USERELATIONSHIP ( fact_order_seller[delivered_date_key], dim_date[date_key] )
+			)
+			RETURN
+			    DIVIDE ( tre, [Đơn đã giao] )
+		formatString: 0.00%
+		displayFolder: Giao hàng và review
+		lineageTag: 273f45e0-1d8d-561c-b0a7-adf9cdb9923a
+
+	/// late_seller_ok: Trong các đơn khách nhận trễ, tỷ lệ mọi seller đều bàn giao đúng hạn.
+	measure 'Đơn trễ, seller đúng hạn' =
+			VAR khachTre = CALCULATE (
+			    DISTINCTCOUNT ( fact_order_seller[order_id] ),
+			    NOT ISBLANK ( fact_order_seller[delivered_ts] ),
+			    fact_order_seller[customer_late] = TRUE (),
+			    USERELATIONSHIP ( fact_order_seller[delivered_date_key], dim_date[date_key] )
+			)
+			VAR coSellerTre = CALCULATE (
+			    DISTINCTCOUNT ( fact_order_seller[order_id] ),
+			    NOT ISBLANK ( fact_order_seller[delivered_ts] ),
+			    fact_order_seller[customer_late] = TRUE (),
+			    fact_order_seller[seller_late] = TRUE (),
+			    USERELATIONSHIP ( fact_order_seller[delivered_date_key], dim_date[date_key] )
+			)
+			RETURN
+			    DIVIDE ( khachTre - coSellerTre, khachTre )
+		formatString: 0.00%
+		displayFolder: Giao hàng và review
+		lineageTag: 45fe3414-b09b-59b5-933d-277672665cd7
+
+	/// Mã đơn, khóa tự nhiên từ nguồn.
+	column order_id
+		dataType: string
+		lineageTag: 62d87b1f-47f3-5c76-8535-90410d198d62
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Mã seller, khóa tự nhiên từ nguồn.
+	column seller_id
+		dataType: string
+		lineageTag: 04794739-9815-5387-a003-ec9827f287df
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khóa thay thế, trỏ tới dòng dim_seller có hiệu lực lúc mua.
+	column seller_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f42e3578-2fec-53ce-a461-ba32ace82a7b
+		summarizeBy: none
+		sourceColumn: seller_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khóa thay thế, trỏ tới dim_customer.
+	column customer_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 1f855733-67f6-54a8-a40e-5419b112eb23
+		summarizeBy: none
+		sourceColumn: customer_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khóa thay thế, trỏ tới dim_route.
+	column route_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f398f403-d0d2-5613-accb-336f820f7d6e
+		summarizeBy: none
+		sourceColumn: route_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// ZIP của khách, trỏ tới dim_location.
+	column customer_location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 557e362c-c430-5d75-b46d-2a5d4f8e9dc3
+		summarizeBy: none
+		sourceColumn: customer_location_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// ZIP của seller, trỏ tới dim_location.
+	column seller_location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 69ca8510-aab1-5633-9ba5-354c19da2e3c
+		summarizeBy: none
+		sourceColumn: seller_location_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày mua, trỏ tới dim_date.
+	column purchase_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d38f4a4b-970b-5db9-b96e-e43b55983400
+		summarizeBy: none
+		sourceColumn: purchase_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày duyệt, trỏ tới dim_date.
+	column approved_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 49b81fd9-c48b-5b6d-853a-4cf2023d0aa2
+		summarizeBy: none
+		sourceColumn: approved_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày bàn giao cho vận chuyển, trỏ tới dim_date.
+	column carrier_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c8706c35-1f98-54c4-9788-28576a924d37
+		summarizeBy: none
+		sourceColumn: carrier_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày khách nhận, trỏ tới dim_date.
+	column delivered_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4680f625-871f-5de4-aa51-0a2ab4a09b59
+		summarizeBy: none
+		sourceColumn: delivered_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày hẹn giao, trỏ tới dim_date.
+	column estimated_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7cb63897-9ab8-5b5c-a2cb-6fb6e77f9b76
+		summarizeBy: none
+		sourceColumn: estimated_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Thời điểm mua.
+	column purchase_ts
+		dataType: dateTime
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: 18ebdd77-b8b2-5202-9d8f-410a8ead64a5
+		summarizeBy: none
+		sourceColumn: purchase_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Thời điểm duyệt.
+	column approved_ts
+		dataType: dateTime
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: d925976c-9f08-533a-915b-a07ede0e7910
+		summarizeBy: none
+		sourceColumn: approved_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Thời điểm bàn giao cho vận chuyển.
+	column carrier_ts
+		dataType: dateTime
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: 19b2646f-be50-58a7-9a16-60f19b0532b9
+		summarizeBy: none
+		sourceColumn: carrier_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Thời điểm khách nhận.
+	column delivered_ts
+		dataType: dateTime
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: f2cb27f8-a36d-530d-865f-038b1efd75b5
+		summarizeBy: none
+		sourceColumn: delivered_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày hẹn giao.
+	column estimated_ts
+		dataType: dateTime
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: 573b83e0-2673-5dd5-a758-8327bf1d6c28
+		summarizeBy: none
+		sourceColumn: estimated_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Hạn bàn giao muộn nhất của seller trong đơn.
+	column shipping_limit_ts
+		dataType: dateTime
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: a0543d4c-d9c9-5f04-a10a-769fc9d3ad72
+		summarizeBy: none
+		sourceColumn: shipping_limit_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Trạng thái đơn.
+	column order_status
+		dataType: string
+		lineageTag: c45a575a-effb-57f3-baef-c6e4e43df7e1
+		summarizeBy: none
+		sourceColumn: order_status
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số ngày từ lúc mua đến lúc duyệt.
+	column days_to_approve
+		dataType: double
+		lineageTag: d479ace8-9840-536c-b37c-2d632e59f27a
+		summarizeBy: none
+		sourceColumn: days_to_approve
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số ngày từ lúc mua đến lúc bàn giao vận chuyển.
+	column days_to_carrier
+		dataType: double
+		lineageTag: 44039840-2b27-5bba-8d36-0150f1073228
+		summarizeBy: none
+		sourceColumn: days_to_carrier
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số ngày từ lúc bàn giao vận chuyển đến lúc khách nhận.
+	column days_in_transit
+		dataType: double
+		lineageTag: 06a164cc-0f06-58b3-9306-a0de120f345f
+		summarizeBy: none
+		sourceColumn: days_in_transit
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày nhận trừ ngày hẹn, dương là trễ.
+	column delay_days
+		dataType: int64
+		formatString: 0
+		lineageTag: d372e99f-4a32-517e-95eb-320a65b97a38
+		summarizeBy: none
+		sourceColumn: delay_days
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Seller bàn giao vận chuyển sau hạn.
+	column seller_late
+		dataType: boolean
+		lineageTag: 6ef686d3-7310-55ba-85cb-946cb70e1ba9
+		summarizeBy: none
+		sourceColumn: seller_late
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khách nhận sau ngày hẹn, so theo ngày.
+	column customer_late
+		dataType: boolean
+		lineageTag: ce175bc8-9d94-5e37-ab82-d541255daa13
+		summarizeBy: none
+		sourceColumn: customer_late
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Điểm review, từ 1 đến 5.
+	column review_score
+		dataType: double
+		lineageTag: 191a4224-5db6-5ab4-ab1d-6a695e1a83bd
+		summarizeBy: none
+		sourceColumn: review_score
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Review có nội dung.
+	column has_comment
+		dataType: boolean
+		lineageTag: 49511194-961c-55af-b8ff-d31168eae804
+		summarizeBy: none
+		sourceColumn: has_comment
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Lúc khách đầu tiên trả lời review của đơn.
+	column first_review_ts
+		dataType: dateTime
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: a6f9a19d-cfb9-5460-ac95-ec911081c2d2
+		summarizeBy: none
+		sourceColumn: first_review_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Tiền hàng của seller trong đơn.
+	column order_value
+		dataType: decimal
+		formatString: #,0.00
+		lineageTag: ee17d98e-5379-530e-ae52-26376363c8c5
+		summarizeBy: none
+		sourceColumn: order_value
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Phí vận chuyển của seller trong đơn.
+	column freight_total
+		dataType: decimal
+		formatString: #,0.00
+		lineageTag: 9d31375a-1cb0-5302-9c37-ae50a4f181fb
+		summarizeBy: none
+		sourceColumn: freight_total
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số dòng hàng của seller trong đơn.
+	column n_items
+		dataType: int64
+		formatString: 0
+		lineageTag: 2e6c69fa-cefe-5df2-84c6-24ef11e02ca9
+		summarizeBy: none
+		sourceColumn: n_items
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Có ít nhất một dòng hàng không bị hủy.
+	column is_valid_sale
+		dataType: boolean
+		lineageTag: 4a734e36-6727-5cd7-b36e-ee1b11b74e6a
+		summarizeBy: none
+		sourceColumn: is_valid_sale
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày hẹn trước as-of của kho (đã tới hạn).
+	column is_due
+		dataType: boolean
+		lineageTag: a9634e07-cd95-5912-a0cc-914da72bc51f
+		summarizeBy: none
+		sourceColumn: is_due
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Chưa giao hoặc giao sau ngày hẹn, so theo ngày.
+	column is_late
+		dataType: boolean
+		lineageTag: 96bb7ca0-b83f-526a-a097-33219aed7c0c
+		summarizeBy: none
+		sourceColumn: is_late
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Review đã có trước as-of của kho.
+	column is_review_known
+		dataType: boolean
+		lineageTag: f237005f-95ed-5893-9b44-726ed9faacb2
+		summarizeBy: none
+		sourceColumn: is_review_known
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khóa số của cặp đơn × seller, dùng để lọc fact_order_seller theo sản phẩm.
+	column os_key
+		dataType: int64
+		isHidden
+		lineageTag: 46058083-9bb4-4e4c-a969-855edbc07e5f
+		summarizeBy: none
+		sourceColumn: os_key
+
+	partition fact_order_seller = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "fact_order_seller.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,78 @@
+relationship 07e563bf-7c52-599d-a325-ab2e9bd10873
+	fromColumn: fact_sales_item.purchase_date_key
+	toColumn: dim_date.date_key
+
+relationship d88aa1f6-6c17-56b7-a290-cde6fdd2e936
+	fromColumn: fact_sales_item.seller_key
+	toColumn: dim_seller.seller_key
+
+relationship 43619057-0e6c-5eb9-8a96-888c8aee3a7b
+	fromColumn: fact_sales_item.product_key
+	toColumn: dim_product.product_key
+
+relationship 13dc7924-1f73-5001-8277-e1436faab317
+	fromColumn: fact_sales_item.customer_location_key
+	toColumn: dim_location.location_key
+
+relationship 3e525b7b-fac3-5ef2-8d3d-4ae46704347d
+	fromColumn: fact_sales_item.route_key
+	toColumn: dim_route.route_key
+
+relationship b589d3a8-6a90-5d43-9441-e1d508b245ea
+	fromColumn: fact_order_seller.purchase_date_key
+	toColumn: dim_date.date_key
+
+relationship a26cc923-06df-518b-b58e-fb005da11a50
+	isActive: false
+	fromColumn: fact_order_seller.estimated_date_key
+	toColumn: dim_date.date_key
+
+relationship 6f58a3d1-9f99-59d7-95e8-d27e86319c8f
+	isActive: false
+	fromColumn: fact_order_seller.delivered_date_key
+	toColumn: dim_date.date_key
+
+relationship 36c485d3-2e0d-524e-bef7-2184def8854b
+	fromColumn: fact_order_seller.seller_key
+	toColumn: dim_seller.seller_key
+
+relationship d401a81f-ecb9-580d-bd9f-688e398e7162
+	fromColumn: fact_order_seller.customer_location_key
+	toColumn: dim_location.location_key
+
+relationship ec824f5d-d541-57e2-b9fe-a94396561fde
+	fromColumn: fact_order_seller.route_key
+	toColumn: dim_route.route_key
+
+relationship e08f720e-aeb6-51d9-9701-198e0344d614
+	fromColumn: fact_seller_monthly.month_key
+	toColumn: dim_date.date_key
+
+relationship 19e09cf3-f1f3-584d-9483-51ac8c5ef56f
+	fromColumn: fact_seller_monthly.seller_key
+	toColumn: dim_seller.seller_key
+
+relationship bc634550-68c4-5118-a275-bbc851d0802c
+	fromColumn: fact_seller_monthly.health_key
+	toColumn: dim_seller_health.health_key
+
+relationship 5641db85-54b3-5cf1-9db2-be425567fcdc
+	fromColumn: kpi_monthly.month_key
+	toColumn: dim_date.date_key
+
+relationship 09800de8-71d0-5b0c-9f6c-0b1062e2ff0e
+	fromColumn: kpi_monthly.region
+	toColumn: dim_region.region
+
+relationship 0175eaf2-fb03-503b-be1a-c8e5c1805e8a
+	fromColumn: dss_recommendation.as_of_key
+	toColumn: dim_date.date_key
+
+relationship b1cb1d1c-70b1-503e-9d20-cbc44c3a51fb
+	fromColumn: dss_recommendation.seller_key
+	toColumn: dim_seller.seller_key
+
+relationship a85c5adc-ceec-5844-b43a-716a509c8390
+	fromColumn: dim_seller.region
+	toColumn: dim_region.region
+

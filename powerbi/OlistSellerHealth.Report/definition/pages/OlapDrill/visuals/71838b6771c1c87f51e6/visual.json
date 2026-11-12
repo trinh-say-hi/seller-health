@@ -1,0 +1,111 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "71838b6771c1c87f51e6",
+  "position": {
+    "x": 732,
+    "y": 192,
+    "z": 9,
+    "width": 528,
+    "height": 512,
+    "tabOrder": 9
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_product"
+                        }
+                      },
+                      "Hierarchy": "Sản phẩm"
+                    }
+                  },
+                  "Level": "Danh mục"
+                }
+              },
+              "queryRef": "dim_product.Sản phẩm.Danh mục",
+              "nativeQueryRef": "Sản phẩm Danh mục"
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_item"
+                    }
+                  },
+                  "Property": "GMV"
+                }
+              },
+              "queryRef": "fact_sales_item.GMV",
+              "nativeQueryRef": "GMV"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_order_seller"
+                    }
+                  },
+                  "Property": "Tỷ lệ trễ hẹn"
+                }
+              },
+              "queryRef": "fact_order_seller.Tỷ lệ trễ hẹn",
+              "nativeQueryRef": "Tỷ lệ trễ hẹn"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_order_seller"
+                    }
+                  },
+                  "Property": "Review TB"
+                }
+              },
+              "queryRef": "fact_order_seller.Review TB",
+              "nativeQueryRef": "Review TB"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Theo danh mục sản phẩm'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
