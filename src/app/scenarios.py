@@ -7,10 +7,10 @@ import json
 
 import pandas as pd
 
-from src.config import DB_PATH
+from src.config import HOME
 from src.dss.rules import CALL, OPS
 
-FILE = DB_PATH.parent / "scenarios.json"
+FILE = HOME / "scenarios.json"
 
 
 def load() -> list[dict]:

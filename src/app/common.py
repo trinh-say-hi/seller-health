@@ -1,5 +1,6 @@
 """Ket noi, dinh dang, chu thich KPI va phong cach bieu do dung chung."""
 import html
+import threading
 
 import duckdb
 import pandas as pd
@@ -7,7 +8,7 @@ import plotly.graph_objects as go
 import streamlit as st
 import yaml
 
-from src.config import DB_PATH, ROOT
+from src.config import ROOT, current_db
 
 BLUE, ORANGE, AQUA, LIGHT_BLUE = "#2a78d6", "#eb6834", "#1baf7a", "#9ec5f4"
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e8e7e3"
@@ -118,14 +119,28 @@ def apply_css():
     st.markdown(CSS, unsafe_allow_html=True)
 
 
-@st.cache_resource
-def _con():
-    return duckdb.connect(str(DB_PATH), read_only=True)
+# Mot ket noi chi doc toi ban kho dang dung. Khi pipeline tro current.json sang ban moi, lan tai trang sau se mo ban moi
+# va dong ket noi cu, de pipeline xoa duoc ban cu tren Windows.
+_CONS: dict[str, duckdb.DuckDBPyConnection] = {}
+_LOCK = threading.Lock()
+
+
+def _con(path: str):
+    with _LOCK:
+        if path not in _CONS:
+            for old in list(_CONS):
+                _CONS.pop(old).close()
+            _CONS[path] = duckdb.connect(path, read_only=True)
+        return _CONS[path]
 
 
 @st.cache_data(show_spinner=False)
+def _q(path: str, sql: str, params: tuple) -> pd.DataFrame:
+    return _con(path).cursor().execute(sql, list(params)).df()
+
+
 def q(sql: str, params: tuple = ()) -> pd.DataFrame:
-    return _con().cursor().execute(sql, list(params)).df()
+    return _q(str(current_db()), sql, params)
 
 
 @st.cache_data(show_spinner=False)

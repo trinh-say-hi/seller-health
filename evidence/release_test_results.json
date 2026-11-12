@@ -1,0 +1,77 @@
+[
+ {
+  "test": "Chua co con tro thi dung file cu olist.duckdb",
+  "ok": true,
+  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmpklrni76g\\olist.duckdb"
+ },
+ {
+  "test": "Ban moi nam trong releases/",
+  "ok": true,
+  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmpklrni76g\\releases\\olist_20261112_215131_a.duckdb"
+ },
+ {
+  "test": "Phat hanh: current_db tro sang ban moi",
+  "ok": true,
+  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmpklrni76g\\releases\\olist_20261112_215131_a.duckdb"
+ },
+ {
+  "test": "Phat hanh duoc khi app dang mo ban cu",
+  "ok": true,
+  "detail": "{'current': 'olist_20261112_215133_b.duckdb', 'previous': 'olist_20261112_215131_a.duckdb', 'published_at': '2026-11-12T21:51:33', 'note': ''}"
+ },
+ {
+  "test": "App van doc duoc ban cu trong luc chuyen",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Khoa ghi: app dang doc thi tien trinh khac khong mo ghi duoc (ly do phai dung ban moi)",
+  "ok": true,
+  "detail": "db\": The process cannot access the file because it is being used by another process.\n\n\nFile is already open in \nC:\\Users\\ASUS ExpertBook\\AppData\\Local\\Programs\\Python\\Python313\\python.exe (PID 32568)\n"
+ },
+ {
+  "test": "Ket noi moi doc ban moi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Don dep: giu ban dang dung va ban truoc",
+  "ok": true,
+  "detail": "['olist_20261112_215133_b.duckdb', 'olist_20261112_215136_c.duckdb']"
+ },
+ {
+  "test": "Don dep: chi con 2 ban",
+  "ok": true,
+  "detail": "['olist_20261112_215133_b.duckdb', 'olist_20261112_215136_c.duckdb']"
+ },
+ {
+  "test": "Don dep khi app con mo ban cu: app van doc duoc toi khi tai lai trang",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Quay lui: tro ve ban truoc",
+  "ok": true,
+  "detail": "{'current': 'olist_20261112_215133_b.duckdb', 'previous': 'olist_20261112_215136_c.duckdb', 'published_at': '2026-11-12T21:51:37', 'note': 'quay lui tu olist_20261112_215136_c.duckdb'}"
+ },
+ {
+  "test": "Quay lui lan nua: tro lai ban moi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Tu choi phat hanh file ngoai releases/",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Tu choi phat hanh ban con file .wal (dang ghi do)",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Con tro hong thi quay ve file mac dinh, khong vo app",
+  "ok": true,
+  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmpklrni76g\\olist.duckdb"
+ }
+]

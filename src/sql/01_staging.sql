@@ -59,11 +59,13 @@ INSERT INTO ops.quarantine
 SELECT 'init', 'geolocation', zip_prefix || '|' || lat || '|' || lng, 'GEO_OUTSIDE_BRAZIL', 'Toa do nam ngoai khung lanh tho Brazil'
 FROM _geo WHERE lat NOT BETWEEN -34 AND 6 OR lng NOT BETWEEN -74 AND -34;
 
+-- mode(... ORDER BY ...): khi hai ten hoa so lan thi lay ten dung truoc theo chu cai. mode() tran chon theo thu tu quet song song,
+-- nen moi lan dung kho mot vai ZIP doi ten thanh pho.
 CREATE TABLE stg.geography AS
 SELECT zip_prefix,
        median(lat) FILTER (WHERE lat BETWEEN -34 AND 6 AND lng BETWEEN -74 AND -34) AS lat,
        median(lng) FILTER (WHERE lat BETWEEN -34 AND 6 AND lng BETWEEN -74 AND -34) AS lng,
-       mode(city) AS city, mode(state) AS state
+       mode(city ORDER BY city) AS city, mode(state ORDER BY state) AS state
 FROM _geo GROUP BY zip_prefix;
 
 -- Tap ten thanh pho hop le lay tu geolocation, dung de nhan ra ten sai.

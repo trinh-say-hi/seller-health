@@ -30,9 +30,31 @@ Cần Windows, Python 3.13 và dữ liệu trong `data/olist/raw` (xem [data/REA
 .\run_app.ps1    # mở app tại http://localhost:8501
 ```
 
-Dựng lại mất khoảng 2 phút. Hãy tắt app trước khi dựng lại, vì app đang giữ file database.
+Dựng lại mất khoảng 2 phút và **không cần tắt app**: kho mới được dựng thành một bản phát hành riêng, qua hết kiểm tra mới được đưa vào dùng (xem mục Pipeline).
 
-Venv và database nằm ở `%LOCALAPPDATA%\seller_health`, ngoài OneDrive, để việc đồng bộ không khóa file. Đặt biến `OLIST_DB` nếu muốn đổi vị trí database.
+Venv và database nằm ở `%LOCALAPPDATA%\seller_health`, ngoài OneDrive, để việc đồng bộ không khóa file. Đặt `OLIST_HOME` để đổi thư mục, hoặc `OLIST_DB` để dùng cố định một file (khi đó dựng thẳng vào file đó như trước, không qua bước phát hành).
+
+## Pipeline và điều phối (Dagster)
+
+```powershell
+.\run_pipeline.ps1                          # giao diện Dagster tại http://localhost:3000
+.\run_pipeline.ps1 -Job dung_lai_toan_bo    # chạy toàn bộ, không mở giao diện
+.\run_pipeline.ps1 -Job chay_lai_dss        # giữ kho, chỉ tính lại DSS, test rồi phát hành
+python -m src.pipeline.release status       # bản đang dùng, bản trước
+python -m src.pipeline.release rollback     # quay về bản trước
+```
+
+| Asset | Nhóm | Bọc bước | Kiểm tra (asset check) |
+|---|---|---|---|
+| `nguon_csv` | kho | đối chiếu SHA-256 với `data/manifest.json` | — |
+| `kho_du_lieu` | kho | `src.etl.build`: Bronze → Silver → Gold, 26 đợt | `doi_soat_cac_lop` (**chặn**): đủ 26 đợt `ok`, mọi đối soát khớp; `bat_thuong_du_lieu` (cảnh báo) |
+| `dss_khuyen_nghi` | dss | `src.dss.run`: logistic, luật, MILP, đánh giá ngược | — |
+| `danh_muc_du_lieu` | dss | `src.etl.catalog`: mô tả cột, `docs/data_catalog.md` | `kiem_thu_he_thong` (**chặn**): `tests.test_system` |
+| `kho_phat_hanh` | phat_hanh | trỏ `current.json` sang bản mới | — |
+
+Các asset chỉ bọc các bước sẵn có, không viết lại logic, nên số liệu giống hệt `run_all.py`. Mỗi lần chạy dựng vào `releases/olist_run_<id>.duckdb`; check **chặn** không đạt thì các asset sau bị bỏ qua và app vẫn dùng bản cũ. App đọc `current.json` ở mỗi lần tải trang nên tự sang bản mới. Thư mục chỉ giữ bản đang dùng và bản trước. Lịch làm mới hằng ngày lúc 2 giờ sáng có sẵn nhưng mặc định tắt, bật trong giao diện Dagster.
+
+Vì sao không ghi đè lên file cũ: app giữ file kho ở chế độ chỉ đọc, và DuckDB khóa file nên tiến trình khác không mở để ghi được. Ngoài ra, một đợt lỗi giữa chừng sẽ làm hỏng kho đang dùng.
 
 ## Kiến trúc
 
@@ -124,6 +146,7 @@ Hệ thống gọi trúng nhiều hơn, nhưng bao phủ ít tiền hơn ở 4/5
 python -m tests.test_system   # nguồn, các lớp, đối soát, chống rò rỉ, tối ưu, cổng chất lượng
 python -m tests.test_edges    # mọi màn hình trên mọi mốc as-of
 python -m tests.test_ui       # trình duyệt thật: cần chạy app ở cổng 8599 và cài requirements-dev.txt
+python -m tests.test_release  # bản phát hành: phát hành khi app đang mở, dọn dẹp, quay lui
 ```
 
 Kết quả được ghi vào `evidence/`, kèm ảnh chụp giao diện trong `evidence/screenshots/`.
@@ -132,6 +155,7 @@ Kết quả được ghi vào `evidence/`, kèm ảnh chụp giao diện trong `
 
 ```
 src/etl/      điều phối các đợt nạp, kiểm tra nguồn, sinh data catalog
+src/pipeline/ Dagster (asset, asset check, job, lịch) và quản lý bản phát hành kho
 src/sql/      schema, staging, dimension, từng đợt, đối soát, truy vấn OLAP
 src/dss/      điểm số, luật, tối ưu
 src/app/      giao diện Streamlit, component kéo thả tự viết

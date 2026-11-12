@@ -1,14 +1,26 @@
-"""Dung lai toan bo he thong tu CSV: kho -> DSS -> catalog -> test.
+"""Dung lai toan bo he thong tu CSV: kho -> DSS -> catalog -> test, roi phat hanh.
 
 Chay: python run_all.py
-Hay tat app truoc khi chay, vi app dang giu file database.
+Kho moi duoc dung thanh mot ban phat hanh rieng, qua test moi tro current.json sang, nen khong can tat app.
+Neu dat OLIST_DB (vi du trong Docker) thi dung thang vao file do nhu truoc, khong qua buoc phat hanh.
+Muon xem tung buoc, lich su chay va lineage thi dung Dagster: .\run_pipeline.ps1
 """
+import os
 import subprocess
 import sys
 
+from src.pipeline.release import new_release_path, publish
+
+fixed = os.environ.get("OLIST_DB")
+target = fixed or str(new_release_path("run_all"))
+env = {**os.environ, "OLIST_DB": target, "PYTHONUTF8": "1"}
 for module in ["src.etl.build", "src.dss.run", "src.etl.catalog", "tests.test_system"]:
     print(f"\n=== {module} ===", flush=True)
-    code = subprocess.call([sys.executable, "-m", module])
+    code = subprocess.call([sys.executable, "-m", module], env=env)
     if code:
+        print(f"\nDung o {module}. Kho dang dung khong doi; ban dung do nam o {target}.")
         sys.exit(code)
+if not fixed:
+    info = publish(target, note="run_all.py")
+    print(f"\nDa phat hanh {info['current']} (ban truoc: {info['previous']})")
 print("\nXong. Mo app: python -m streamlit run src/app/app.py")

@@ -22,8 +22,8 @@ WITH z AS (
     SELECT zip_prefix FROM stg.geography
     UNION SELECT zip_prefix FROM stg.customers
     UNION SELECT zip_prefix FROM stg.sellers),
-c AS (SELECT zip_prefix, mode(city) AS city, mode(state) AS state FROM stg.customers GROUP BY 1),
-s AS (SELECT zip_prefix, mode(city) AS city, mode(state) AS state FROM stg.sellers GROUP BY 1)
+c AS (SELECT zip_prefix, mode(city ORDER BY city) AS city, mode(state ORDER BY state) AS state FROM stg.customers GROUP BY 1),
+s AS (SELECT zip_prefix, mode(city ORDER BY city) AS city, mode(state ORDER BY state) AS state FROM stg.sellers GROUP BY 1)
 SELECT -1 AS location_key, 'UNKNOWN' AS zip_prefix, 'khong ro' AS city, NULL AS state, 'Khong ro' AS region,
        NULL::DOUBLE AS lat, NULL::DOUBLE AS lng, FALSE AS has_coordinates
 UNION ALL
@@ -35,7 +35,7 @@ FROM z LEFT JOIN stg.geography g USING (zip_prefix) LEFT JOIN c USING (zip_prefi
 CREATE TABLE core.dim_customer AS
 SELECT -1 AS customer_key, 'UNKNOWN' AS customer_unique_id, NULL AS city, NULL AS state
 UNION ALL
-SELECT row_number() OVER (ORDER BY customer_unique_id), customer_unique_id, mode(city), mode(state)
+SELECT row_number() OVER (ORDER BY customer_unique_id), customer_unique_id, mode(city ORDER BY city), mode(state ORDER BY state)
 FROM stg.customers GROUP BY customer_unique_id;
 
 CREATE TABLE core.dim_product AS

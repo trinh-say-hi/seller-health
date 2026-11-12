@@ -1,4 +1,5 @@
 """Duong dan va tham so chung cua he thong."""
+import json
 import os
 from pathlib import Path
 
@@ -7,9 +8,26 @@ RAW_DIR = ROOT / "data" / "olist" / "raw"
 SQL_DIR = ROOT / "src" / "sql"
 EVIDENCE_DIR = ROOT / "evidence"
 
-# Database dat ngoai OneDrive de tranh khoa file khi dong bo. Dat OLIST_DB de doi cho khac.
+# Database dat ngoai OneDrive de tranh khoa file khi dong bo. OLIST_HOME doi thu muc chua kho.
 _LOCAL = Path(os.environ.get("LOCALAPPDATA", str(ROOT))) / "seller_health"
-DB_PATH = Path(os.environ.get("OLIST_DB", str(_LOCAL / "olist.duckdb")))
+HOME = Path(os.environ.get("OLIST_HOME", str(_LOCAL)))
+# Moi lan dung lai, kho duoc dung thanh mot ban phat hanh moi trong releases/, kiem tra xong moi tro current.json sang.
+# Khi app dang doc mot file DuckDB thi tien trinh khac khong mo file do de ghi duoc, nen khong dung de len kho app dang doc.
+RELEASES_DIR = HOME / "releases"
+POINTER = HOME / "current.json"
+
+
+def current_db() -> Path:
+    """Kho dang dung: OLIST_DB neu dat (Docker, test, buoc dung ban moi), roi con tro current.json, roi file cu olist.duckdb."""
+    if os.environ.get("OLIST_DB"):
+        return Path(os.environ["OLIST_DB"])
+    try:
+        return RELEASES_DIR / json.loads(POINTER.read_text(encoding="utf-8"))["current"]
+    except (FileNotFoundError, KeyError, ValueError):
+        return HOME / "olist.duckdb"
+
+
+DB_PATH = current_db()
 
 FIRST_BATCH = "2016-09"
 LAST_BATCH = "2018-10"

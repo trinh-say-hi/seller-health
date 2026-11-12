@@ -6,7 +6,8 @@ ENV PYTHONUTF8=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    OLIST_DB=/app/db/olist.duckdb
+    OLIST_DB=/app/db/olist.duckdb \
+    OLIST_HOME=/app/db
 
 WORKDIR /app
 

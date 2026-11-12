@@ -14,13 +14,13 @@ from src.app.common import apply_css, fullscreen_button, q
 from src.app.screens_bi import blame, overview, seller
 from src.app.screens_dss import board, route_whatif, validation
 from src.app.screens_olap import olap
-from src.config import DB_PATH
+from src.config import current_db
 
 st.set_page_config(page_title="Seller Health", layout="wide", initial_sidebar_state="collapsed")
 apply_css()
 
-if not DB_PATH.exists():
-    st.error(f"Chưa có kho dữ liệu tại {DB_PATH}. Hãy chạy: python run_all.py")
+if not current_db().exists():
+    st.error(f"Chưa có kho dữ liệu tại {current_db()}. Hãy chạy: python run_all.py")
     st.stop()
 
 SCREENS = {"Tổng quan": overview, "Lỗi giao trễ": blame, "Chi tiết seller": seller, "Bảng kế hoạch": board, "What-if tuyến": route_whatif, "Kiểm chứng": validation, "Đa chiều": olap}
