@@ -70,13 +70,6 @@ header[data-testid="stHeader"] * {pointer-events: auto;}
 .ct {font-size: clamp(12px, 0.95vw, 15px); font-weight: 600; line-height: 1.25; margin: 0 0 0 2px; color: var(--sh-ink);}
 .cs {font-size: clamp(10.5px, 0.8vw, 12.5px); font-weight: 400; color: var(--sh-muted); line-height: 1.25; margin: 0 0 0 2px;}
 p.note {font-size: 12px !important; color: var(--sh-muted); line-height: 1.3; margin: 0;}
-.tbl {overflow: auto; max-width: 100%; border: 1px solid var(--sh-line); border-radius: 8px;}
-.tbl table {width: 100%; border-collapse: collapse; font-size: clamp(11px, 0.88vw, 13.5px); font-variant-numeric: tabular-nums;}
-.tbl th {position: sticky; top: 0; background: #f6f8fb; color: var(--sh-muted); font-weight: 600; text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--sh-line); white-space: nowrap;}
-.tbl td {padding: 4px 8px; border-bottom: 1px solid #eef1f5; color: var(--sh-ink); white-space: nowrap;}
-.tbl tr:last-child td {border-bottom: none;}
-.tbl tbody tr:hover td {background: #f8fafc;}
-.tbl .r {text-align: right;}
 [data-testid="stMain"] iframe {width: 100% !important;}
 
 /* Dieu khien */
@@ -242,32 +235,9 @@ def show(fig):
     st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
 
-def _cell(x):
-    """Dinh dang mot o bang kieu Viet Nam."""
-    if x is None or (not isinstance(x, str) and pd.isna(x)):
-        return "—"
-    if isinstance(x, bool):
-        return "Có" if x else "Không"
-    if isinstance(x, (int,)) or (isinstance(x, float) and float(x).is_integer()):
-        return num(x)
-    if isinstance(x, float):
-        return num(x, 2 if abs(x) >= 1 else 3)
-    try:
-        import numpy as np
-        if isinstance(x, np.integer):
-            return num(int(x))
-        if isinstance(x, np.floating):
-            return _cell(float(x))
-    except ImportError:
-        pass
-    return str(x)
-
-
 def table(df: pd.DataFrame, height=200):
-    """Bang HTML co dau bang dinh, cuon trong khung. Ve bang DOM thuong nen dung ti le khi trang thu nho."""
-    num_cols = {c for c in df.columns if pd.api.types.is_numeric_dtype(df[c]) and not pd.api.types.is_bool_dtype(df[c])}
-    head = "".join(f'<th class="{"r" if c in num_cols else ""}">{html.escape(str(c))}</th>' for c in df.columns)
-    rows = "".join("<tr>" + "".join(f'<td class="{"r" if c in num_cols else ""}">{html.escape(_cell(v))}</td>' for c, v in zip(df.columns, row)) + "</tr>"
-                   for row in df.itertuples(index=False, name=None))
-    st.markdown(f'<div class="tbl" style="max-height:{int(height)}px"><table><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div>',
-                unsafe_allow_html=True)
+    """Bang co san thanh cong cu cua Streamlit: tai CSV, tim kiem, xem toan man hinh.
+    Cot so hien theo ngon ngu trinh duyet (tieng Viet: dau cham ngan nghin, dau phay thap phan)."""
+    cfg = {c: st.column_config.NumberColumn(format="localized") for c in df.columns
+           if pd.api.types.is_numeric_dtype(df[c]) and not pd.api.types.is_bool_dtype(df[c])}
+    st.dataframe(df, hide_index=True, width="stretch", height=height, column_config=cfg)

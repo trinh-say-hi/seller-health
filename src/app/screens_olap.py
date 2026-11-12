@@ -244,7 +244,7 @@ def olap(as_of):
     e1, e2 = st.columns(2)
     with e1.expander(f"Bảng chi tiết và dòng tổng ROLLUP ({len(children)} {level_label.lower()})"):
         shown_tbl = tbl.copy()
-        for col, f in {"GMV (BRL)": lambda v: num(v), "Tỷ lệ trễ": lambda v: pct(v), "Review TB": lambda v: num(v, 2), "% GMV cấp trên": lambda v: pct(v)}.items():
+        for col, f in {"Tỷ lệ trễ": lambda v: pct(v), "% GMV cấp trên": lambda v: pct(v), "Review TB": lambda v: num(v, 2)}.items():
             if col in shown_tbl:
                 shown_tbl[col] = shown_tbl[col].map(f)
         table(shown_tbl, height=260)
