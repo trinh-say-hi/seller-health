@@ -4,11 +4,11 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from src.app.common import (BLUE, LIGHT_BLUE, MUTED, ORANGE, SEQ, TIER_ORDER, brl, compact, guide_banner, kpi, note, num, pct, points, q, short, show,
+from src.app.common import (BLUE, LIGHT_BLUE, MUTED, ORANGE, SEQ, TIER_ORDER, brl, compact, kgroup, kpi, note, num, pct, points, q, short, show,
                             signed_pct, style, table, title)
 from src.dss.rules import ACTION_LABEL
 
-H1 = 202
+H1 = 184
 H2 = 232
 
 
@@ -17,7 +17,6 @@ def _prev_month(as_of, n=1):
 
 
 def overview(as_of):
-    guide_banner("Bước 1/6", "Khám bệnh toàn sàn", "Tháng này sàn có gì bất thường? Doanh số nào đang rủi ro?", "Xem 7 thẻ KPI, chú ý 'Mới vào Nguy cơ' và GMV có rủi ro, rồi xem vùng và danh mục giảm nhiều nhất.")
     regions = ["Tất cả"] + q("SELECT DISTINCT region FROM mart.kpi_monthly WHERE region IS NOT NULL AND NOT is_all_region ORDER BY 1").region.tolist()
     cats = ["Tất cả"] + q("SELECT category_en FROM mart.kpi_monthly WHERE NOT is_all_category GROUP BY 1 ORDER BY sum(gmv) DESC").category_en.tolist()
     f1, f2, f3 = st.columns([1, 1.4, 3.6], vertical_alignment="bottom")
@@ -46,7 +45,11 @@ def overview(as_of):
     gmv_change = last.gmv / prev.gmv - 1 if prev.gmv else None
     late_change = last.late_rate - prev.late_rate if pd.notna(last.late_rate) and pd.notna(prev.late_rate) else None
     trail = df.tail(12)
-    m = st.columns(7)
+    g = st.columns([3, 2, 2], gap="medium")
+    kgroup(g[0], "Doanh số tháng", BLUE)
+    kgroup(g[1], "Giao hàng và đánh giá", ORANGE)
+    kgroup(g[2], "Rủi ro seller", "#b42318")
+    m = g[0].columns(3, gap="small") + g[1].columns(2, gap="small") + g[2].columns(2, gap="small")
     kpi(m[0], "gmv", compact(last.gmv), signed_pct(gmv_change), chart=trail.gmv.tolist())
     kpi(m[1], "orders", num(last.n_orders), f"{int(last.n_orders - prev.n_orders):+d}".replace(",", "."), chart=trail.n_orders.tolist())
     kpi(m[2], "active_sellers_month", num(last.n_sellers), f"{int(last.n_sellers - prev.n_sellers):+d}", chart=trail.n_sellers.tolist())
@@ -121,7 +124,6 @@ def overview(as_of):
 
 
 def blame(as_of):
-    guide_banner("Bước 2/6", "Chẩn đoán nguyên nhân", "Đơn trễ do seller giao chậm hay do khâu vận chuyển?", "Xem 'Đơn trễ, seller đúng hạn': tỷ lệ càng cao thì trễ càng nằm ở vận chuyển, nên xem chỉnh ngày hẹn ở Bước 5 trước khi xử lý seller.")
     w = "delivered_ts < CAST(? AS DATE) AND delivered_ts >= CAST(? AS DATE) - INTERVAL 90 DAY AND NOT is_canceled AND any_seller_late IS NOT NULL"
     base = q(f"""SELECT any_seller_late AS seller_late, customer_late, count(*) AS n, avg(days_to_carrier) AS d_carrier, avg(days_in_transit) AS d_transit
                  FROM core.fact_order WHERE {w} GROUP BY 1, 2""", (as_of, as_of))
@@ -216,7 +218,6 @@ def blame(as_of):
 
 
 def seller(as_of):
-    guide_banner("Bước 3/6", "Hồ sơ bệnh án seller", "Seller này bị sụt giảm doanh số ở đâu và vì lý do gì?", "Xem GMV theo tháng, số ngày ở khâu seller và khâu vận chuyển, so với trung vị toàn sàn, và lý do của khuyến nghị.")
     rec = q("""SELECT r.*, f.gmv_90, f.gmv_30, f.orders_90, f.trend, f.recency, f.seller_late_rate, f.cust_late_rate, f.avg_review, f.days_to_carrier, f.health_tier, d.state, d.city, d.health_tier AS stable_tier
                FROM dss.recommendation r JOIN mart.seller_features f USING (as_of, seller_id)
                JOIN core.dim_seller d ON d.seller_id = r.seller_id AND d.valid_from < CAST(? AS DATE) AND d.valid_to >= CAST(? AS DATE)

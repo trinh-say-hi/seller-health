@@ -16,49 +16,112 @@ TIER_ORDER = ["Vàng", "Ổn định", "Ít đơn", "Theo dõi", "Nguy cơ", "T�
 
 CSS = """
 <style>
-header[data-testid="stHeader"], [data-testid="stSidebarCollapsedControl"], footer {display: none !important;}
-.block-container, [data-testid="stMainBlockContainer"] {padding: 0.45rem 1.1rem 0.3rem 1.1rem !important; max-width: 100% !important;}
-[data-testid="stVerticalBlock"] {gap: 0.35rem;}
+/* Mau va khoang cach theo boi so 8px: trang xam nhat, moi the va moi bieu do la mot o trang rieng */
+:root {
+  --sh-page: #f3f5f8; --sh-card: #ffffff; --sh-line: #e1e5ec; --sh-ink: #0f1722; --sh-muted: #5b6472;
+  --sh-blue: #2a78d6; --sh-blue-ink: #184f95; --sh-blue-soft: #eaf2fc; --sh-shadow: 0 1px 2px rgba(16, 24, 40, .06);
+}
+footer {display: none !important;}
+header[data-testid="stHeader"] {background: transparent !important; height: 2.75rem; pointer-events: none;}
+header[data-testid="stHeader"] * {pointer-events: auto;}
+[data-testid="stMainMenu"], [data-testid="stToolbarActions"], [data-testid="stAppDeployButton"], [data-testid="stDecoration"], [data-testid="stStatusWidget"] {display: none !important;}
+[data-testid="stExpandSidebarButton"] {background: var(--sh-card); border: 1px solid var(--sh-line); border-radius: 8px; box-shadow: var(--sh-shadow);}
+.stApp {background: var(--sh-page);}
+.block-container, [data-testid="stMainBlockContainer"] {padding: 0.55rem 1.25rem 0.4rem 1.25rem !important; max-width: 100% !important;}
+[data-testid="stVerticalBlock"] {gap: 0.5rem;}
+[data-testid="stHorizontalBlock"] {gap: 0.75rem;}
 [data-testid="stMarkdown"], [data-testid="stMarkdownContainer"] {margin-bottom: 0 !important;}
-[data-testid="stHorizontalBlock"] {gap: 0.55rem;}
-[data-testid="stMetric"] {background: #ffffff; border: 1px solid #e8e7e3; border-radius: 8px; padding: 4px 10px 3px 10px;}
+
+/* Sidebar dieu huong */
+[data-testid="stSidebar"] {background: #ffffff; border-right: 1px solid var(--sh-line);}
+[data-testid="stSidebar"] [data-testid="stSidebarContent"] {padding-top: 0.5rem;}
+.brand {font-size: 18px; font-weight: 700; line-height: 1.15; color: var(--sh-ink);}
+.brand span {display: block; font-size: 11.5px; font-weight: 400; color: var(--sh-muted); margin-top: 2px;}
+.navgroup {font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--sh-muted); margin: 10px 0 0 2px;}
+[data-testid="stSidebar"] div[data-testid="stRadio"] [role="radiogroup"] {gap: 2px; flex-direction: column;}
+[data-testid="stSidebar"] [data-testid="stRadioOption"] {padding: 7px 10px; margin: 0; border-radius: 8px; cursor: pointer; width: 100%;}
+[data-testid="stSidebar"] [data-testid="stRadioOption"] > div > div:first-child {display: none;}
+[data-testid="stSidebar"] [data-testid="stRadioOption"] p {font-size: 14px;}
+[data-testid="stSidebar"] [data-testid="stRadioOption"]:hover {background: #f1f4f8;}
+[data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] {background: var(--sh-blue-soft);}
+[data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] p {font-weight: 600; color: var(--sh-blue-ink);}
+.sidenote {font-size: 11.5px; color: var(--sh-muted); line-height: 1.4;}
+
+/* Thanh tren cung: ten man hinh, cau hoi, muc tieu; chua cho nut mo sidebar o goc trai */
+.topbar {padding-left: 44px; display: flex; flex-direction: column; gap: 2px;}
+.topbar .tb-row {display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
+.topbar .tb-step {background: var(--sh-blue); color: #fff; font-weight: 700; font-size: 10.5px; padding: 2px 7px; border-radius: 4px; white-space: nowrap;}
+.topbar .tb-title {font-size: 19px; font-weight: 700; color: var(--sh-ink); line-height: 1.2;}
+.topbar .tb-q {font-size: 13px; color: var(--sh-muted);}
+.topbar .tb-goal {font-size: 12px; color: #2b3340; line-height: 1.35;}
+.topbar .tb-goal b {color: var(--sh-blue-ink);}
+
+/* The KPI: o trang rieng, nhan duoc xuong dong thay vi bi cat */
+[data-testid="stMetric"] {background: var(--sh-card); border: 1px solid var(--sh-line); border-radius: 10px; padding: 8px 12px 6px 12px; box-shadow: var(--sh-shadow); gap: 0 !important;}
 [data-testid="stMetric"] > div {gap: 0;}
-[data-testid="stMetricLabel"] {font-size: 12px; color: #52514e; min-height: 0;}
-[data-testid="stMetricLabel"] p {font-size: 12px;}
-[data-testid="stMetricValue"] {font-size: 21px; line-height: 1.25; font-weight: 600;}
+[data-testid="stMetricLabel"] {font-size: 12px; color: var(--sh-muted); min-height: 0;}
+[data-testid="stMetricLabel"] p, [data-testid="stMetricLabel"] div {font-size: 12px; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.25;}
+[data-testid="stMetricValue"] {font-size: 22px; line-height: 1.25; font-weight: 650; color: var(--sh-ink);}
 [data-testid="stMetricDelta"] {font-size: 11.5px;}
+[data-testid="stMetricDelta"] div {white-space: normal !important; overflow: visible !important; text-overflow: clip !important;}
+[data-testid="stMetricChart"] {height: 28px !important; overflow: hidden; margin-top: 2px;}
+[data-testid="stMetricChart"] svg {height: 28px !important; width: 100%;}
+.kgroup {font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--sh-muted); display: flex; align-items: center; gap: 6px; margin: 0 0 -2px 2px;}
+.kgroup i {display: inline-block; width: 8px; height: 8px; border-radius: 2px;}
+[data-testid="stHorizontalBlock"]:has(.kgroup) [data-testid="stMetric"] {min-height: 128px;}
+
+/* Moi bieu do va bang co tieu de nam trong mot o trang rieng */
+[data-testid="stColumn"]:has(> [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"] .ct) {background: var(--sh-card); border: 1px solid var(--sh-line); border-radius: 10px; padding: 8px 10px 6px 10px; box-shadow: var(--sh-shadow);}
+.ct {font-size: 13.5px; font-weight: 600; line-height: 1.25; margin: 0 0 0 2px; color: var(--sh-ink);}
+.cs {font-size: 11.5px; font-weight: 400; color: var(--sh-muted); line-height: 1.25; margin: 0 0 0 2px;}
+p.note {font-size: 12px !important; color: var(--sh-muted); line-height: 1.3; margin: 0;}
+.tbl {overflow: auto; border: 1px solid var(--sh-line); border-radius: 8px;}
+.tbl table {width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums;}
+.tbl th {position: sticky; top: 0; background: #f6f8fb; color: var(--sh-muted); font-weight: 600; text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--sh-line); white-space: nowrap;}
+.tbl td {padding: 4px 8px; border-bottom: 1px solid #eef1f5; color: var(--sh-ink); white-space: nowrap;}
+.tbl tr:last-child td {border-bottom: none;}
+.tbl tbody tr:hover td {background: #f8fafc;}
+.tbl .r {text-align: right;}
+[data-testid="stMain"] iframe {width: 100% !important;}
+
+/* Dieu khien */
 [data-testid="stWidgetLabel"] {margin-bottom: 0; min-height: 0;}
-[data-testid="stWidgetLabel"] p {font-size: 12px; color: #52514e;}
+[data-testid="stWidgetLabel"] p {font-size: 12px; color: var(--sh-muted);}
 [data-testid="stSliderTickBar"] {display: none;}
-[data-testid="stElementContainer"]:has(.brand) {margin-top: 6px;}
-.brand {font-size: 17px; font-weight: 700; line-height: 1.1;}
-.brand span {display: block; font-size: 11px; font-weight: 400; color: #52514e;}
-.ct {font-size: 13.5px; font-weight: 600; line-height: 1.25; margin: 2px 0 0 2px;}
-.cs {font-size: 11.5px; font-weight: 400; color: #52514e; line-height: 1.25; margin: 0 0 0 2px;}
-p.note {font-size: 12px !important; color: #52514e; line-height: 1.3; margin: 0;}
 [data-testid="stSlider"] [data-testid="stWidgetLabel"] {margin-bottom: 7px;}
-.rec {background: #eef4fc; border-radius: 8px; padding: 6px 10px; font-size: 13px; line-height: 1.35;}
-.rec b {color: #184f95;}
+.rec {background: var(--sh-blue-soft); border-radius: 8px; padding: 6px 10px; font-size: 13px; line-height: 1.35;}
+.rec b {color: var(--sh-blue-ink);}
 .flash {border-radius: 6px; padding: 2px 10px; font-size: 12.5px; line-height: 1.4; margin: 0;}
 .flash.bad {background: #fdecec; color: #a32020;}
 .flash.good {background: #eaf6ea; color: #006300;}
-div[data-testid="stRadio"] [role="radiogroup"] {gap: 0; flex-wrap: nowrap;}
-[data-testid="stRadioOption"] {padding: 5px 13px; margin: 0; border-bottom: 2px solid #e8e7e3; cursor: pointer;}
-[data-testid="stRadioOption"] > div > div:first-child {display: none;}
-[data-testid="stRadioOption"] p {font-size: 14px; white-space: nowrap;}
-[data-testid="stRadioOption"][data-selected="true"] {border-bottom-color: #2a78d6;}
-[data-testid="stRadioOption"][data-selected="true"] p {font-weight: 600; color: #184f95;}
-[data-testid="stMetric"] {gap: 0 !important;}
-[data-testid="stMetricChart"] {height: 30px !important; overflow: hidden; margin-top: 1px;}
-[data-testid="stMetricChart"] svg {height: 30px !important; width: 100%;}
-.guide-banner {background: linear-gradient(135deg, #f0f6ff 0%, #eaf2fc 100%); border-left: 3.5px solid #2a78d6; border-radius: 6px; padding: 3px 10px; margin: 1px 0 3px 0; display: flex; align-items: center; gap: 10px; font-size: 12px; line-height: 1.3;}
-.gb-step {background: #2a78d6; color: white; font-weight: 700; font-size: 10.5px; padding: 1px 6px; border-radius: 3px; white-space: nowrap;}
-.gb-title {font-weight: 600; color: #184f95; white-space: nowrap;}
-.gb-title span {font-weight: 400; color: #52514e;}
-.gb-action {color: #222; font-size: 11.5px; margin-left: auto; text-align: right;}
-.gb-action b {color: #184f95;}
 </style>
 """
+
+
+# Thu nho ca trang theo ti le, giong "Fit to page" cua Power BI: thiet ke tren khung 1440 x 800,
+# roi thu nho phan noi dung cho vua cua so (khong phong to qua 100%: Plotly va bang du lieu tu do lai kich thuoc
+# theo pixel man hinh, phong to se bi nhan doi). Ma chay trong trang cha, cai mot lan.
+FIT_W, FIT_H = 1440, 800
+_FIT_PARENT = (
+    "(function(){var CW=%d,CH=%d;"
+    "function fit(){var m=document.querySelector('[data-testid=stMain]'),b=document.querySelector('[data-testid=stMainBlockContainer]');"
+    "if(!m||!b)return;var k=Math.min(m.clientWidth/CW,window.innerHeight/CH);k=Math.max(0.45,Math.min(k,1));"
+    "b.style.zoom=String(k);b.style.width=(m.clientWidth/k)+'px';b.style.maxWidth='none';document.documentElement.dataset.fit=k.toFixed(3);}"
+    "window.__shFit=fit;window.addEventListener('resize',fit);var hooked=null;"
+    "new MutationObserver(function(){var m=document.querySelector('[data-testid=stMain]');"
+    "if(m&&m!==hooked){hooked=m;new ResizeObserver(fit).observe(m);}fit();})"
+    ".observe(document.body,{childList:true,subtree:true});fit();})();"
+) % (FIT_W, FIT_H)
+_FIT_JS = (
+    "(function(){var w=window.parent,d=w.document;"
+    "if(d.getElementById('sh-fit')){if(w.__shFit)w.__shFit();return;}"
+    "var s=d.createElement('script');s.id='sh-fit';s.textContent=%r;d.head.appendChild(s);})();"
+) % _FIT_PARENT
+
+
+def fit_to_page():
+    """Cai bo thu nho ca trang. Goi trong sidebar de iframe rong khong chiem cho cua noi dung."""
+    st.iframe(f"<script>{_FIT_JS}</script>", height=1)
 
 
 def apply_css():
@@ -152,16 +215,10 @@ def flash(text, good=False):
     st.markdown(f'<p class="flash {"good" if good else "bad"}">{"✓" if good else "⚠"} {html.escape(text)}</p>', unsafe_allow_html=True)
 
 
-def guide_banner(step: str, title_text: str, question: str, action: str):
-    """Thanh huong dan nhanh o dau moi man hinh giup nguoi dung ro vai tro va hanh dong."""
-    st.markdown(
-        f'<div class="guide-banner">'
-        f'<div class="gb-step">{html.escape(step)}</div>'
-        f'<div class="gb-title">{html.escape(title_text)}: <span>{html.escape(question)}</span></div>'
-        f'<div class="gb-action">👉 <b>Mục tiêu:</b> {html.escape(action)}</div>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
+
+def kgroup(col, text, color):
+    """Nhan nhom cho mot cum the KPI."""
+    col.markdown(f'<div class="kgroup"><i style="background:{color}"></i>{html.escape(text)}</div>', unsafe_allow_html=True)
 
 
 def note(text):
@@ -188,5 +245,32 @@ def show(fig):
     st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
 
+def _cell(x):
+    """Dinh dang mot o bang kieu Viet Nam."""
+    if x is None or (not isinstance(x, str) and pd.isna(x)):
+        return "—"
+    if isinstance(x, bool):
+        return "Có" if x else "Không"
+    if isinstance(x, (int,)) or (isinstance(x, float) and float(x).is_integer()):
+        return num(x)
+    if isinstance(x, float):
+        return num(x, 2 if abs(x) >= 1 else 3)
+    try:
+        import numpy as np
+        if isinstance(x, np.integer):
+            return num(int(x))
+        if isinstance(x, np.floating):
+            return _cell(float(x))
+    except ImportError:
+        pass
+    return str(x)
+
+
 def table(df: pd.DataFrame, height=200):
-    st.dataframe(df, hide_index=True, width="stretch", height=height)
+    """Bang HTML co dau bang dinh, cuon trong khung. Ve bang DOM thuong nen dung ti le khi trang thu nho."""
+    num_cols = {c for c in df.columns if pd.api.types.is_numeric_dtype(df[c]) and not pd.api.types.is_bool_dtype(df[c])}
+    head = "".join(f'<th class="{"r" if c in num_cols else ""}">{html.escape(str(c))}</th>' for c in df.columns)
+    rows = "".join("<tr>" + "".join(f'<td class="{"r" if c in num_cols else ""}">{html.escape(_cell(v))}</td>' for c, v in zip(df.columns, row)) + "</tr>"
+                   for row in df.itertuples(index=False, name=None))
+    st.markdown(f'<div class="tbl" style="max-height:{int(height)}px"><table><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div>',
+                unsafe_allow_html=True)

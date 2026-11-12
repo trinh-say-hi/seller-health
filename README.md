@@ -74,7 +74,7 @@ Tài liệu: [thiết kế và báo cáo](docs/thiet-ke-he-thong.md) · [data ca
 
 ## Bảy màn hình
 
-Mỗi màn hình vừa khung 1440 × 800, không phải cuộn.
+Mỗi màn hình được thiết kế trên khung 1440 × 800 và không phải cuộn. Cửa sổ nhỏ hơn thì cả trang tự thu nhỏ theo tỷ lệ, giống chế độ Fit to page của Power BI. Danh sách màn hình nằm ở sidebar bên trái, mặc định thu gọn, bấm » ở góc trên để mở.
 
 | Màn hình | Câu hỏi được trả lời | Quyết định rút ra |
 |---|---|---|

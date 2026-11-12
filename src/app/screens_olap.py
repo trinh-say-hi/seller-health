@@ -7,7 +7,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from src.app.common import BLUE, MUTED, SEQ, compact, guide_banner, kpi, note, num, pct, q, show, style, table, title
+from src.app.common import BLUE, MUTED, SEQ, compact, kpi, note, num, pct, q, show, style, table, title
 
 # Moi phan cap la danh sach cap: (nhan, bieu thuc SQL). Cap cuoi khong di sau duoc nua.
 HIERARCHIES = {
@@ -90,8 +90,6 @@ def _months(as_of):
 
 
 def olap(as_of):
-    guide_banner("Khám phá", "Phân tích đa chiều (OLAP)", "Số liệu dồn ở đâu, và đi sâu xuống tới từng seller thì thấy gì?",
-                 "Bấm vào một cột để đi sâu (drill-down), bấm tên cấp trên để quay lên (roll-up). Bộ lọc là slice/dice, 'Chia theo' là pivot.")
     months = _months(as_of)
     c = st.columns([1.2, 1.0, 1.1, 2.1, 0.9], vertical_alignment="bottom")
     hier_name = c[0].selectbox("Phân cấp drill-down", list(HIERARCHIES))
@@ -245,7 +243,11 @@ def olap(as_of):
                               "late_rate": "Tỷ lệ trễ", "avg_review": "Review TB", "share": "% GMV cấp trên"})
     e1, e2 = st.columns(2)
     with e1.expander(f"Bảng chi tiết và dòng tổng ROLLUP ({len(children)} {level_label.lower()})"):
-        table(tbl.style.format({"GMV (BRL)": "{:,.0f}", "Tỷ lệ trễ": "{:.1%}", "Review TB": "{:.2f}", "% GMV cấp trên": "{:.1%}"}, na_rep="—"), height=260)
+        shown_tbl = tbl.copy()
+        for col, f in {"GMV (BRL)": lambda v: num(v), "Tỷ lệ trễ": lambda v: pct(v), "Review TB": lambda v: num(v, 2), "% GMV cấp trên": lambda v: pct(v)}.items():
+            if col in shown_tbl:
+                shown_tbl[col] = shown_tbl[col].map(f)
+        table(shown_tbl, height=260)
         if not total_row.empty:
             t = total_row.iloc[0]
             note(f"Dòng tổng do GROUP BY ROLLUP sinh ra: GMV {num(t.gmv)} BRL, {num(t.n_orders)} đơn, {num(t.n_sellers)} seller. "
