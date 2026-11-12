@@ -10,7 +10,7 @@ if str(ROOT) not in sys.path:
 import pandas as pd
 import streamlit as st
 
-from src.app.common import apply_css, q
+from src.app.common import apply_css, fullscreen_button, q
 from src.app.screens_bi import blame, overview, seller
 from src.app.screens_dss import board, route_whatif, validation
 from src.app.screens_olap import olap
@@ -25,7 +25,7 @@ if not DB_PATH.exists():
 
 SCREENS = {"Tổng quan": overview, "Lỗi giao trễ": blame, "Chi tiết seller": seller, "Bảng kế hoạch": board, "What-if tuyến": route_whatif, "Kiểm chứng": validation, "Đa chiều": olap}
 LABELS = {"Tổng quan": "1 · Tổng quan", "Lỗi giao trễ": "2 · Lỗi giao trễ", "Chi tiết seller": "3 · Chi tiết seller", "Bảng kế hoạch": "4 · Bảng kế hoạch (DSS)", "What-if tuyến": "5 · What-if tuyến", "Kiểm chứng": "6 · Kiểm chứng", "Đa chiều": "7 · Đa chiều (OLAP)"}
-# Buoc, ten, cau hoi, muc tieu: hien o thanh tren cung cua tung man hinh
+# Buoc, ten, cau hoi, muc tieu cua tung man hinh: hien trong sidebar, duoi danh sach man hinh
 META = {
     'Tổng quan': ('Bước 1/6', 'Khám bệnh toàn sàn', 'Tháng này sàn có gì bất thường? Doanh số nào đang rủi ro?', "Xem 7 thẻ KPI, chú ý 'Mới vào Nguy cơ' và GMV có rủi ro, rồi xem vùng và danh mục giảm nhiều nhất."),
     'Lỗi giao trễ': ('Bước 2/6', 'Chẩn đoán nguyên nhân', 'Đơn trễ do seller giao chậm hay do khâu vận chuyển?', "Xem 'Đơn trễ, seller đúng hạn': tỷ lệ càng cao thì trễ càng nằm ở vận chuyển, nên xem chỉnh ngày hẹn ở Bước 5 trước khi xử lý seller."),
@@ -38,19 +38,16 @@ META = {
 
 with st.sidebar:
     st.markdown('<div class="brand">Seller Health<span>DSS giữ chân người bán · Olist 2016–2018</span></div>', unsafe_allow_html=True)
+    asofs = [str(d)[:10] for d in q("SELECT DISTINCT as_of FROM dss.recommendation ORDER BY 1").as_of]
+    as_of = st.select_slider("Hôm nay là ngày (as-of)", asofs, value="2018-07-01", format_func=lambda d: pd.Timestamp(d).strftime("%d/%m/%Y"),
+                             help="Tua thời gian: mọi màn hình chỉ thấy dữ liệu trước ngày này. Riêng Kiểm chứng dùng kết quả các tháng đã biết.")
     st.markdown('<div class="navgroup">Màn hình</div>', unsafe_allow_html=True)
     screen = st.radio("Màn hình", list(SCREENS), label_visibility="collapsed", format_func=LABELS.get)
-    st.markdown('<div class="sidenote">1–3: phát hiện vấn đề · 4–5: ra quyết định · 6: kiểm chứng · 7: tự khám phá dữ liệu.<br>'
-                'Bấm « ở trên để thu gọn sidebar.</div>', unsafe_allow_html=True)
-
-step, name, question, goal = META[screen]
-t1, t2 = st.columns([4.4, 1.6], vertical_alignment="center")
-t1.markdown(
-    f'<div class="topbar"><div class="tb-row"><span class="tb-step">{html.escape(step)}</span>'
-    f'<span class="tb-title">{html.escape(name)}</span><span class="tb-q">{html.escape(question)}</span></div>'
-    f'<div class="tb-goal"><b>Mục tiêu:</b> {html.escape(goal)}</div></div>', unsafe_allow_html=True)
-asofs = [str(d)[:10] for d in q("SELECT DISTINCT as_of FROM dss.recommendation ORDER BY 1").as_of]
-as_of = t2.select_slider("Hôm nay là ngày (as-of)", asofs, value="2018-07-01", format_func=lambda d: pd.Timestamp(d).strftime("%d/%m/%Y"),
-                         help="Tua thời gian: mọi màn hình chỉ thấy dữ liệu trước ngày này. Riêng Kiểm chứng dùng kết quả các tháng đã biết.")
+    step, name, question, goal = META[screen]
+    st.markdown(f'<div class="sidegoal"><span class="tb-step">{html.escape(step)}</span> <b>{html.escape(name)}</b><br>'
+                f'<i>{html.escape(question)}</i><br><b>Mục tiêu:</b> {html.escape(goal)}</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sidenote">1–3: phát hiện vấn đề · 4–5: ra quyết định · 6: kiểm chứng · 7: tự khám phá dữ liệu.</div>',
+                unsafe_allow_html=True)
+    fullscreen_button()
 
 SCREENS[screen](as_of)

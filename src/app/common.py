@@ -27,7 +27,7 @@ header[data-testid="stHeader"] * {pointer-events: auto;}
 [data-testid="stMainMenu"], [data-testid="stToolbarActions"], [data-testid="stAppDeployButton"], [data-testid="stDecoration"], [data-testid="stStatusWidget"] {display: none !important;}
 [data-testid="stExpandSidebarButton"] {background: var(--sh-card); border: 1px solid var(--sh-line); border-radius: 8px; box-shadow: var(--sh-shadow);}
 .stApp {background: var(--sh-page);}
-.block-container, [data-testid="stMainBlockContainer"] {padding: 0.55rem clamp(0.75rem, 1.3vw, 1.5rem) 0.25rem clamp(0.75rem, 1.3vw, 1.5rem) !important; max-width: 100% !important;}
+.block-container, [data-testid="stMainBlockContainer"] {padding: 2.75rem clamp(0.75rem, 1.3vw, 1.5rem) 0.25rem clamp(0.75rem, 1.3vw, 1.5rem) !important; max-width: 100% !important;}
 [data-testid="stVerticalBlock"] {gap: 0.5rem;}
 [data-testid="stHorizontalBlock"] {gap: clamp(0.5rem, 0.8vw, 0.9rem);}
 [data-testid="stMarkdown"], [data-testid="stMarkdownContainer"] {margin-bottom: 0 !important;}
@@ -47,14 +47,10 @@ header[data-testid="stHeader"] * {pointer-events: auto;}
 [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] p {font-weight: 600; color: var(--sh-blue-ink);}
 .sidenote {font-size: 11.5px; color: var(--sh-muted); line-height: 1.4;}
 
-/* Thanh tren cung: ten man hinh, cau hoi, muc tieu; chua cho nut mo sidebar o goc trai */
-.topbar {padding-left: 44px; display: flex; flex-direction: column; gap: 2px;}
-.topbar .tb-row {display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
-.topbar .tb-step {background: var(--sh-blue); color: #fff; font-weight: 700; font-size: 10.5px; padding: 2px 7px; border-radius: 4px; white-space: nowrap;}
-.topbar .tb-title {font-size: clamp(16px, 1.35vw, 21px); font-weight: 700; color: var(--sh-ink); line-height: 1.2;}
-.topbar .tb-q {font-size: clamp(12px, 0.9vw, 14px); color: var(--sh-muted);}
-.topbar .tb-goal {font-size: clamp(11px, 0.85vw, 13px); color: #2b3340; line-height: 1.35;}
-.topbar .tb-goal b {color: var(--sh-blue-ink);}
+/* Muc tieu cua man hinh dang xem, nam trong sidebar */
+.sidegoal {font-size: 12px; color: #2b3340; line-height: 1.45; background: #f6f8fb; border: 1px solid var(--sh-line); border-radius: 8px; padding: 8px 10px; margin-top: 4px;}
+.sidegoal i {color: var(--sh-muted);}
+.tb-step {background: var(--sh-blue); color: #fff; font-weight: 700; font-size: 10px; padding: 1px 6px; border-radius: 4px; white-space: nowrap;}
 
 /* The KPI: o trang rieng, nhan duoc xuong dong thay vi bi cat */
 [data-testid="stMetric"] {background: var(--sh-card); border: 1px solid var(--sh-line); border-radius: 10px; padding: 8px 12px 6px 12px; box-shadow: var(--sh-shadow); gap: 0 !important;}
@@ -96,6 +92,33 @@ p.note {font-size: 12px !important; color: var(--sh-muted); line-height: 1.3; ma
 </style>
 """
 
+
+
+# Nut toan man hinh nho o goc phai tren. Ma chay trong trang cha (nut nam ngoai iframe) va chi cai mot lan.
+_FS_PARENT = (
+    "(function(){if(document.getElementById('sh-fs'))return;"
+    "var ON='<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"><path d=\"M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4\"/></svg>';"
+    "var OFF='<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"><path d=\"M6 2v4H2M14 6h-4V2M10 14v-4h4M2 10h4v4\"/></svg>';"
+    "var b=document.createElement('button');b.id='sh-fs';b.type='button';"
+    "b.style.cssText='position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:14px;z-index:999990;width:32px;height:32px;"
+    "border-radius:8px;border:1px solid #e1e5ec;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.06);cursor:pointer;"
+    "display:flex;align-items:center;justify-content:center;color:#3b4452;padding:0;';"
+    "function sync(){var on=!!document.fullscreenElement;b.innerHTML=on?OFF:ON;"
+    "b.title=on?'Thoát toàn màn hình (Esc)':'Toàn màn hình';b.setAttribute('aria-label',b.title);}"
+    "b.onclick=function(){if(document.fullscreenElement){document.exitFullscreen();}"
+    "else if(document.documentElement.requestFullscreen){document.documentElement.requestFullscreen().catch(function(){"
+    "b.title='Trình duyệt chặn toàn màn hình ở đây, hãy bấm F11';});}};"
+    "document.addEventListener('fullscreenchange',sync);sync();document.body.appendChild(b);})();"
+)
+_FS_JS = (
+    "(function(){var d=window.parent.document;if(d.getElementById('sh-fs-js'))return;"
+    "var s=d.createElement('script');s.id='sh-fs-js';s.textContent=%r;d.head.appendChild(s);})();"
+) % _FS_PARENT
+
+
+def fullscreen_button():
+    """Cai nut toan man hinh. Goi trong sidebar de iframe rong khong chiem cho cua noi dung."""
+    st.iframe(f"<script>{_FS_JS}</script>", height=1)
 
 
 def apply_css():
