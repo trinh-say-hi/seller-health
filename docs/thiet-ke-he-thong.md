@@ -848,9 +848,9 @@ Olist gửi khảo sát sau ngày hẹn, dù hàng đã tới hay chưa. Trên t
 
 | Bộ test | Phạm vi | Kết quả |
 |---|---|---:|
-| `tests/test_system.py` | Nguồn, Bronze, Silver, Gold, đối soát, chống rò rỉ, OLAP, tối ưu, tài liệu, cổng chất lượng | 126/126 |
-| `tests/test_edges.py` | 6 màn hình × 13 as-of, bộ lọc hiếm | 102/102 |
-| `tests/test_ui.py` | Trình duyệt Edge thật: kéo thả bằng chuột, bấm thẻ, xuất CSV, số trên UI khớp SQL, không cuộn ở 1440 × 800 | 49/49 |
+| `tests/test_system.py` | Nguồn, Bronze, Silver, Gold, đối soát, chống rò rỉ, OLAP, tối ưu, tài liệu, cổng chất lượng | 127/127 |
+| `tests/test_edges.py` | 7 màn hình × 13 as-of, bộ lọc hiếm | 115/115 |
+| `tests/test_ui.py` | Trình duyệt Edge thật: kéo thả bằng chuột, bấm thẻ, xuất CSV, số trên UI khớp SQL, không cuộn ở 1440 × 800 | 55/55 |
 
 ### Các kiểm tra đáng chú ý
 
@@ -1044,9 +1044,9 @@ powershell -ExecutionPolicy Bypass -File .\run_app.ps1   # mở http://localhost
 | `feasibility.json` | Kết quả thử trước khi có kho, từ CSV | `scripts/feasibility.py` | Không |
 | `threshold_selection.json` | So sánh các ngưỡng trên 09/2017–02/2018. Chạy lúc ngân sách là 3.000 BRL | `scripts/tune_threshold.py` | Không |
 | `dss_evaluation.json` | Bản sao kết quả AUC, các cách chọn, độ nhạy và tham số | `src/dss/run.py` | Không (app đọc từ bảng `dss.*`) |
-| `test_results.json` | 126 test hệ thống | `tests/test_system.py` | Có, ở màn Kiểm chứng |
+| `test_results.json` | 127 test hệ thống | `tests/test_system.py` | Có, ở màn Kiểm chứng |
 | `edge_test_results.json` | 102 trường hợp, kèm thời gian xử lý | `tests/test_edges.py` | Không |
-| `ui_test_results.json` | 49 test trình duyệt | `tests/test_ui.py` | Không |
+| `ui_test_results.json` | 55 test trình duyệt | `tests/test_ui.py` | Không |
 
 ---
 

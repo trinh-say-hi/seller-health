@@ -10,7 +10,7 @@ from streamlit.testing.v1 import AppTest
 
 from src.config import EVIDENCE_DIR, ROOT
 
-SCREENS = ["Tổng quan", "Lỗi giao trễ", "Chi tiết seller", "Bảng kế hoạch", "What-if tuyến", "Kiểm chứng"]
+SCREENS = ["Tổng quan", "Lỗi giao trễ", "Chi tiết seller", "Bảng kế hoạch", "What-if tuyến", "Kiểm chứng", "Đa chiều"]
 results, failed = [], 0
 at = AppTest.from_file(str(ROOT / "src" / "app" / "app.py"), default_timeout=120).run()
 asofs = list(at.select_slider[0].options)

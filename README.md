@@ -16,7 +16,7 @@ cd DW_DSS
 docker compose up --build
 ```
 
-Lần đầu mất khoảng 10–15 phút: tải Python, cài thư viện, dựng kho từ 9 CSV, chạy DSS và 126 test. Test hỏng thì build dừng. Khi thấy dòng `You can now view your Streamlit app`, mở http://localhost:8501.
+Lần đầu mất khoảng 10–15 phút: tải Python, cài thư viện, dựng kho từ 9 CSV, chạy DSS và 127 test. Test hỏng thì build dừng. Khi thấy dòng `You can now view your Streamlit app`, mở http://localhost:8501.
 
 Những lần sau chỉ cần `docker compose up`. Tắt bằng `Ctrl+C`. Nếu cổng 8501 đã bị dùng, đổi dòng `"8501:8501"` trong `docker-compose.yml` thành `"8502:8501"` rồi mở http://localhost:8502.
 
@@ -72,9 +72,9 @@ CSV chỉ có trạng thái cuối của đơn. Vì vậy mỗi đợt che đi c
 
 Tài liệu: [thiết kế và báo cáo](docs/thiet-ke-he-thong.md) · [data catalog](docs/data_catalog.md) · [quy tắc đặt tên](docs/naming_conventions.md) · [yêu cầu](docs/requirements.md) · [định nghĩa KPI](metrics.yml) · [truy vấn OLAP](src/sql/olap_examples.sql).
 
-## Sáu màn hình
+## Bảy màn hình
 
-Mỗi màn hình vừa khung 1440 × 800, không phải cuộn.
+Mỗi màn hình vừa khung 1440 × 800, không phải cuộn. Cửa sổ khác cỡ thì bố cục tự dàn theo chiều rộng thật và chữ co nhẹ theo bề ngang, nên biểu đồ luôn lấp kín ô; cửa sổ thấp hơn 800 thì cuộn dọc. Danh sách màn hình nằm ở sidebar bên trái, mặc định thu gọn, bấm » ở góc trên để mở.
 
 | Màn hình | Câu hỏi được trả lời | Quyết định rút ra |
 |---|---|---|
@@ -84,6 +84,7 @@ Mỗi màn hình vừa khung 1440 × 800, không phải cuộn.
 | Bảng kế hoạch | Với ngân sách này thì làm gì với ai? (kéo thả) | Danh sách hành động, xuất CSV |
 | What-if tuyến | Hứa thêm N ngày thì tỷ lệ trễ còn bao nhiêu? | Có đổi lời hẹn không |
 | Kiểm chứng | Các tháng trước danh sách trúng bao nhiêu? | Có nên tin hệ thống không |
+| Đa chiều (OLAP) | Số liệu dồn ở đâu? Đi sâu từ vùng xuống bang, thành phố, seller thì thấy gì? | Khoanh vùng cần xem kỹ; drill-down, roll-up, slice, dice, pivot trên lớp core |
 
 ## Thành phần DSS
 
@@ -142,3 +143,14 @@ docs/         thiết kế, data catalog, quy tắc đặt tên, yêu cầu, sơ
 catalog.yml   mô tả bảng và cột
 metrics.yml   định nghĩa KPI
 ```
+
+## Báo cáo
+
+Báo cáo PDF nằm ở `report/BaoCao_SellerHealth_CO4031.pdf`, nội dung ở `report/bao_cao.html`. Mọi biểu đồ được vẽ lại từ kho và từ `evidence/`, không gõ tay số liệu. Sau khi sửa nội dung hoặc dựng lại kho:
+
+```powershell
+python report/make_figures.py   # vẽ lại biểu đồ SVG từ kho
+python report/build_pdf.py      # xuất PDF bằng Edge và Paged.js (cần playwright trong requirements-dev.txt)
+```
+
+Ô tô vàng trên bìa và ở Phụ lục A là thông tin nhóm cần điền: số nhóm, MSSV, thành viên, link video, phân công.

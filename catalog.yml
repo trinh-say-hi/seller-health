@@ -337,6 +337,17 @@ tables:
       target: Mục tiêu dự báo.
       feature: Tên feature.
       coef: Hệ số.
+  dss.explain:
+    layer: DSS
+    kind: Giải thích dự báo
+    grain: 1 seller × 1 feature × 1 as-of, kèm 1 dòng hệ số chặn
+    description: Đóng góp của từng feature vào log-odds của mục tiêu sụt GMV. Cộng mọi dòng của một seller được log-odds, đổi ra xác suất đúng bằng p_decline.
+    columns:
+      seller_id: Mã seller.
+      feature: Tên feature; _intercept là hệ số chặn.
+      value: Giá trị gốc của feature tại as-of, trước khi lấy log và chuẩn hóa.
+      z: Giá trị đã chuẩn hóa theo trung bình và độ lệch chuẩn của tập train.
+      contrib: Đóng góp vào log-odds bằng hệ số nhân z. Dương làm tăng rủi ro.
   dss.eval_auc:
     layer: DSS
     kind: Đánh giá

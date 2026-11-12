@@ -15,8 +15,8 @@ from src.config import DB_PATH, EVIDENCE_DIR
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else EVIDENCE_DIR / "screenshots"
 OUT.mkdir(parents=True, exist_ok=True)
 URL = "http://localhost:8599"
-SCREENS = ["Tổng quan", "Lỗi giao trễ", "Chi tiết seller", "Bảng kế hoạch", "What-if tuyến", "Kiểm chứng"]
-ASCII = dict(zip(SCREENS, ["tong_quan", "loi_giao_tre", "chi_tiet_seller", "bang_ke_hoach", "whatif_tuyen", "kiem_chung"]))
+SCREENS = ["Tổng quan", "Lỗi giao trễ", "Chi tiết seller", "Bảng kế hoạch", "What-if tuyến", "Kiểm chứng", "Đa chiều"]
+ASCII = dict(zip(SCREENS, ["tong_quan", "loi_giao_tre", "chi_tiet_seller", "bang_ke_hoach", "whatif_tuyen", "kiem_chung", "da_chieu"]))
 results = []
 
 
@@ -38,7 +38,17 @@ def errors(page):
 
 
 def goto(page, name):
-    page.locator('div[data-testid="stRadio"] label').filter(has_text=name).first.click()
+    """Chon man hinh trong sidebar: mo sidebar, bam ten man hinh, roi thu sidebar lai de do khung hinh nhu nguoi dung thay."""
+    opener = page.locator('[data-testid="stExpandSidebarButton"]')
+    if opener.count() and opener.first.is_visible():
+        opener.first.click()
+        page.wait_for_timeout(500)
+    page.locator('[data-testid="stSidebar"] div[data-testid="stRadio"] label').filter(has_text=name).first.click()
+    settle(page)
+    closer = page.locator('[data-testid="stSidebarCollapseButton"] button, [data-testid="stSidebarCollapseButton"]')
+    if closer.count():
+        closer.first.click()
+        page.wait_for_timeout(800)
     settle(page)
 
 
@@ -98,7 +108,7 @@ with sync_playwright() as p:
 
     # Keo tha that tren bang kanban
     goto(page, "Bảng kế hoạch")
-    frame = page.frame_locator("iframe").first
+    frame = page.frame_locator("[data-testid=\"stMain\"] iframe").first
     columns = frame.locator(".sortable-container")
     check("Bang co 4 cot", columns.count() == 4, columns.count())
     headers = [columns.nth(i).locator(".column-title").inner_text() for i in range(columns.count())]
@@ -126,7 +136,7 @@ with sync_playwright() as p:
     target.click()
     settle(page)
     check("Bam the hien chi tiet seller do", target_id in page.locator("#seller-detail").inner_text(), target_id)
-    frame = page.frame_locator("iframe").first
+    frame = page.frame_locator("[data-testid=\"stMain\"] iframe").first
     columns = frame.locator(".sortable-container")
     check("Bam the khong lam mat the", [columns.nth(i).locator(".sortable-item").count() for i in range(4)] == counts)
 
@@ -134,7 +144,7 @@ with sync_playwright() as p:
     drag(columns.nth(0).locator(".sortable-item").first, columns.nth(3).locator(".sortable-container-body"))
     settle(page)
     page.wait_for_timeout(1500)
-    columns = page.frame_locator("iframe").first.locator(".sortable-container")
+    columns = page.frame_locator("[data-testid=\"stMain\"] iframe").first.locator(".sortable-container")
     counts2 = [columns.nth(i).locator(".sortable-item").count() for i in range(4)]
     cost1, saved1 = metric(page, "Tiền đã dùng"), metric(page, "Giữ được")
     check("Keo tha chuyen the giua cot", counts2[0] == counts[0] - 1 and counts2[3] == counts[3] + 1, f"{counts} -> {counts2}")
@@ -160,7 +170,7 @@ with sync_playwright() as p:
 
     moves = 0
     for _ in range(14):
-        columns = page.frame_locator("iframe").first.locator(".sortable-container")
+        columns = page.frame_locator("[data-testid=\"stMain\"] iframe").first.locator(".sortable-container")
         src = columns.nth(3).locator(".sortable-item").first
         if src.count() == 0:
             break
@@ -188,6 +198,30 @@ with sync_playwright() as p:
     r2 = metric(page, "Tỷ lệ trễ")
     check("What-if hua them ngay lam ty le tre doi", r1 != r2, f"{r1} -> {r2}")
     page.screenshot(path=str(OUT / "10_whatif_sau_khi_doi.png"))
+
+    # Giai thich du bao o Chi tiet seller
+    goto(page, "Chi tiết seller")
+    why = page.locator(".ct").filter(has_text="Vì sao rủi ro")
+    check("Chi tiet seller co bieu do giai thich du bao", why.count() == 1, why.first.inner_text() if why.count() else "")
+
+    # Luu va so sanh kich ban o Bang ke hoach
+    goto(page, "Bảng kế hoạch")
+    page.get_by_role("button", name="Kịch bản (").first.click()
+    settle(page)
+    dlg = page.locator('[role="dialog"]')
+    dlg.get_by_role("button", name="Lưu phương án hiện tại").click()
+    settle(page)
+    dlg.locator('input[type="text"]').first.fill("KB test 2")
+    page.keyboard.press("Enter")
+    settle(page)
+    dlg.get_by_role("button", name="Lưu phương án hiện tại").click()
+    settle(page)
+    note_text = dlg.locator("p.note").first.inner_text() if dlg.locator("p.note").count() else ""
+    check("Kich ban: luu duoc va so sanh trong hop thoai", "cao nhất" in note_text and not errors(page), note_text[:80])
+    dlg.get_by_role("button", name="Xóa kịch bản của mốc này").click()
+    settle(page)
+    page.keyboard.press("Escape")
+    settle(page)
 
     # Cac moc as-of khac cung phai vua khung hinh
     slider = page.locator('input[type="range"][aria-label*="as-of"]').first

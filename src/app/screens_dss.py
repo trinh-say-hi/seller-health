@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 import streamlit as st
 import streamlit.components.v1 as components
 
+from src.app import scenarios
 from src.app.common import (BLUE, MUTED, ORANGE, brl, flash, kpi, note, num, pct, points, q, short, show, signed_pct, style, table, title)
 from src.config import EVIDENCE_DIR
 from src.dss.optimize import budget_curve, build_plan, cost_of, gain, slots_of, summarize
@@ -37,9 +38,9 @@ def _curve(as_of, params_json):
     return budget_curve(_panel(as_of), Params(**json.loads(params_json)), list(range(0, 8001, 500)))
 
 
-def _controls() -> Params:
+def _controls(as_of):
     d = Params()
-    c = st.columns([1, 1, 1, 1, .8, .8], vertical_alignment="bottom")
+    c = st.columns([1, 1, 1, 1, .72, .72, .9], vertical_alignment="bottom")
     budget = c[0].slider("Ngân sách (BRL)", 0, 8000, int(d.budget), 250)
     slots = c[1].slider("Số suất nhân viên", 0, 100, d.max_slots, 5, help="Gọi điện dùng 1 suất, hỗ trợ vận hành dùng 2 suất.")
     risk = c[2].slider("Ngưỡng rủi ro", .10, .80, d.risk_threshold, .05)
@@ -57,7 +58,9 @@ def _controls() -> Params:
     st.session_state.setdefault("board_reset", 0)
     if c[5].button("Đặt lại", width="stretch", help="Bỏ mọi thao tác kéo tay, về đề xuất của bộ tối ưu."):
         st.session_state.board_reset += 1
-    return replace(d, budget=float(budget), max_slots=int(slots), risk_threshold=float(risk), value_pct=1 - value / 100, cost_call=float(cost_call), cost_ops=float(cost_ops),
+    n_saved = sum(1 for x in scenarios.load() if x["as_of"] == str(as_of)[:10])
+    open_scen = c[6].button(f"Kịch bản ({n_saved})", width="stretch", help="Lưu phương án đang có, kể cả thao tác kéo tay, và so sánh các phương án đã lưu.")
+    return open_scen, replace(d, budget=float(budget), max_slots=int(slots), risk_threshold=float(risk), value_pct=1 - value / 100, cost_call=float(cost_call), cost_ops=float(cost_ops),
                    eff_call_ok=eff_call / 100, eff_call_poor=eff_call_p / 100, eff_ops_poor=eff_ops / 100, eff_ops_ok=eff_ops_o / 100, eff_email=eff_email / 100)
 
 
@@ -84,8 +87,35 @@ def apply_moves(plan, moved: dict, p: Params):
     return out
 
 
+@st.dialog("Lưu và so sánh kịch bản", width="large")
+def _scenario_dialog(cur):
+    saved = [x for x in scenarios.load() if x["as_of"] == cur["as_of"]]
+    pr = cur["params"]
+    default = f"KB{len(saved) + 1} · {num(pr['budget'])} BRL · {pr['max_slots']} suất · ngưỡng {num(pr['risk_threshold'], 2)}"
+    st.caption(f"Mốc as-of {pd.Timestamp(cur['as_of']).strftime('%d/%m/%Y')}. Kịch bản lưu cả tham số, giả định và thao tác kéo tay; "
+               "tắt app mở lại vẫn còn. Mức trùng là tỷ lệ seller được gọi hoặc hỗ trợ giống với phương án hiện tại.")
+    c = st.columns([3, 1.2, 1.1], vertical_alignment="bottom")
+    name = c[0].text_input("Tên kịch bản", default, key=f"scen-name-{len(saved)}")
+    if c[1].button("Lưu phương án hiện tại", type="primary", width="stretch"):
+        scenarios.save({**cur, "name": name.strip() or default})
+        st.rerun(scope="fragment")
+    if saved and c[2].button("Xóa kịch bản của mốc này", width="stretch"):
+        scenarios.clear(cur["as_of"])
+        st.rerun(scope="fragment")
+    df = scenarios.compare(cur, saved)
+    if not saved:
+        note("Chưa lưu kịch bản nào ở mốc này. Đổi ngân sách, ngưỡng hay kéo thẻ, rồi lưu từng phương án để đặt cạnh nhau.")
+    else:
+        best = df.iloc[1:].sort_values("Giữ được / 1.000 BRL", ascending=False).iloc[0]
+        note(f"Hiệu quả trên mỗi 1.000 BRL cao nhất trong các kịch bản đã lưu: {best['Kịch bản']} "
+             f"({num(best['Giữ được / 1.000 BRL'])} BRL giữ được theo giả định). Con số dựa trên giả định hiệu quả can thiệp.")
+    df["Ngưỡng rủi ro"] = df["Ngưỡng rủi ro"].map(lambda v: num(v, 2))
+    df["Trùng với hiện tại"] = df["Trùng với hiện tại"].map(lambda v: pct(v, 0))
+    table(df, 39 + 35 * len(df))
+
+
 def board(as_of):
-    p = _controls()
+    open_scen, p = _controls(as_of)
     pj = json.dumps(p.as_dict(), sort_keys=True)
     plan = _plan(as_of, pj)
     members = _board_members(plan)
@@ -105,7 +135,8 @@ def board(as_of):
         moved = {r.seller_id: r.action for r in members.itertuples()}
     current = apply_moves(plan, moved, p)
     s, s0 = summarize(current), summarize(plan)
-    edited = sum(1 for sid, a in moved.items() if plan.loc[plan.seller_id == sid, "action"].iloc[0] != a)
+    orig = dict(zip(plan.seller_id, plan.action))
+    edited = sum(1 for sid, a in moved.items() if sid in orig and orig[sid] != a)
 
     with summary_box:
         m = st.columns(4)
@@ -119,6 +150,9 @@ def board(as_of):
             flash(f"Vượt {s['slots'] - p.max_slots} suất nhân viên. Hãy chuyển bớt seller hoặc tăng số suất.")
         elif edited:
             flash(f"Đã đổi {edited} seller so với đề xuất, vẫn trong ràng buộc.", good=True)
+
+    if open_scen:
+        _scenario_dialog(scenarios.record("Hiện tại (chưa lưu)", as_of, p.as_dict(), s, current, edited))
 
     with top[1]:
         curve = _curve(as_of, pj)

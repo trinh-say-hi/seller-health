@@ -50,6 +50,7 @@ Tự sinh từ kho bằng `python -m src.etl.catalog`, không sửa tay. Mô t�
 | `dss.default_params` | DSS | Tham số | 1 bộ tham số | 1 |
 | `dss.eval_auc` | DSS | Đánh giá | 1 mục tiêu × 1 as-of | 22 |
 | `dss.eval_lists` | DSS | Đánh giá | 1 cách chọn × 1 phạm vi × 1 as-of | 35 |
+| `dss.explain` | DSS | Giải thích dự báo | 1 seller × 1 feature × 1 as-of. kèm 1 dòng hệ số chặn | 230.451 |
 | `dss.labels` | DSS | Nhãn huấn luyện | 1 seller × 1 as-of | 18.048 |
 | `dss.model_coef` | DSS | Kết quả mô hình | 1 feature × 1 mục tiêu × 1 as-of | 312 |
 | `dss.recommendation` | DSS | Kế hoạch mặc định | 1 seller × 1 as-of | 17.727 |
@@ -496,6 +497,21 @@ So sánh các cách chọn seller trên kết quả thật.
 | `dormant_rate` | DOUBLE | Tỷ lệ tạm ngừng trong danh sách. |
 | `loss_share` | DOUBLE | Phần GMV mất nằm trong danh sách. |
 | `loss` | DOUBLE | Tổng GMV mất trong danh sách. |
+| `as_of` | DATE | Mốc thời gian giả lập, chỉ thấy dữ liệu trước mốc này. |
+
+### `dss.explain`
+
+Đóng góp của từng feature vào log-odds của mục tiêu sụt GMV. Cộng mọi dòng của một seller được log-odds, đổi ra xác suất đúng bằng p_decline.
+
+**Loại:** Giải thích dự báo. **Grain:** 1 seller × 1 feature × 1 as-of, kèm 1 dòng hệ số chặn.
+
+| Cột | Kiểu | Mô tả |
+|---|---|---|
+| `seller_id` | VARCHAR | Mã seller. |
+| `feature` | VARCHAR | Tên feature; _intercept là hệ số chặn. |
+| `value` | DOUBLE | Giá trị gốc của feature tại as-of, trước khi lấy log và chuẩn hóa. |
+| `z` | DOUBLE | Giá trị đã chuẩn hóa theo trung bình và độ lệch chuẩn của tập train. |
+| `contrib` | DOUBLE | Đóng góp vào log-odds bằng hệ số nhân z. Dương làm tăng rủi ro. |
 | `as_of` | DATE | Mốc thời gian giả lập, chỉ thấy dữ liệu trước mốc này. |
 
 ### `dss.labels`

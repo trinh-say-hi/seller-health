@@ -4,11 +4,17 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from src.app.common import (BLUE, LIGHT_BLUE, MUTED, ORANGE, SEQ, TIER_ORDER, brl, compact, kpi, note, num, pct, points, q, short, show,
+from src.app.common import (BLUE, LIGHT_BLUE, MUTED, ORANGE, SEQ, TIER_ORDER, brl, compact, kgroup, kpi, note, num, pct, points, q, short, show,
                             signed_pct, style, table, title)
 from src.dss.rules import ACTION_LABEL
 
-H1 = 206
+H1 = 184
+# Ten feature cua mo hinh, cach doc gia tri, theo dung thu tu FEATS trong src/dss/run.py
+FEAT_LABEL = {"gmv_90": "GMV 90 ngày", "orders_90": "Số đơn 90 ngày", "gmv_30": "GMV 30 ngày", "orders_30": "Số đơn 30 ngày",
+              "trend": "Xu hướng 30 ngày", "recency": "Ngày chưa bán", "tenure": "Thâm niên (ngày)", "n_cat": "Số danh mục",
+              "seller_late_rate": "Giao VC trễ", "cust_late_rate": "Khách nhận trễ", "avg_review": "Review TB", "days_to_carrier": "Ngày tới VC"}
+FEAT_FMT = {"trend": lambda v: signed_pct(v, 0), "seller_late_rate": lambda v: pct(v, 0), "cust_late_rate": lambda v: pct(v, 0),
+            "avg_review": lambda v: num(v, 2), "days_to_carrier": lambda v: num(v, 1)}
 H2 = 232
 
 
@@ -45,14 +51,22 @@ def overview(as_of):
     gmv_change = last.gmv / prev.gmv - 1 if prev.gmv else None
     late_change = last.late_rate - prev.late_rate if pd.notna(last.late_rate) and pd.notna(prev.late_rate) else None
     trail = df.tail(12)
-    m = st.columns(7)
+    # Xu huong rui ro qua cac moc as-of: so seller hang Nguy co va tong GMV rui ro (chi co tu khi DSS bat dau cham diem)
+    risk_trail = q("""SELECT f.as_of, count(*) FILTER (WHERE f.health_tier = 'Nguy cơ') AS n_risk, sum(r.gmv_risk) AS gmv_risk
+                      FROM mart.seller_features f LEFT JOIN dss.recommendation r USING (as_of, seller_id)
+                      WHERE f.as_of <= CAST(? AS DATE) GROUP BY 1 ORDER BY 1""", (as_of,)).tail(12)
+    g = st.columns([3, 2, 2], gap="medium")
+    kgroup(g[0], "Doanh số tháng", BLUE)
+    kgroup(g[1], "Giao hàng và đánh giá", ORANGE)
+    kgroup(g[2], "Rủi ro seller", "#b42318")
+    m = g[0].columns(3, gap="small") + g[1].columns(2, gap="small") + g[2].columns(2, gap="small")
     kpi(m[0], "gmv", compact(last.gmv), signed_pct(gmv_change), chart=trail.gmv.tolist())
     kpi(m[1], "orders", num(last.n_orders), f"{int(last.n_orders - prev.n_orders):+d}".replace(",", "."), chart=trail.n_orders.tolist())
     kpi(m[2], "active_sellers_month", num(last.n_sellers), f"{int(last.n_sellers - prev.n_sellers):+d}", chart=trail.n_sellers.tolist())
     kpi(m[3], "late_rate_month", pct(last.late_rate), points(late_change), chart=trail.late_rate.tolist(), tone="inverse")
     kpi(m[4], "avg_review_month", num(last.avg_review, 2), None if pd.isna(last.avg_review - prev.avg_review) else f"{last.avg_review - prev.avg_review:+.2f}".replace(".", ","), chart=trail.avg_review.tolist())
-    kpi(m[5], "new_at_risk", num(len(new_risk)), f"{n_risk} seller Nguy cơ", tone="off")
-    kpi(m[6], "gmv_at_risk", compact(cur.gmv_risk.sum()), f"{num(len(cur))} seller hoạt động", tone="off")
+    kpi(m[5], "new_at_risk", num(len(new_risk)), f"{n_risk} seller Nguy cơ", tone="off", chart=risk_trail.n_risk.tolist())
+    kpi(m[6], "gmv_at_risk", compact(cur.gmv_risk.sum()), f"{num(len(cur))} seller hoạt động", tone="off", chart=risk_trail.gmv_risk.tolist())
 
     c1, c2, c3 = st.columns(3)
     with c1:
@@ -213,6 +227,26 @@ def blame(as_of):
         show(style(fig, H2 - 16, legend=True))
 
 
+def _explain(as_of, sid, p):
+    """Vi sao mo hinh cham rui ro: dong gop cua tung feature vao log-odds (logistic nen cong don chinh xac)."""
+    e = q("SELECT feature, value, z, contrib FROM dss.explain WHERE as_of = CAST(? AS DATE) AND seller_id = ?", (as_of, sid))
+    if e.empty:
+        title("Vì sao mô hình chấm như vậy")
+        note("Mốc này chưa có giải thích.")
+        return
+    f = e[e.feature != "_intercept"].copy()
+    f["abs"] = f.contrib.abs()
+    top = f.nlargest(6, "abs").sort_values("contrib")
+    up = f[f.contrib > 0].nlargest(1, "contrib")
+    lead = f"{FEAT_LABEL[up.feature.iloc[0]].lower()} đẩy lên mạnh nhất" if len(up) else "không yếu tố nào đẩy lên"
+    title(f"Vì sao rủi ro {pct(p, 0)}: {lead}", "Đóng góp vào điểm rủi ro (log-odds); cam làm tăng, xanh làm giảm. 6 yếu tố lớn nhất")
+    labels = [f"{FEAT_LABEL[x]} = {FEAT_FMT.get(x, num)(v) if pd.notna(v) else '—'}" for x, v in zip(top.feature, top.value)]
+    fig = go.Figure(go.Bar(x=top.contrib, y=labels, orientation="h", marker_color=[ORANGE if c > 0 else BLUE for c in top.contrib],
+                           customdata=top.z, hovertemplate="%{y}<br>Đóng góp %{x:+.2f}<br>Lệch chuẩn so với tập train %{customdata:+.1f}<extra></extra>"))
+    fig.add_vline(x=0, line_color=MUTED, line_width=1)
+    show(style(fig, 176))
+
+
 def seller(as_of):
     rec = q("""SELECT r.*, f.gmv_90, f.gmv_30, f.orders_90, f.trend, f.recency, f.seller_late_rate, f.cust_late_rate, f.avg_review, f.days_to_carrier, f.health_tier, d.state, d.city, d.health_tier AS stable_tier
                FROM dss.recommendation r JOIN mart.seller_features f USING (as_of, seller_id)
@@ -260,7 +294,9 @@ def seller(as_of):
         ref = rec.median(numeric_only=True) if other == MEDIAN else rec[rec.seller_id == other].iloc[0]
         table(pd.DataFrame({"Chỉ số": [f[0] for f in feats], short(sid): [f[2](r[f[1]]) for f in feats], "So với": [f[2](ref[f[1]]) for f in feats]}), H1)
 
-    c1, c2 = st.columns([1, 2])
+    c1, cx, c2 = st.columns([1, 1.15, 1.85])
+    with cx:
+        _explain(as_of, sid, r.p_decline)
     with c1:
         t = q("""SELECT health_tier AS "Hạng ổn định", strftime(valid_from, '%d/%m/%Y') AS "Từ",
                         CASE WHEN valid_to >= CAST(? AS DATE) THEN 'hiện tại' ELSE strftime(valid_to, '%d/%m/%Y') END AS "Đến"

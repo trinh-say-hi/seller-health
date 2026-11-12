@@ -18,6 +18,7 @@ Giúp đội Seller Success của Olist quyết định mỗi tháng: gọi sell
 | 4 | Với nguồn lực này, làm gì với ai? | Kế hoạch tối ưu, sửa được bằng kéo thả | Bảng kế hoạch |
 | 5 | Có nên đổi lời hẹn giao không? | Tỷ lệ trễ theo số ngày hứa thêm | What-if tuyến |
 | 6 | Có nên tin hệ thống không? | So với các cách chọn đơn giản | Kiểm chứng |
+| 7 | Số liệu dồn ở đâu, đi sâu xuống thì thấy gì? | Drill-down, roll-up, slice, dice, pivot theo 4 phân cấp | Đa chiều (OLAP) |
 
 ## Nguồn dữ liệu
 

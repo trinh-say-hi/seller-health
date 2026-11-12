@@ -90,6 +90,21 @@
   "detail": "doc 0px, ngang 0px"
  },
  {
+  "test": "Man hinh 'Đa chiều' khong loi",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Man hinh 'Đa chiều' co KPI",
+  "ok": true,
+  "detail": "5"
+ },
+ {
+  "test": "Man hinh 'Đa chiều' vua 1440x800, khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
   "test": "Co chu thich KPI tu metrics.yml",
   "ok": true,
   "detail": ""
@@ -132,7 +147,7 @@
  {
   "test": "Cac cot nam ngang hang nhau",
   "ok": true,
-  "detail": "[18, 291, 564, 837]"
+  "detail": "[20, 292, 564, 836]"
  },
  {
   "test": "Co the tren bang",
@@ -210,6 +225,16 @@
   "detail": "4,6% -> 2,7%"
  },
  {
+  "test": "Chi tiet seller co bieu do giai thich du bao",
+  "ok": true,
+  "detail": "Vì sao rủi ro 94%: số đơn 90 ngày đẩy lên mạnh nhất"
+ },
+ {
+  "test": "Kich ban: luu duoc va so sanh trong hop thoai",
+  "ok": true,
+  "detail": "Hiệu quả trên mỗi 1.000 BRL cao nhất trong các kịch bản đã lưu: KB1 · 2.000 BRL "
+ },
+ {
   "test": "Moc som nhat: 'Tổng quan' khong cuon",
   "ok": true,
   "detail": "doc 0px, ngang 0px"
@@ -236,6 +261,11 @@
  },
  {
   "test": "Moc som nhat: 'Kiểm chứng' khong cuon",
+  "ok": true,
+  "detail": "doc 0px, ngang 0px"
+ },
+ {
+  "test": "Moc som nhat: 'Đa chiều' khong cuon",
   "ok": true,
   "detail": "doc 0px, ngang 0px"
  },
