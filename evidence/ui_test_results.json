@@ -225,6 +225,16 @@
   "detail": "4,6% -> 2,7%"
  },
  {
+  "test": "Chi tiet seller co bieu do giai thich du bao",
+  "ok": true,
+  "detail": "Vì sao rủi ro 94%: số đơn 90 ngày đẩy lên mạnh nhất"
+ },
+ {
+  "test": "Kich ban: luu duoc va so sanh trong hop thoai",
+  "ok": true,
+  "detail": "Hiệu quả trên mỗi 1.000 BRL cao nhất trong các kịch bản đã lưu: KB1 · 2.000 BRL "
+ },
+ {
   "test": "Moc som nhat: 'Tổng quan' khong cuon",
   "ok": true,
   "detail": "doc 0px, ngang 0px"

@@ -74,7 +74,7 @@ def ops_score(df):
 
 
 def score_all(panel):
-    frames, coefs, aucs = [], [], []
+    frames, coefs, aucs, explain = [], [], [], []
     asofs = sorted(a for a in panel.as_of.unique() if a >= pd.Timestamp(FIRST_SCORED_ASOF))
     for t in asofs:
         cur = panel[panel.as_of == t].copy()
@@ -86,6 +86,18 @@ def score_all(panel):
             model = make_pipeline(StandardScaler(), LogisticRegression(max_iter=3000)).fit(Xtr, y)
             cur[f"p_{target}"] = model.predict_proba(Xte)[:, 1]
             coefs += [{"as_of": t, "target": target, "feature": f, "coef": float(c)} for f, c in zip(FEATS, model[-1].coef_[0])]
+            if target == "decline":
+                # Logistic la tong tuyen tinh: log-odds = he so chan + sum(he so x gia tri chuan hoa).
+                # Luu tung so hang de giai thich chinh xac vi sao mot seller bi cham rui ro cao.
+                sc, lr = model[0], model[-1]
+                z = (Xte.values - sc.mean_) / sc.scale_
+                contrib = z * lr.coef_[0]
+                sid = cur.seller_id.values
+                for i, f in enumerate(FEATS):
+                    explain.append(pd.DataFrame({"as_of": t, "seller_id": sid, "feature": f, "value": cur[f].astype(float).values,
+                                                 "z": z[:, i], "contrib": contrib[:, i]}))
+                explain.append(pd.DataFrame({"as_of": t, "seller_id": sid, "feature": "_intercept", "value": np.nan,
+                                             "z": np.nan, "contrib": float(lr.intercept_[0])}))
             if cur[target].notna().all():
                 yt = cur[target].astype(int)
                 no_ops = [c for c in FEATS if c not in OPS_FEATS]
@@ -97,7 +109,7 @@ def score_all(panel):
                              "train_n": len(train), "train_max_as_of": train.as_of.max()})
         cur["ops_score"] = ops_score(cur)
         frames.append(cur)
-    return pd.concat(frames, ignore_index=True), pd.DataFrame(coefs), pd.DataFrame(aucs)
+    return pd.concat(frames, ignore_index=True), pd.DataFrame(coefs), pd.DataFrame(aucs), pd.concat(explain, ignore_index=True)
 
 
 def evaluate_lists(scored, plans):
@@ -157,7 +169,7 @@ def main():
     con = duckdb.connect(str(DB_PATH))
     create_labels(con)
     panel = load_panel(con)
-    scored, coefs, aucs = score_all(panel)
+    scored, coefs, aucs, explain = score_all(panel)
     print(f"Diem xong: {len(scored)} dong, {scored.as_of.nunique()} moc as-of, {time.time() - start:.1f}s", flush=True)
     plans = []
     for t, cur in scored.groupby("as_of"):
@@ -172,7 +184,7 @@ def main():
     keep_score = ["as_of", "seller_id", "p_decline", "p_dormant", "value_45", "ops_score"]
     keep_plan = ["as_of", "seller_id", "segment", "action", "reason", "rank", "cost", "expected_saved", "gmv_risk",
                  "p_decline", "p_dormant", "ops_score"]
-    for name, frame in [("scores", scored[keep_score]), ("recommendation", plans[keep_plan]), ("model_coef", coefs),
+    for name, frame in [("scores", scored[keep_score]), ("recommendation", plans[keep_plan]), ("model_coef", coefs), ("explain", explain),
                         ("eval_auc", aucs), ("eval_lists", lists), ("sensitivity", sens)]:
         con.register("_f", frame)
         con.execute(f"CREATE OR REPLACE TABLE dss.{name} AS SELECT * EXCLUDE (as_of), CAST(as_of AS DATE) AS as_of FROM _f")

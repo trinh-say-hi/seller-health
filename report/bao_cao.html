@@ -137,7 +137,7 @@ figure img.noframe { border: none; }
   <div class="stat"><b>7 màn hình</b><span>BI, OLAP đa chiều và DSS, có bảng kế hoạch kéo thả</span></div>
   <div class="stat"><b>MILP</b><span>chọn hành động tối ưu dưới ràng buộc ngân sách và số suất nhân viên</span></div>
   <div class="stat"><b>55,5% vs 25,9%</b><span>tỷ lệ gọi trúng seller thật sự sụt GMV: DSS so với chọn theo GMV</span></div>
-  <div class="stat"><b>294 kiểm thử</b><span>126 test hệ thống, 115 trường hợp biên, 53 test trình duyệt, tất cả đạt</span></div>
+  <div class="stat"><b>297 kiểm thử</b><span>127 test hệ thống, 115 trường hợp biên, 55 test trình duyệt, tất cả đạt</span></div>
 </div>
 
 <p><b>Kho dữ liệu.</b> Kho được dựng trên DuckDB theo kiến trúc nhiều lớp: <span class="mono">raw</span> (Bronze), <span class="mono">stg</span> (Silver), <span class="mono">core</span> và <span class="mono">mart</span> (Gold). Mô hình đa chiều theo Kimball gồm 6 bảng fact thuộc ba kiểu (transaction, accumulating snapshot, periodic snapshot) dùng chung 8 dimension. File nguồn chỉ chứa trạng thái cuối cùng của đơn hàng, nên nhóm giả lập 26 đợt nạp theo tháng và che các mốc chưa xảy ra. Nhờ đó kho có lịch sử thật và mọi số liệu đều tính được "tại một ngày trong quá khứ" mà không nhìn thấy tương lai. Mỗi đợt nạp đi qua cổng chất lượng gồm 11 phép đối soát; lệch là đợt bị dừng.</p>
@@ -275,7 +275,7 @@ figure img.noframe { border: none; }
 <li>Một kho dữ liệu đa chiều hoàn chỉnh với lịch sử thật nhờ giả lập 26 đợt nạp theo tháng, có SCD2, accumulating snapshot, cổng chất lượng và metadata đầy đủ.</li>
 <li>Một cách tách trách nhiệm giao trễ giữa seller và vận chuyển dựa trên hạn bàn giao có sẵn trong nguồn, cho ra phát hiện có thể dùng ngay trong quản lý.</li>
 <li>Một DSS kết hợp dự báo, luật và tối ưu, đánh giá ngược theo thời gian một cách nghiêm ngặt, có trình bày cả những tháng hệ thống thua cách chọn đơn giản.</li>
-<li>Một ứng dụng 7 màn hình đi theo đúng các pha ra quyết định, kèm bộ kiểm thử tự động gồm 294 kiểm tra.</li>
+<li>Một ứng dụng 7 màn hình đi theo đúng các pha ra quyết định, kèm bộ kiểm thử tự động gồm 297 kiểm tra.</li>
 </ol>
 
 <!-- ============================ CHUONG 2 ============================ -->
@@ -671,6 +671,8 @@ loss       = max(gmv_90 / 2 − gmv_next45, 0)        -- GMV mất</code></pre>
 </tbody>
 </table>
 
+<p><b>Giải thích từng dự báo.</b> Vì hồi quy logistic là tổng tuyến tính, log-odds của một seller bằng hệ số chặn cộng tổng các tích hệ số × giá trị chuẩn hóa. Hệ thống lưu từng số hạng này vào bảng <span class="mono">dss.explain</span> và vẽ 6 yếu tố đóng góp lớn nhất ở màn Chi tiết seller. Test hệ thống kiểm tra cộng các đóng góp rồi đổi ra xác suất thì khớp <span class="mono">p_decline</span> với sai lệch lớn nhất 2,2·10<sup>−16</sup>, nên đây là phân rã chính xác chứ không phải ước lượng. Với seller ở mục 7.7, yếu tố đẩy rủi ro lên mạnh nhất là số đơn 90 ngày cao (349 đơn): nhãn sụt GMV đo so với chính mức bán cũ, nên seller đang bán nhiều mà tháng gần đây giảm mạnh càng dễ bị xếp vào nhóm sụt.</p>
+
 <h2 id="c7-4">7.4 Bảng luật</h2>
 <p>Ba cờ được tính trước, tất cả chỉnh được trên giao diện: <b>rủi ro cao</b> khi <span class="mono">p_decline ≥ 0,30</span>; <b>giá trị cao</b> khi thuộc top 20% GMV 90 ngày tại as-of; <b>vận hành kém</b> khi tỷ lệ bàn giao trễ ≥ 15% trên ít nhất 5 sản phẩm đã qua hạn. Ngưỡng 0,30 được chọn trên giai đoạn 09/2017–02/2018, tách khỏi giai đoạn đánh giá.</p>
 <p class="tcap"><b>Bảng 7.4.</b> Bảng luật phân khúc</p>
@@ -709,6 +711,7 @@ Ràng buộc Σ_i Σ_a  chi_phí_a × x_ia ≤ ngân sách                (mặc
 
 <h2 id="c7-6">7.6 What-if và giao diện ra quyết định</h2>
 <p><b>Bảng kế hoạch</b> là màn hình chính của DSS. Hàng trên có bốn thanh trượt: ngân sách, số suất, ngưỡng rủi ro, mức giá trị cao; nút "Giả định" chứa chi phí và hiệu quả. Bên dưới là bảng Kanban bốn cột (Gọi ngay, Hỗ trợ vận hành, Email tự động, Chưa xử lý). Người dùng kéo thẻ giữa các cột; các số tổng hợp (tiền đã dùng, suất đã dùng, GMV rủi ro trong kế hoạch, giá trị giữ được theo giả định) cập nhật ngay, và hệ thống báo đỏ khi vượt ràng buộc. Đường cong ngân sách giải lại bài toán với từng mức từ 0 đến 8.000 BRL.</p>
+<p><b>Lưu và so sánh kịch bản.</b> Nút "Kịch bản" mở một hộp thoại lưu phương án đang có, gồm tham số, giả định và cả thao tác kéo tay, rồi đặt các phương án cạnh nhau: số seller được gọi và hỗ trợ, tiền dùng, GMV rủi ro trong kế hoạch, giá trị giữ được theo giả định, giá trị giữ được trên mỗi 1.000 BRL, và mức trùng danh sách với phương án hiện tại. Kịch bản được lưu trong một file riêng cạnh kho, vì kho chỉ mở ở chế độ đọc.</p>
 <figure><img src="../evidence/screenshots/4_bang_ke_hoach.png" style="width:93%"></figure>
 <div class="cap"><b>Hình 7.1.</b> Bảng kế hoạch tại 01/07/2018: dùng hết 2.000 BRL, 36/40 suất, 28 seller được gọi và 4 seller được hỗ trợ; chi quá 2.500 BRL gần như không có thêm lợi ích</div>
 <div class="two">
@@ -847,9 +850,9 @@ Ràng buộc Σ_i Σ_a  chi_phí_a × x_ia ≤ ngân sách                (mặc
 <table>
 <thead><tr><th style="width:24%">Bộ test</th><th>Phạm vi</th><th class="r">Kết quả</th></tr></thead>
 <tbody>
-<tr><td><span class="mono">tests/test_system.py</span></td><td>Nguồn, Bronze, Silver, Gold, đối soát, chống rò rỉ, OLAP, tối ưu, tài liệu, cổng chất lượng</td><td class="r">126/126</td></tr>
+<tr><td><span class="mono">tests/test_system.py</span></td><td>Nguồn, Bronze, Silver, Gold, đối soát, chống rò rỉ, OLAP, tối ưu, tài liệu, cổng chất lượng</td><td class="r">127/127</td></tr>
 <tr><td><span class="mono">tests/test_edges.py</span></td><td>7 màn hình × 13 mốc as-of, bộ lọc hiếm, đo thời gian xử lý</td><td class="r">115/115</td></tr>
-<tr><td><span class="mono">tests/test_ui.py</span></td><td>Trình duyệt Edge thật: kéo thả bằng chuột, bấm thẻ, xuất CSV, số trên giao diện khớp SQL, không cuộn ở 1440 × 800</td><td class="r">53/53</td></tr>
+<tr><td><span class="mono">tests/test_ui.py</span></td><td>Trình duyệt Edge thật: kéo thả bằng chuột, bấm thẻ, xuất CSV, số trên giao diện khớp SQL, không cuộn ở 1440 × 800</td><td class="r">55/55</td></tr>
 </tbody>
 </table>
 <p class="tcap"><b>Bảng 8.5.</b> Một số kiểm tra đáng chú ý</p>
@@ -911,7 +914,7 @@ Ràng buộc Σ_i Σ_a  chi_phí_a × x_ia ≤ ngân sách                (mặc
 
 <!-- ============================ CHUONG 10 ============================ -->
 <h1 id="c10"><span class="num">10.</span> Kết luận</h1>
-<p>Nhóm đã xây dựng một hệ thống hoàn chỉnh từ dữ liệu thô đến quyết định: kho dữ liệu đa chiều có lịch sử thật, quy trình ELT 26 đợt có cổng chất lượng, giao diện phân tích OLAP, và một DSS kết hợp dự báo, luật và tối ưu. Mọi phần đều chạy lại được bằng một lệnh hoặc bằng Docker, và được kiểm tra bởi 294 kiểm thử tự động.</p>
+<p>Nhóm đã xây dựng một hệ thống hoàn chỉnh từ dữ liệu thô đến quyết định: kho dữ liệu đa chiều có lịch sử thật, quy trình ELT 26 đợt có cổng chất lượng, giao diện phân tích OLAP, và một DSS kết hợp dự báo, luật và tối ưu. Mọi phần đều chạy lại được bằng một lệnh hoặc bằng Docker, và được kiểm tra bởi 297 kiểm thử tự động.</p>
 <p>Về chuyên môn kho dữ liệu, bài học lớn nhất là grain và thời điểm. Hai quyết định có ảnh hưởng nhất của dự án là tách grain đơn × seller và giả lập nạp theo tháng với các mốc tương lai bị che. Chúng không đến từ lý thuyết mà từ việc đo dữ liệu trước khi thiết kế. Về DSS, bài học là phải đánh giá trung thực: mô hình chỉ nhỉnh hơn cách đơn giản, và hệ thống thua cách chọn theo GMV ở chỉ số bao phủ tiền. Nhưng chính kho dữ liệu đã cho ra phát hiện có giá trị nhất: phần lớn giao trễ là do vận chuyển, nên quyết định đúng thường là sửa tuyến hoặc lời hẹn chứ không phải phạt seller.</p>
 <p>Hệ thống đáp ứng đủ năm mục tiêu kỹ thuật của đề và thể hiện cả 11 chuẩn đầu ra của học phần, như đã đối chiếu ở đầu báo cáo.</p>
 

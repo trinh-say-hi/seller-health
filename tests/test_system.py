@@ -202,6 +202,9 @@ check("Doi chieu CSV: seller_late_rate tung seller", (j.late.fillna(-1) - j.sell
 train = con.execute("SELECT as_of, train_max_as_of FROM dss.eval_auc").df()
 gap = (pd.to_datetime(train.as_of) - pd.to_datetime(train.train_max_as_of)).dt.days
 check("DSS: train cach test it nhat 45 ngay", gap.min() >= 45, f"nho nhat {gap.min()} ngay")
+gap = one("""SELECT max(abs(1 / (1 + exp(-e.lo)) - s.p_decline)) FROM (SELECT as_of, seller_id, sum(contrib) AS lo FROM dss.explain GROUP BY 1, 2) e
+              JOIN dss.scores s USING (as_of, seller_id)""")
+check("Giai thich: tong dong gop doi ra xac suat khop p_decline", gap is not None and gap < 1e-6, f"lech lon nhat {gap:.2e}" if gap is not None else "khong co du lieu")
 check("DSS: moi seller 1 khuyen nghi moi as-of", one("SELECT count(*) FROM (SELECT as_of, seller_id FROM dss.recommendation GROUP BY 1,2 HAVING count(*) > 1)") == 0)
 check("DSS: moi khuyen nghi deu co ly do", one("SELECT count(*) FROM dss.recommendation WHERE reason IS NULL OR length(reason) < 10") == 0)
 over = con.execute("SELECT as_of, sum(cost) c, sum(CASE WHEN action='CALL' THEN 1 WHEN action='OPS' THEN 2 ELSE 0 END) s FROM dss.recommendation GROUP BY 1").df()

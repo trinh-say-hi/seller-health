@@ -199,6 +199,30 @@ with sync_playwright() as p:
     check("What-if hua them ngay lam ty le tre doi", r1 != r2, f"{r1} -> {r2}")
     page.screenshot(path=str(OUT / "10_whatif_sau_khi_doi.png"))
 
+    # Giai thich du bao o Chi tiet seller
+    goto(page, "Chi tiết seller")
+    why = page.locator(".ct").filter(has_text="Vì sao rủi ro")
+    check("Chi tiet seller co bieu do giai thich du bao", why.count() == 1, why.first.inner_text() if why.count() else "")
+
+    # Luu va so sanh kich ban o Bang ke hoach
+    goto(page, "Bảng kế hoạch")
+    page.get_by_role("button", name="Kịch bản (").first.click()
+    settle(page)
+    dlg = page.locator('[role="dialog"]')
+    dlg.get_by_role("button", name="Lưu phương án hiện tại").click()
+    settle(page)
+    dlg.locator('input[type="text"]').first.fill("KB test 2")
+    page.keyboard.press("Enter")
+    settle(page)
+    dlg.get_by_role("button", name="Lưu phương án hiện tại").click()
+    settle(page)
+    note_text = dlg.locator("p.note").first.inner_text() if dlg.locator("p.note").count() else ""
+    check("Kich ban: luu duoc va so sanh trong hop thoai", "cao nhất" in note_text and not errors(page), note_text[:80])
+    dlg.get_by_role("button", name="Xóa kịch bản của mốc này").click()
+    settle(page)
+    page.keyboard.press("Escape")
+    settle(page)
+
     # Cac moc as-of khac cung phai vua khung hinh
     slider = page.locator('input[type="range"][aria-label*="as-of"]').first
     slider.focus()

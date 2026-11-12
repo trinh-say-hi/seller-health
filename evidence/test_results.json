@@ -535,6 +535,11 @@
   "detail": "nho nhat 59 ngay"
  },
  {
+  "test": "Giai thich: tong dong gop doi ra xac suat khop p_decline",
+  "ok": true,
+  "detail": "lech lon nhat 2.22e-16"
+ },
+ {
   "test": "DSS: moi seller 1 khuyen nghi moi as-of",
   "ok": true,
   "detail": ""
@@ -572,7 +577,7 @@
  {
   "test": "Catalog: moi cot o Gold, DSS, van hanh deu co mo ta",
   "ok": true,
-  "detail": "313/313"
+  "detail": "319/319"
  },
  {
   "test": "Catalog: moi bang deu co mo ta",

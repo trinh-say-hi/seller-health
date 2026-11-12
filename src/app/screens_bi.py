@@ -9,6 +9,12 @@ from src.app.common import (BLUE, LIGHT_BLUE, MUTED, ORANGE, SEQ, TIER_ORDER, br
 from src.dss.rules import ACTION_LABEL
 
 H1 = 184
+# Ten feature cua mo hinh, cach doc gia tri, theo dung thu tu FEATS trong src/dss/run.py
+FEAT_LABEL = {"gmv_90": "GMV 90 ngày", "orders_90": "Số đơn 90 ngày", "gmv_30": "GMV 30 ngày", "orders_30": "Số đơn 30 ngày",
+              "trend": "Xu hướng 30 ngày", "recency": "Ngày chưa bán", "tenure": "Thâm niên (ngày)", "n_cat": "Số danh mục",
+              "seller_late_rate": "Giao VC trễ", "cust_late_rate": "Khách nhận trễ", "avg_review": "Review TB", "days_to_carrier": "Ngày tới VC"}
+FEAT_FMT = {"trend": lambda v: signed_pct(v, 0), "seller_late_rate": lambda v: pct(v, 0), "cust_late_rate": lambda v: pct(v, 0),
+            "avg_review": lambda v: num(v, 2), "days_to_carrier": lambda v: num(v, 1)}
 H2 = 232
 
 
@@ -221,6 +227,26 @@ def blame(as_of):
         show(style(fig, H2 - 16, legend=True))
 
 
+def _explain(as_of, sid, p):
+    """Vi sao mo hinh cham rui ro: dong gop cua tung feature vao log-odds (logistic nen cong don chinh xac)."""
+    e = q("SELECT feature, value, z, contrib FROM dss.explain WHERE as_of = CAST(? AS DATE) AND seller_id = ?", (as_of, sid))
+    if e.empty:
+        title("Vì sao mô hình chấm như vậy")
+        note("Mốc này chưa có giải thích.")
+        return
+    f = e[e.feature != "_intercept"].copy()
+    f["abs"] = f.contrib.abs()
+    top = f.nlargest(6, "abs").sort_values("contrib")
+    up = f[f.contrib > 0].nlargest(1, "contrib")
+    lead = f"{FEAT_LABEL[up.feature.iloc[0]].lower()} đẩy lên mạnh nhất" if len(up) else "không yếu tố nào đẩy lên"
+    title(f"Vì sao rủi ro {pct(p, 0)}: {lead}", "Đóng góp vào điểm rủi ro (log-odds); cam làm tăng, xanh làm giảm. 6 yếu tố lớn nhất")
+    labels = [f"{FEAT_LABEL[x]} = {FEAT_FMT.get(x, num)(v) if pd.notna(v) else '—'}" for x, v in zip(top.feature, top.value)]
+    fig = go.Figure(go.Bar(x=top.contrib, y=labels, orientation="h", marker_color=[ORANGE if c > 0 else BLUE for c in top.contrib],
+                           customdata=top.z, hovertemplate="%{y}<br>Đóng góp %{x:+.2f}<br>Lệch chuẩn so với tập train %{customdata:+.1f}<extra></extra>"))
+    fig.add_vline(x=0, line_color=MUTED, line_width=1)
+    show(style(fig, 176))
+
+
 def seller(as_of):
     rec = q("""SELECT r.*, f.gmv_90, f.gmv_30, f.orders_90, f.trend, f.recency, f.seller_late_rate, f.cust_late_rate, f.avg_review, f.days_to_carrier, f.health_tier, d.state, d.city, d.health_tier AS stable_tier
                FROM dss.recommendation r JOIN mart.seller_features f USING (as_of, seller_id)
@@ -268,7 +294,9 @@ def seller(as_of):
         ref = rec.median(numeric_only=True) if other == MEDIAN else rec[rec.seller_id == other].iloc[0]
         table(pd.DataFrame({"Chỉ số": [f[0] for f in feats], short(sid): [f[2](r[f[1]]) for f in feats], "So với": [f[2](ref[f[1]]) for f in feats]}), H1)
 
-    c1, c2 = st.columns([1, 2])
+    c1, cx, c2 = st.columns([1, 1.15, 1.85])
+    with cx:
+        _explain(as_of, sid, r.p_decline)
     with c1:
         t = q("""SELECT health_tier AS "Hạng ổn định", strftime(valid_from, '%d/%m/%Y') AS "Từ",
                         CASE WHEN valid_to >= CAST(? AS DATE) THEN 'hiện tại' ELSE strftime(valid_to, '%d/%m/%Y') END AS "Đến"
