@@ -114,8 +114,12 @@ Nhánh `power-bi` (local, chưa push). Sửa file report thì phải đóng Powe
 - [ ] Đổi tên thẻ trang KPI: "GMV (chốt sổ)", "Số đơn (chốt sổ)", "Tỷ lệ trễ hẹn (chốt sổ)", "Đơn trễ (chốt sổ)"; bỏ chữ "tháng" gây hiểu nhầm
 - [ ] Trục biểu đồ "Seller có bán theo tháng" đang hiện chữ "nghìn" mà mất số: tắt đơn vị hiển thị
 
+**Lỗi thấy ở trang OLAP drill-down:**
+- [ ] Ma trận địa lý đang mở thẳng ở cấp Thành phố (mất ngữ cảnh vùng, bang); phải mặc định ở cấp Vùng, bấm + mới xuống Bang, Thành phố
+- [ ] Có một thanh cuộn xám ở giữa phần tiêu đề: ô tiêu đề thấp quá so với 2 dòng chữ, cần tăng chiều cao hoặc bỏ thanh cuộn
+
 **Chờ xem lại:**
-- [ ] Xem trang OLAP drill-down, Giao hàng, Theo dõi kế hoạch trên Power BI, ghi lỗi
+- [ ] Xem trang Giao hàng, Theo dõi kế hoạch trên Power BI, ghi lỗi
 - [ ] Xem 5 màn Streamlit (http://localhost:8502), ghi lỗi
 - [ ] Gom mọi lỗi lại sửa một lần, chạy lại test_edges, test_system, đối chiếu DAX với DuckDB
 
