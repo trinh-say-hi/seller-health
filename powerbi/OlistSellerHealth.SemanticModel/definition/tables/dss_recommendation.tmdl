@@ -11,28 +11,6 @@ table dss_recommendation
 		displayFolder: DSS
 		lineageTag: 8efb3e14-6049-5c9b-82b3-f6024137080f
 
-	/// Hành động trả phí (Gọi ngay, Hỗ trợ vận hành) mà kế hoạch MILP chọn cho seller ở mốc as-of cuối. Trống nếu seller không nằm trong kế hoạch.
-	measure 'Hành động trong kế hoạch' =
-			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
-			VAR hanhDong = CALCULATE ( SELECTEDVALUE ( dss_recommendation[action] ), dss_recommendation[as_of_key] = asOf )
-			RETURN
-			    SWITCH ( hanhDong, "CALL", "Gọi ngay", "OPS", "Hỗ trợ vận hành" )
-		displayFolder: DSS
-		lineageTag: 16943399-c409-42f6-a50c-d167da7f7b13
-
-	/// p_decline của seller trong kế hoạch ở mốc as-of cuối. Chưa hiệu chỉnh, dùng để xếp thứ tự.
-	measure 'Khả năng sụt (kế hoạch)' =
-			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
-			RETURN
-			    CALCULATE (
-			        MAX ( dss_recommendation[p_decline] ),
-			        dss_recommendation[as_of_key] = asOf,
-			        dss_recommendation[action] IN { "CALL", "OPS" }
-			    )
-		formatString: 0%
-		displayFolder: DSS
-		lineageTag: d6f7dd89-b309-4dcc-a280-564f2972050c
-
 	/// Số seller có hành động CALL ở mốc as-of cuối.
 	measure 'Seller được đề xuất gọi' =
 			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
@@ -87,6 +65,28 @@ table dss_recommendation
 		formatString: #,0
 		displayFolder: DSS
 		lineageTag: dee8c8b1-6335-567c-92d2-1dec68f4891b
+
+	/// Hành động trả phí (Gọi ngay, Hỗ trợ vận hành) mà kế hoạch MILP chọn cho seller ở mốc as-of cuối. Trống nếu seller không nằm trong kế hoạch.
+	measure 'Hành động trong kế hoạch' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			VAR hanhDong = CALCULATE ( SELECTEDVALUE ( dss_recommendation[action] ), dss_recommendation[as_of_key] = asOf )
+			RETURN
+			    SWITCH ( hanhDong, "CALL", "Gọi ngay", "OPS", "Hỗ trợ vận hành" )
+		displayFolder: DSS
+		lineageTag: 16943399-c409-42f6-a50c-d167da7f7b13
+
+	/// p_decline của seller trong kế hoạch ở mốc as-of cuối. Chưa hiệu chỉnh, dùng để xếp thứ tự.
+	measure 'Khả năng sụt (kế hoạch)' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			RETURN
+			    CALCULATE (
+			        MAX ( dss_recommendation[p_decline] ),
+			        dss_recommendation[as_of_key] = asOf,
+			        dss_recommendation[action] IN { "CALL", "OPS" }
+			    )
+		formatString: 0%
+		displayFolder: DSS
+		lineageTag: d6f7dd89-b309-4dcc-a280-564f2972050c
 
 	/// Mốc as-of dạng YYYYMMDD, trỏ tới dim_date.
 	column as_of_key

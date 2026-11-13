@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "71838b6771c1c87f51e6",
   "position": {
     "x": 732,
     "y": 192,
     "z": 9,
-    "width": 528,
     "height": 512,
+    "width": 528,
     "tabOrder": 9
   },
   "visual": {
@@ -32,7 +32,8 @@
                 }
               },
               "queryRef": "dim_product.Sản phẩm.Danh mục",
-              "nativeQueryRef": "Sản phẩm Danh mục"
+              "nativeQueryRef": "Sản phẩm Danh mục",
+              "active": true
             }
           ]
         },
@@ -84,7 +85,6 @@
         }
       }
     },
-    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -106,6 +106,7 @@
           }
         }
       ]
-    }
+    },
+    "drillFilterOtherVisuals": true
   }
 }

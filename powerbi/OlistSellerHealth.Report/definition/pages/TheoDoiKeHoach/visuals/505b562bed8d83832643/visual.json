@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "505b562bed8d83832643",
   "position": {
     "x": 20,
     "y": 192,
     "z": 8,
-    "width": 610,
     "height": 250,
+    "width": 610,
     "tabOrder": 8
   },
   "visual": {
@@ -32,7 +32,8 @@
                 }
               },
               "queryRef": "dim_date.Lịch.Tháng",
-              "nativeQueryRef": "Lịch Tháng"
+              "nativeQueryRef": "Lịch Tháng",
+              "active": true
             }
           ]
         },
@@ -70,7 +71,6 @@
         }
       }
     },
-    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -92,6 +92,7 @@
           }
         }
       ]
-    }
+    },
+    "drillFilterOtherVisuals": true
   }
 }
