@@ -105,6 +105,8 @@ Chi tiết các chương nằm trong `ke-hoach-bao-cao.md`.
 
 ## 10. Power BI và Streamlit: việc còn treo (ghi 13/11/2026)
 
+Người dùng, phân quyền, luồng insight → hành động và kết quả quét từng thẻ Streamlit: [docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md](docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md).
+
 Nhánh `power-bi` (local, chưa push). Sửa file report thì phải đóng Power BI Desktop trước, vì Desktop lưu đè lên.
 
 **Phần thời gian trên Power BI (đã chốt cách làm, chưa sửa):**
