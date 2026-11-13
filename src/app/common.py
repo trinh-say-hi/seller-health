@@ -46,6 +46,9 @@ header[data-testid="stHeader"] * {pointer-events: auto;}
 [data-testid="stSidebar"] [data-testid="stRadioOption"]:hover {background: #FDF0F5;}
 [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] {background: var(--sh-blue-soft);}
 [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] p {font-weight: 600; color: var(--sh-blue-ink);}
+/* Option cuoi la luong giao nhan: tach bang mot tieu de nhom rieng */
+[data-testid="stSidebar"] [data-testid="stRadioOption"]:last-child {margin-top: 26px; position: relative;}
+[data-testid="stSidebar"] [data-testid="stRadioOption"]:last-child::before {content: "GIAO NHẬN · VẬN HÀNH"; position: absolute; top: -20px; left: 2px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; color: var(--sh-muted);}
 .sidenote {font-size: 11.5px; color: var(--sh-muted); line-height: 1.4;}
 
 /* Muc tieu cua man hinh dang xem, nam trong sidebar */
@@ -256,3 +259,10 @@ def table(df: pd.DataFrame, height=200):
     cfg = {c: st.column_config.NumberColumn(format="localized") for c in df.columns
            if pd.api.types.is_numeric_dtype(df[c]) and not pd.api.types.is_bool_dtype(df[c])}
     st.dataframe(df, hide_index=True, width="stretch", height=height, column_config=cfg)
+
+
+def go_to(screen_name, seller_id=None):
+    """Chuyen man hinh tu mot man khac. Goi trong callback, truoc khi radio 'screen' duoc ve lai."""
+    st.session_state.screen = screen_name
+    if seller_id:
+        st.session_state.seller_pick = seller_id

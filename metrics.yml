@@ -138,6 +138,13 @@ plan_saved:
   window: 45 ngày sau as-of
   source: Tính trên giao diện
   caveat: Không phải số đo được, dữ liệu không có hiệu quả can thiệp thật.
+plan_saved_range:
+  label: Khoảng giữ được P10–P90
+  definition: Mô phỏng Monte Carlo 2.000 lần. Mỗi lần mỗi seller sụt hay không theo khả năng sụt của mô hình, và hiệu quả của từng loại hành động được rút trong khoảng giả định ± độ bất định. 80% số lần mô phỏng rơi vào khoảng này.
+  formula: Phân vị 10 và 90 của Σ (seller sụt) × gmv_90 / 2 × hiệu quả rút ngẫu nhiên
+  window: 45 ngày sau as-of
+  source: src/dss/simulate.py
+  caveat: Khoảng phản ánh bất định của giả định, không biến giả định thành số đo được.
 route_late:
   label: Tỷ lệ trễ
   definition: Tỷ lệ đơn lịch sử của tuyến sẽ trễ nếu hứa thêm N ngày.

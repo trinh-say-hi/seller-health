@@ -17,6 +17,7 @@ import yaml
 
 from src.config import DB_PATH, EVIDENCE_DIR, LAST_BATCH, RAW_DIR, ROOT, SQL_DIR
 from src.dss.optimize import build_plan
+from src.dss.simulate import simulate
 from src.dss.rules import CALL, OPS, Params
 from src.etl.build import MANIFEST, ReconciliationError, attach_sources, run_batch, verify_sources
 
@@ -220,6 +221,12 @@ tp = build_plan(toy, t).set_index("seller_id")
 check("Toi uu: giai dung bai tinh tay", tp.loc["a", "action"] == OPS and tp.loc["b", "action"] == CALL and abs(tp.expected_saved.sum() - 430) < 1e-6, tp.action.to_dict())
 check("Toi uu: ton trong gioi han suat", build_plan(toy, replace(t, budget=1000, max_slots=1)).slots.sum() <= 1)
 check("Toi uu: ngan sach 0 khong chon gi tra phi", build_plan(toy, replace(t, budget=0)).cost.sum() == 0)
+sim = simulate(tp.reset_index(), t, spread=.5, n=4000)
+check("Mo phong: ky vong bang GMV giu duoc cua bo toi uu", abs(sim["expected"] - tp.expected_saved.sum()) < 1e-6, f"{sim['expected']:.1f}")
+check("Mo phong: trung binh gan ky vong, P10 <= P50 <= P90", abs(sim["mean"] / sim["expected"] - 1) < .05 and sim["p10"] <= sim["p50"] <= sim["p90"],
+      f"{sim['p10']:.0f} / {sim['p50']:.0f} / {sim['p90']:.0f}")
+check("Mo phong: do bat dinh lon hon thi khoang rong hon", (lambda a, b: a["p90"] - a["p10"] < b["p90"] - b["p10"])(
+      simulate(tp.reset_index(), t, spread=0, n=4000), simulate(tp.reset_index(), t, spread=.9, n=4000)))
 
 # --- Tai lieu
 n_col, n_com = con.execute("SELECT count(*), count(comment) FROM duckdb_columns() WHERE schema_name IN ('core','mart','dss','ops')").fetchone()

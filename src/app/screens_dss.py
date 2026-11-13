@@ -10,10 +10,11 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from src.app import scenarios
-from src.app.common import (BLUE, MUTED, ORANGE, brl, flash, kpi, note, num, pct, points, q, short, show, signed_pct, style, table, title)
+from src.app.common import (BLUE, MUTED, ORANGE, brl, compact, flash, kpi, note, num, pct, points, q, short, show, signed_pct, style, table, title)
 from src.config import EVIDENCE_DIR
 from src.dss.optimize import budget_curve, build_plan, cost_of, gain, slots_of, summarize
 from src.dss.rules import ACTION_LABEL, CALL, EMAIL, NONE, OPS, Params
+from src.dss.simulate import simulate
 
 MAX_CARDS = 45
 BOARD_HEIGHT = 436
@@ -33,6 +34,10 @@ def _plan(as_of, params_json):
     return build_plan(_panel(as_of), Params(**json.loads(params_json)))
 
 
+def _simulate(plan, p, spread):
+    return simulate(plan, p, spread=spread, n=2000)
+
+
 @st.cache_data(show_spinner=False)
 def _curve(as_of, params_json):
     return budget_curve(_panel(as_of), Params(**json.loads(params_json)), list(range(0, 8001, 500)))
@@ -43,8 +48,11 @@ def _controls(as_of):
     c = st.columns([1, 1, 1, 1, .72, .72, .9], vertical_alignment="bottom")
     budget = c[0].slider("Ngân sách (BRL)", 0, 8000, int(d.budget), 250)
     slots = c[1].slider("Số suất nhân viên", 0, 100, d.max_slots, 5, help="Gọi điện dùng 1 suất, hỗ trợ vận hành dùng 2 suất.")
-    risk = c[2].slider("Ngưỡng rủi ro", .10, .80, d.risk_threshold, .05)
-    value = c[3].slider("Giá trị cao: top", 5, 50, int(round(100 - 100 * d.value_pct)), 5, format="%d%%")
+    risk = c[2].slider("Ngưỡng rủi ro", .10, .80, d.risk_threshold, .05,
+                       help="Seller có khả năng sụt từ ngưỡng này trở lên mới được xét gọi hoặc hỗ trợ. Hạ ngưỡng thì xét nhiều seller hơn, "
+                            "trúng ít hơn nhưng bao phủ nhiều GMV hơn. Mặc định 0,30 chọn trên 09/2017–02/2018.")
+    value = c[3].slider("Giá trị cao: top", 5, 50, int(round(100 - 100 * d.value_pct)), 5, format="%d%%",
+                        help="Chỉ seller thuộc top này theo GMV 90 ngày mới đáng tốn tiền gọi hoặc hỗ trợ; seller rủi ro cao còn lại nhận email tự động.")
     with c[4].popover("Giả định", width="stretch"):
         st.warning("Chi phí và hiệu quả là giả định để so sánh phương án, dữ liệu không có số thật.")
         a, b = st.columns(2)
@@ -55,11 +63,16 @@ def _controls(as_of):
         eff_ops = a.slider("Hỗ trợ: vận hành kém", 0, 100, int(100 * d.eff_ops_poor), 5, format="%d%%")
         eff_ops_o = b.slider("Hỗ trợ: vận hành ổn", 0, 100, int(100 * d.eff_ops_ok), 5, format="%d%%")
         eff_email = a.slider("Email tự động", 0, 30, int(100 * d.eff_email), 1, format="%d%%")
+        spread = b.slider("Độ bất định của hiệu quả", 0, 90, 50, 10, format="±%d%%",
+                          help="Mô phỏng Monte Carlo rút hiệu quả thật trong khoảng giả định ± mức này (phân phối tam giác), "
+                               "và cho mỗi seller sụt hay không theo khả năng sụt của mô hình.")
+        st.caption("Mọi con số trong hộp này là giả định: dữ liệu Olist không có kết quả can thiệp thật. Hiệu quả = phần GMV rủi ro giữ lại được.")
     st.session_state.setdefault("board_reset", 0)
     if c[5].button("Đặt lại", width="stretch", help="Bỏ mọi thao tác kéo tay, về đề xuất của bộ tối ưu."):
         st.session_state.board_reset += 1
     n_saved = sum(1 for x in scenarios.load() if x["as_of"] == str(as_of)[:10])
     open_scen = c[6].button(f"Kịch bản ({n_saved})", width="stretch", help="Lưu phương án đang có, kể cả thao tác kéo tay, và so sánh các phương án đã lưu.")
+    st.session_state.mc_spread = spread / 100
     return open_scen, replace(d, budget=float(budget), max_slots=int(slots), risk_threshold=float(risk), value_pct=1 - value / 100, cost_call=float(cost_call), cost_ops=float(cost_ops),
                    eff_call_ok=eff_call / 100, eff_call_poor=eff_call_p / 100, eff_ops_poor=eff_ops / 100, eff_ops_ok=eff_ops_o / 100, eff_email=eff_email / 100)
 
@@ -120,7 +133,9 @@ def board(as_of):
     plan = _plan(as_of, pj)
     members = _board_members(plan)
     cols = [CALL, OPS, EMAIL, NONE]
-    start = [{"id": a, "title": ACTION_LABEL[a], "items": [_card(r) for r in members[members.action == a].itertuples()]} for a in cols]
+    totals = plan.action.value_counts()
+    start = [{"id": a, "title": f"{ACTION_LABEL[a]} (tổng {num(totals.get(a, 0))})", "items": [_card(r) for r in members[members.action == a].itertuples()]}
+             for a in cols]
     key = f"board-{as_of}-{abs(hash(pj)) % 10**8}-{st.session_state.board_reset}"
 
     top = st.columns([3.5, 1.3])
@@ -139,11 +154,16 @@ def board(as_of):
     edited = sum(1 for sid, a in moved.items() if sid in orig and orig[sid] != a)
 
     with summary_box:
-        m = st.columns(4)
+        mc = _simulate(current, p, st.session_state.get("mc_spread", .5))
+        m = st.columns(5)
         kpi(m[0], "plan_cost", brl(s["cost"]), f"còn {num(p.budget - s['cost'])}", tone="off")
         kpi(m[1], "plan_slots", f"{s['slots']}/{p.max_slots}", f"{s['n_call']} gọi, {s['n_ops']} hỗ trợ", tone="off")
-        kpi(m[2], "plan_risk", brl(s["gmv_risk_covered"]), f"trên tổng {num(s['gmv_risk_total'])}", tone="off")
-        kpi(m[3], "plan_saved", brl(s["expected_saved"]), f"{s['expected_saved'] - s0['expected_saved']:+,.0f} so với đề xuất".replace(",", "."), tone="off")
+        kpi(m[2], "plan_risk", compact(s["gmv_risk_covered"]),
+            f"trên {compact(s['gmv_risk_total'])} vượt ngưỡng · {compact(current.gmv_risk.sum())} toàn bộ", tone="off")
+        kpi(m[3], "plan_saved", compact(s["expected_saved"]), f"{s['expected_saved'] - s0['expected_saved']:+,.0f} so với đề xuất".replace(",", "."),
+            label="Giữ được, kỳ vọng (giả định)", tone="off")
+        kpi(m[4], "plan_saved_range", f"{compact(mc['p10'])}–{compact(mc['p90'])}", f"lỗ (giữ < tiền chi): {pct(mc['p_below_cost'], 0)} số lần",
+            label="Khoảng giữ được P10–P90", tone="off")
         if s["cost"] > p.budget:
             flash(f"Vượt ngân sách {num(s['cost'] - p.budget)} BRL. Hãy chuyển bớt seller hoặc tăng ngân sách.")
         elif s["slots"] > p.max_slots:
@@ -157,7 +177,7 @@ def board(as_of):
     with top[1]:
         curve = _curve(as_of, pj)
         flat = curve[curve.expected_saved >= curve.expected_saved.max() * .999].budget.min()
-        title(f"Chi quá {num(flat)} BRL gần như không có thêm lợi ích")
+        title(f"Chi quá {num(flat)} BRL gần như không thêm lợi ích", "Lúc đó số suất hoặc số ứng viên đã chạm trần")
         fig = go.Figure(go.Scatter(x=curve.budget, y=curve.expected_saved, mode="lines", line=dict(color=BLUE, width=2),
                                    customdata=curve.n_sellers, hovertemplate="Ngân sách %{x:,.0f} BRL<br>Giữ được %{y:,.0f} BRL (giả định)<br>%{customdata} seller<extra></extra>"))
         fig.add_vline(x=p.budget, line_color=MUTED, line_dash="dot")
@@ -180,7 +200,8 @@ def board(as_of):
         note(f"Chi phí {num(r.cost)} BRL. GMV rủi ro {num(r.gmv_risk)} BRL.")
         export = picked.assign(as_of=as_of)[["as_of", "seller_id", "Hành động", "state", "gmv_90", "p_decline", "gmv_risk", "cost", "expected_saved", "reason"]].sort_values("gmv_risk", ascending=False)
         st.download_button("Xuất kế hoạch ra CSV", export.to_csv(index=False).encode("utf-8-sig"), f"ke_hoach_{as_of}.csv", "text/csv", width="stretch")
-        note("Kéo thẻ để đổi hành động, bấm thẻ để xem chi tiết. Đổi ràng buộc sẽ tính lại đề xuất và xóa thao tác kéo tay. VH kém: giao vận chuyển trễ từ 15%.")
+        note("Bảng chỉ hiện tối đa 45 seller đáng cân nhắc nhất, số trong ngoặc là tổng của cả kế hoạch. Kéo thẻ để đổi hành động, bấm thẻ để xem chi tiết. "
+             "Đổi ràng buộc sẽ tính lại đề xuất và xóa thao tác kéo tay. VH kém: giao vận chuyển trễ từ 15%.")
 
 
 def route_whatif(as_of):
@@ -228,7 +249,7 @@ def route_whatif(as_of):
                    WHERE f.delivered_ts < CAST(? AS DATE) AND f.purchase_ts >= CAST(? AS DATE) - INTERVAL 180 DAY AND f.purchase_ts < CAST(? AS DATE) - INTERVAL 60 DAY AND f.delay_days IS NOT NULL
                    GROUP BY 1 HAVING count(*) >= 100 ORDER BY sum(CASE WHEN f.delay_days > 0 THEN 1 ELSE 0 END) DESC LIMIT 25""", (1 - target, as_of, as_of, as_of))
         if len(top):
-            title(f"Tuyến nhiều đơn trễ nhất: {top.tuyen.iloc[0]}, cần hứa thêm {num(max(top.can_them.iloc[0], 0))} ngày để trễ ≤ {pct(target, 0)}", "Các tuyến từ 100 đơn, xếp theo số đơn trễ")
+            title(f"Tuyến nhiều đơn trễ nhất: {top.tuyen.iloc[0]}, cần hứa thêm {num(max(top.can_them.iloc[0], 0))} ngày để trễ ≤ {pct(target, 0)}", "Các tuyến từ 100 đơn, xếp theo số đơn trễ. Cột cuối cao nghĩa là seller đúng hạn mà khách vẫn nhận trễ: lỗi ở vận chuyển, nên nới lời hẹn")
         table(pd.DataFrame({"Tuyến": top.tuyen, "Số đơn": top.so_don, "Tỷ lệ trễ": top.tre.map(pct), "Lời hẹn TB (ngày)": top.hen.round(1),
                             f"Hứa thêm để trễ ≤ {pct(target, 0)}": top.can_them.clip(lower=0), "Đơn trễ, seller đúng hạn": top.ok.map(pct)}), 470)
 
@@ -272,8 +293,14 @@ def validation(as_of):
     with c1:
         a = q("SELECT * FROM dss.eval_auc WHERE as_of >= DATE '2018-03-01' ORDER BY target, as_of")
         title("Mô hình chỉ nhỉnh hơn cách đơn giản, nên giá trị nằm ở quyết định")
-        table(pd.DataFrame({"Tháng": pd.to_datetime(a.as_of).dt.strftime("%m/%Y"), "Mục tiêu": a.target.map({"decline": "Sụt GMV", "dormant": "Tạm ngừng"}), "Tỷ lệ gốc": a.base_rate.map(lambda v: pct(v, 0)),
-                            "AUC": a.auc_model.round(3), "Bỏ vận hành": a.auc_no_ops.round(3), "Ngày không bán": a.auc_recency.round(3)}), 206)
+        dec = a[a.target == "decline"]
+        note(f"Độ phân biệt (AUC) khi dự báo sụt GMV: mô hình {num(dec.auc_model.min(), 2)}–{num(dec.auc_model.max(), 2)}, "
+             f"chỉ dùng số ngày không bán {num(dec.auc_recency.min(), 2)}–{num(dec.auc_recency.max(), 2)}. "
+             "Vì vậy giá trị của hệ thống nằm ở việc chọn ai trong giới hạn ngân sách và có lý do đọc được, không nằm ở độ chính xác dự báo.")
+        with st.expander("Bảng AUC theo tháng (cho nhóm dữ liệu)"):
+            table(pd.DataFrame({"Tháng": pd.to_datetime(a.as_of).dt.strftime("%m/%Y"), "Mục tiêu": a.target.map({"decline": "Sụt GMV", "dormant": "Tạm ngừng"}),
+                                "Tỷ lệ gốc": a.base_rate.map(lambda v: pct(v, 0)), "AUC": a.auc_model.round(3), "Bỏ vận hành": a.auc_no_ops.round(3),
+                                "Ngày không bán": a.auc_recency.round(3)}), 206)
     with c2:
         s = q("SELECT case_name, avg(jaccard) j, avg(n_case) n, avg(expected_saved) saved, avg(expected_saved_base) base FROM dss.sensitivity GROUP BY 1 ORDER BY j")
         title("Danh sách đổi mạnh khi cắt nguồn lực, khá vững khi giả định đổi")
@@ -286,9 +313,9 @@ def validation(as_of):
         rec = q("SELECT count(*) n, count(*) FILTER (WHERE is_ok) ok FROM ops.layer_reconciliation")
         qr = q("SELECT count(*) n FROM ops.quarantine")
         log = q("SELECT count(*) n FROM ops.etl_log WHERE status = 'ok' AND batch <> 'init'")
-        title("Chất lượng kho dữ liệu")
-        table(pd.DataFrame({"Kiểm tra": ["Test hệ thống đạt", "Đối soát giữa các lớp khớp", "Đợt nạp thành công", "Dòng bị cách ly"],
-                            "Kết quả": [f"{sum(r['ok'] for r in res)}/{len(res)}", f"{num(rec.ok.iloc[0])}/{num(rec.n.iloc[0])}", f"{log.n.iloc[0]}/26", num(qr.n.iloc[0])]}), 164)
+        title("Dữ liệu đầu vào có đáng tin không")
+        note(f"Test hệ thống {sum(r['ok'] for r in res)}/{len(res)} đạt · đối soát giữa các lớp {num(rec.ok.iloc[0])}/{num(rec.n.iloc[0])} khớp · "
+             f"{log.n.iloc[0]}/26 đợt nạp thành công · {num(qr.n.iloc[0])} dòng bị cách ly. Chi tiết vận hành kho xem ở Dagster.")
         with st.popover("Bất thường dữ liệu và nhật ký nạp", width="stretch"):
             st.dataframe(q('SELECT rule_name AS "Vấn đề", n_rows AS "Số dòng", handling AS "Cách xử lý" FROM ops.dq_issue'), hide_index=True, width="stretch")
             st.dataframe(q('SELECT batch AS "Đợt", status AS "Trạng thái", rows_loaded AS "Dòng nạp", rows_rejected AS "Dòng loại", sellers_tier_changed AS "Đổi hạng", duration_s AS "Giây" FROM ops.etl_log ORDER BY batch'), hide_index=True, width="stretch")

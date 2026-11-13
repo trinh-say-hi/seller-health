@@ -22,36 +22,38 @@ if not current_db().exists():
     st.error(f"Chưa có kho dữ liệu tại {current_db()}. Hãy chạy: python run_all.py")
     st.stop()
 
-# Streamlit lo pha thiet ke va lua chon cua quy trinh ra quyet dinh. Theo doi KPI, OLAP va giao hang (pha nhan biet, chi doc,
-# co RLS) nam o Power BI; man Tong quan, Loi giao tre, Da chieu van con trong ma nguon nhung khong con tren menu.
-SCREENS = {"Cần chú ý": attention, "Chi tiết seller": seller, "Bảng kế hoạch": board, "What-if tuyến": route_whatif, "Kiểm chứng": validation}
-LABELS = {"Cần chú ý": "1 · Cần chú ý tháng này", "Chi tiết seller": "2 · Chi tiết seller", "Bảng kế hoạch": "3 · Bảng kế hoạch (DSS)",
-          "What-if tuyến": "4 · What-if tuyến", "Kiểm chứng": "5 · Kiểm chứng"}
-# Buoc, ten, cau hoi, muc tieu cua tung man hinh: hien trong sidebar, duoi danh sach man hinh
+# Streamlit danh cho nguoi ra quyet dinh: luong giu chan seller (Truong nhom Seller Success) va luong giao nhan (Quan ly van hanh).
+# Theo doi KPI, OLAP, giao hang va ke hoach theo vung (chi doc, co RLS) nam o Power BI. Man Tong quan, Loi giao tre, Da chieu cu
+# van con trong ma nguon nhung khong con tren menu. Xem docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md.
+SCREENS = {"Cần chú ý": attention, "Chi tiết seller": seller, "Bảng kế hoạch": board, "Kiểm chứng": validation, "What-if tuyến": route_whatif}
+LABELS = {"Cần chú ý": "1 · Cần chú ý tháng này", "Chi tiết seller": "2 · Chi tiết seller", "Bảng kế hoạch": "3 · Bảng kế hoạch",
+          "Kiểm chứng": "4 · Kiểm chứng", "What-if tuyến": "What-if hẹn giao theo tuyến"}
+# Luong, ten, cau hoi, muc tieu cua tung man hinh: hien trong sidebar, duoi danh sach man hinh
 META = {
-    'Cần chú ý': ('Bước 1/5', 'Cần chú ý tháng này', 'Seller nào vừa rơi vào nhóm Nguy cơ, GMV nào đang rủi ro, kế hoạch đề xuất xử lý bao nhiêu?',
-                  "Đọc danh sách seller mới vào Nguy cơ có GMV lớn nhất, rồi mở Chi tiết seller với người đáng lo nhất."),
-    'Chi tiết seller': ('Bước 2/5', 'Hồ sơ seller', 'Seller này bị sụt giảm doanh số ở đâu và vì lý do gì?',
-                        'Xem GMV theo tháng, số ngày ở khâu seller và khâu vận chuyển, so với trung vị toàn sàn, và lý do của khuyến nghị.'),
-    'Bảng kế hoạch': ('Bước 3/5', 'Kế hoạch can thiệp (DSS)', 'Với ngân sách và số suất nhân sự tháng này, ta nên làm gì với ai?',
-                      'MILP chọn tập seller có lợi ích kỳ vọng cao nhất trong ngân sách và số suất. Có thể kéo thẻ giữa các cột để điều chỉnh.'),
-    'What-if tuyến': ('Bước 4/5', 'Giả lập đàm phán hẹn giao', 'Hứa thêm N ngày với khách hàng thì tỷ lệ đơn trễ trên tuyến giảm bao nhiêu?',
-                      "Chọn tuyến (ví dụ SP->CE), kéo 'Hứa thêm (ngày)' để xem tỷ lệ trễ thay đổi, và đặt 'Mục tiêu tỷ lệ trễ' để biết cần hứa thêm bao nhiêu ngày."),
-    'Kiểm chứng': ('Bước 5/5', 'Kiểm chứng trên dữ liệu quá khứ', 'Các tháng trước, danh sách đề xuất trúng bao nhiêu so với chọn theo GMV?',
-                   'So hai tiêu chí: DSS gọi trúng seller sụt giảm nhiều hơn, nhưng chọn theo GMV bao phủ nhiều GMV mất hơn ở phần lớn các tháng.'),
+    'Cần chú ý': ('Giữ chân seller · 1/4', 'Nhận biết', 'Seller nào vừa rơi vào nhóm Nguy cơ và đáng lo nhất?',
+                  "Đọc danh sách seller mới vào Nguy cơ, sắp theo GMV rủi ro. Bấm một dòng để mở hồ sơ seller đó."),
+    'Chi tiết seller': ('Giữ chân seller · 2/4', 'Chẩn đoán', 'Seller này sụt ở đâu, lỗi ở khâu seller hay khâu vận chuyển?',
+                        'Xem GMV theo tháng, số ngày ở khâu seller và khâu vận chuyển, lý do mô hình chấm rủi ro, và khuyến nghị.'),
+    'Bảng kế hoạch': ('Giữ chân seller · 3/4', 'Lựa chọn', 'Với ngân sách và số suất tháng này, làm gì với ai?',
+                      'Bộ tối ưu (MILP) đề xuất; đổi ràng buộc và giả định, kéo thẻ để chỉnh, lưu kịch bản để so sánh, rồi xuất CSV cho nhân viên.'),
+    'Kiểm chứng': ('Giữ chân seller · 4/4', 'Theo dõi', 'Các tháng trước, danh sách đề xuất có trúng không, có nên tin không?',
+                   'So DSS với cách chọn theo GMV trên 03–07/2018, và xem kế hoạch đổi bao nhiêu khi giả định đổi.'),
+    'What-if tuyến': ('Giao nhận', 'Lựa chọn', 'Hứa thêm N ngày trên một tuyến thì tỷ lệ đơn trễ còn bao nhiêu?',
+                      "Dành cho Quản lý vận hành. Chọn tuyến, kéo 'Hứa thêm (ngày)', đặt mục tiêu để biết cần hứa thêm bao nhiêu ngày."),
 }
+
 
 with st.sidebar:
     st.markdown('<div class="brand">Seller Health<span>DSS giữ chân người bán · Olist 2016–2018</span></div>', unsafe_allow_html=True)
     asofs = [str(d)[:10] for d in q("SELECT DISTINCT as_of FROM dss.recommendation ORDER BY 1").as_of]
     as_of = st.select_slider("Hôm nay là ngày (as-of)", asofs, value="2018-07-01", format_func=lambda d: pd.Timestamp(d).strftime("%d/%m/%Y"),
                              help="Tua thời gian: mọi màn hình chỉ thấy dữ liệu trước ngày này. Riêng Kiểm chứng dùng kết quả các tháng đã biết.")
-    st.markdown('<div class="navgroup">Màn hình</div>', unsafe_allow_html=True)
-    screen = st.radio("Màn hình", list(SCREENS), label_visibility="collapsed", format_func=LABELS.get)
+    st.markdown('<div class="navgroup">Giữ chân seller · Seller Success</div>', unsafe_allow_html=True)
+    screen = st.radio("Màn hình", list(SCREENS), label_visibility="collapsed", format_func=LABELS.get, key="screen")
     step, name, question, goal = META[screen]
     st.markdown(f'<div class="sidegoal"><span class="tb-step">{html.escape(step)}</span> <b>{html.escape(name)}</b><br>'
                 f'<i>{html.escape(question)}</i><br><b>Mục tiêu:</b> {html.escape(goal)}</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sidenote">1–2: khoanh seller · 3–4: ra quyết định · 5: kiểm chứng. Theo dõi KPI, OLAP, giao hàng: Power BI.</div>',
+    st.markdown('<div class="sidenote">Theo dõi KPI, OLAP, giao hàng và kế hoạch theo vùng: Power BI (powerbi/OlistSellerHealth.pbip).</div>',
                 unsafe_allow_html=True)
     fullscreen_button()
 
