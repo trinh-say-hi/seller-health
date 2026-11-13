@@ -27,8 +27,7 @@
                 }
               },
               "queryRef": "dim_seller.health_tier",
-              "nativeQueryRef": "health_tier",
-              "active": true
+              "nativeQueryRef": "health_tier"
             }
           ]
         }
@@ -67,16 +66,11 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Hạng ổn định'"
+                  "Value": "'Hạng seller'"
                 }
               }
             }
           }
-        }
-      ],
-      "general": [
-        {
-          "properties": {}
         }
       ]
     },

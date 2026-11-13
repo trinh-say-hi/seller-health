@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "66a6c50fdc90ae28f72f",
   "position": {
-    "x": 642,
-    "y": 192,
-    "z": 9000,
-    "height": 250,
-    "width": 618,
-    "tabOrder": 9000
+    "x": 592,
+    "y": 196,
+    "z": 10000,
+    "height": 230,
+    "width": 330,
+    "tabOrder": 10000
   },
   "visual": {
     "visualType": "clusteredBarChart",
@@ -28,7 +28,7 @@
               },
               "queryRef": "dim_region.region",
               "nativeQueryRef": "region",
-              "active": true
+              "displayName": "Vùng"
             }
           ]
         },
@@ -46,7 +46,8 @@
                 }
               },
               "queryRef": "dss_recommendation.GMV rủi ro 45 ngày",
-              "nativeQueryRef": "GMV rủi ro 45 ngày"
+              "nativeQueryRef": "GMV rủi ro 45 ngày",
+              "displayName": "Toàn bộ"
             },
             {
               "field": {
@@ -60,12 +61,14 @@
                 }
               },
               "queryRef": "dss_recommendation.GMV rủi ro trong kế hoạch",
-              "nativeQueryRef": "GMV rủi ro trong kế hoạch"
+              "nativeQueryRef": "GMV rủi ro trong kế hoạch",
+              "displayName": "Trong kế hoạch"
             }
           ]
         }
       }
     },
+    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -80,14 +83,13 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Theo vùng seller, mốc cuối'"
+                  "Value": "'GMV rủi ro theo vùng seller'"
                 }
               }
             }
           }
         }
       ]
-    },
-    "drillFilterOtherVisuals": true
+    }
   }
 }

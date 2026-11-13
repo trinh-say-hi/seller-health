@@ -47,8 +47,8 @@ header[data-testid="stHeader"] * {pointer-events: auto;}
 [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] {background: var(--sh-blue-soft);}
 [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] p {font-weight: 600; color: var(--sh-blue-ink);}
 /* Option cuoi la luong giao nhan: tach bang mot tieu de nhom rieng */
-[data-testid="stSidebar"] [data-testid="stRadioOption"]:last-child {margin-top: 26px; position: relative;}
-[data-testid="stSidebar"] [data-testid="stRadioOption"]:last-child::before {content: "GIAO NHẬN · VẬN HÀNH"; position: absolute; top: -20px; left: 2px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; color: var(--sh-muted);}
+[data-testid="stSidebar"] [role="radiogroup"] > :last-child {margin-top: 26px; position: relative;}
+[data-testid="stSidebar"] [role="radiogroup"] > :last-child::before {content: "GIAO NHẬN · VẬN HÀNH"; position: absolute; top: -20px; left: 2px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; color: var(--sh-muted);}
 .sidenote {font-size: 11.5px; color: var(--sh-muted); line-height: 1.4;}
 
 /* Muc tieu cua man hinh dang xem, nam trong sidebar */

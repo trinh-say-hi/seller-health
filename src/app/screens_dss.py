@@ -159,7 +159,7 @@ def board(as_of):
         kpi(m[0], "plan_cost", brl(s["cost"]), f"còn {num(p.budget - s['cost'])}", tone="off")
         kpi(m[1], "plan_slots", f"{s['slots']}/{p.max_slots}", f"{s['n_call']} gọi, {s['n_ops']} hỗ trợ", tone="off")
         kpi(m[2], "plan_risk", compact(s["gmv_risk_covered"]),
-            f"trên {compact(s['gmv_risk_total'])} vượt ngưỡng · {compact(current.gmv_risk.sum())} toàn bộ", tone="off")
+            f"trên {compact(s['gmv_risk_total'])} vượt ngưỡng {pct(p.risk_threshold, 0)}", tone="off")
         kpi(m[3], "plan_saved", compact(s["expected_saved"]), f"{s['expected_saved'] - s0['expected_saved']:+,.0f} so với đề xuất".replace(",", "."),
             label="Giữ được, kỳ vọng (giả định)", tone="off")
         kpi(m[4], "plan_saved_range", f"{compact(mc['p10'])}–{compact(mc['p90'])}", f"lỗ (giữ < tiền chi): {pct(mc['p_below_cost'], 0)} số lần",

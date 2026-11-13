@@ -575,6 +575,21 @@
   "detail": ""
  },
  {
+  "test": "Mo phong: ky vong bang GMV giu duoc cua bo toi uu",
+  "ok": true,
+  "detail": "430.0"
+ },
+ {
+  "test": "Mo phong: trung binh gan ky vong, P10 <= P50 <= P90",
+  "ok": true,
+  "detail": "229 / 462 / 581"
+ },
+ {
+  "test": "Mo phong: do bat dinh lon hon thi khoang rong hon",
+  "ok": true,
+  "detail": ""
+ },
+ {
   "test": "Catalog: moi cot o Gold, DSS, van hanh deu co mo ta",
   "ok": true,
   "detail": "319/319"
@@ -592,12 +607,12 @@
  {
   "test": "Metrics: moi KPI du truong bat buoc",
   "ok": true,
-  "detail": "32"
+  "detail": "33"
  },
  {
   "test": "Metrics: giao dien chi dung KPI co dinh nghia",
   "ok": true,
-  "detail": "32 KPI"
+  "detail": "30 KPI"
  },
  {
   "test": "Tai lieu: co naming_conventions.md",

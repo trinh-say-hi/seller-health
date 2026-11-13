@@ -3,10 +3,10 @@
   "name": "ae89cba8ff71080d6f52",
   "position": {
     "x": 20,
-    "y": 192,
+    "y": 196,
     "z": 8000,
-    "height": 512,
-    "width": 760,
+    "height": 508,
+    "width": 700,
     "tabOrder": 8000
   },
   "visual": {
@@ -71,6 +71,7 @@
         }
       }
     },
+    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -85,14 +86,13 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Trễ với khách và seller giao trễ theo tháng nhận'"
+                  "Value": "'Khách nhận trễ và seller bàn giao trễ, theo tháng nhận'"
                 }
               }
             }
           }
         }
       ]
-    },
-    "drillFilterOtherVisuals": true
+    }
   }
 }

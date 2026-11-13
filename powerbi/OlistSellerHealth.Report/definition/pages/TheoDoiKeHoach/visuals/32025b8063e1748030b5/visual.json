@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "32025b8063e1748030b5",
+  "position": {
+    "x": 520,
+    "y": 88,
+    "z": 6000,
+    "height": 96,
+    "width": 238,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dss_recommendation"
+                    }
+                  },
+                  "Property": "% GMV rủi ro được xử lý"
+                }
+              },
+              "queryRef": "dss_recommendation.% GMV rủi ro được xử lý",
+              "nativeQueryRef": "% GMV rủi ro được xử lý"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

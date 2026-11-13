@@ -3,11 +3,11 @@
   "name": "33528fd8ad5d91e06130",
   "position": {
     "x": 20,
-    "y": 454,
-    "z": 10000,
-    "height": 250,
+    "y": 438,
+    "z": 12000,
+    "height": 266,
     "width": 1240,
-    "tabOrder": 10000
+    "tabOrder": 12000
   },
   "visual": {
     "visualType": "tableEx",
@@ -23,11 +23,11 @@
                       "Entity": "dim_seller"
                     }
                   },
-                  "Property": "seller_id"
+                  "Property": "Seller"
                 }
               },
-              "queryRef": "dim_seller.seller_id",
-              "nativeQueryRef": "seller_id"
+              "queryRef": "dim_seller.Seller",
+              "nativeQueryRef": "Seller"
             },
             {
               "field": {
@@ -41,7 +41,8 @@
                 }
               },
               "queryRef": "dim_seller.region",
-              "nativeQueryRef": "region"
+              "nativeQueryRef": "region",
+              "displayName": "Vùng"
             },
             {
               "field": {
@@ -55,7 +56,8 @@
                 }
               },
               "queryRef": "dim_seller.state",
-              "nativeQueryRef": "state"
+              "nativeQueryRef": "state",
+              "displayName": "Bang"
             },
             {
               "field": {
@@ -69,7 +71,8 @@
                 }
               },
               "queryRef": "dss_recommendation.Hành động trong kế hoạch",
-              "nativeQueryRef": "Hành động trong kế hoạch"
+              "nativeQueryRef": "Hành động trong kế hoạch",
+              "displayName": "Hành động"
             },
             {
               "field": {
@@ -83,7 +86,8 @@
                 }
               },
               "queryRef": "dss_recommendation.Khả năng sụt (kế hoạch)",
-              "nativeQueryRef": "Khả năng sụt (kế hoạch)"
+              "nativeQueryRef": "Khả năng sụt (kế hoạch)",
+              "displayName": "Khả năng sụt"
             },
             {
               "field": {
@@ -97,12 +101,32 @@
                 }
               },
               "queryRef": "dss_recommendation.GMV rủi ro trong kế hoạch",
-              "nativeQueryRef": "GMV rủi ro trong kế hoạch"
+              "nativeQueryRef": "GMV rủi ro trong kế hoạch",
+              "displayName": "GMV rủi ro"
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dss_recommendation"
+                  }
+                },
+                "Property": "GMV rủi ro trong kế hoạch"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
+    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -117,14 +141,13 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Seller trong kế hoạch, mốc cuối'"
+                  "Value": "'Seller trong kế hoạch, sắp theo GMV rủi ro'"
                 }
               }
             }
           }
         }
       ]
-    },
-    "drillFilterOtherVisuals": true
+    }
   }
 }

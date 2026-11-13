@@ -3,7 +3,7 @@
   "name": "91d372b803c2e192a118",
   "position": {
     "x": 646,
-    "y": 84,
+    "y": 88,
     "z": 6000,
     "height": 96,
     "width": 301,
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "kpi_monthly.Tỷ lệ trễ hẹn tháng",
-              "nativeQueryRef": "Tỷ lệ trễ hẹn tháng"
+              "nativeQueryRef": "Tỷ lệ trễ hẹn tháng",
+              "displayName": "Tỷ lệ trễ hẹn (chốt sổ)"
             }
           ]
         }

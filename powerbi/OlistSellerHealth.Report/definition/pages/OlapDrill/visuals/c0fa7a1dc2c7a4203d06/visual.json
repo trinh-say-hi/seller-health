@@ -1,6 +1,6 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "66d9546c6693a98fdd54",
+  "name": "c0fa7a1dc2c7a4203d06",
   "position": {
     "x": 880,
     "y": 14,
@@ -17,17 +17,42 @@
           "projections": [
             {
               "field": {
-                "Column": {
+                "HierarchyLevel": {
                   "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_date"
+                        }
+                      },
+                      "Hierarchy": "Lịch"
                     }
                   },
-                  "Property": "year"
+                  "Level": "Năm"
                 }
               },
-              "queryRef": "dim_date.year",
-              "nativeQueryRef": "year",
+              "queryRef": "dim_date.Lịch.Năm",
+              "nativeQueryRef": "Lịch Năm",
+              "active": true
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_date"
+                        }
+                      },
+                      "Hierarchy": "Lịch"
+                    }
+                  },
+                  "Level": "Tháng"
+                }
+              },
+              "queryRef": "dim_date.Lịch.Tháng",
+              "nativeQueryRef": "Lịch Tháng",
               "active": true
             }
           ]
@@ -67,16 +92,11 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Năm'"
+                  "Value": "'Năm → Tháng'"
                 }
               }
             }
           }
-        }
-      ],
-      "general": [
-        {
-          "properties": {}
         }
       ]
     },
@@ -85,7 +105,7 @@
   "filterConfig": {
     "filters": [
       {
-        "name": "3d1b09e28cfa29127964",
+        "name": "06b4475c3fe16b6a84d4",
         "field": {
           "Column": {
             "Expression": {

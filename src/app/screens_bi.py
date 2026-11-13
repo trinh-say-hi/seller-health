@@ -139,10 +139,10 @@ def _why_not(r, risk_cut, value_cut):
     if r.action in ("CALL", "OPS"):
         return "Trong kế hoạch"
     if r.p_decline < risk_cut:
-        return f"Khả năng sụt dưới ngưỡng {pct(risk_cut, 0)}"
+        return f"Dưới ngưỡng rủi ro {pct(risk_cut, 0)}"
     if r.gmv_90 < value_cut:
-        return "Ngoài top 20% GMV, chỉ gửi email"
-    return "Hết ngân sách hoặc suất"
+        return "Ngoài top 20% GMV: email"
+    return "Hết ngân sách/suất"
 
 
 def attention(as_of):
@@ -193,12 +193,12 @@ def attention(as_of):
         title(f"{len(new_risk)} seller mới vào Nguy cơ, sắp theo GMV rủi ro",
               "Hạng do luật gán (lâu không bán, GMV giảm, giao trễ); kế hoạch do mô hình, ngưỡng và ngân sách chọn. Bấm một dòng để mở hồ sơ seller.")
         top_s = new_risk.sort_values("gmv_risk", ascending=False).reset_index(drop=True)
-        view = pd.DataFrame({"Seller": top_s.seller_id.map(short), "Vùng": top_s.region, "Bang": top_s.state, "GMV rủi ro": top_s.gmv_risk.round(0),
-                             "Khả năng sụt": top_s.p_decline.map(lambda v: pct(v, 0)), "GMV 90 ngày": top_s.gmv_90.round(0),
-                             "Ngày chưa bán": top_s.recency.round(0), "Giao VC trễ": top_s.seller_late_rate.map(pct),
-                             "Đề xuất": top_s.action.map(ACTION_LABEL), "Vì sao chưa xử lý": top_s.why.where(top_s.why != "Trong kế hoạch", ""),
-                             "Lý do": top_s.reason})
-        cfg = {c: st.column_config.NumberColumn(format="localized") for c in ("GMV rủi ro", "GMV 90 ngày", "Ngày chưa bán")}
+        handled = [ACTION_LABEL[a] if w == "Trong kế hoạch" else w for a, w in zip(top_s.action, top_s.why)]
+        view = pd.DataFrame({"Seller": top_s.seller_id.map(short), "Bang": top_s.state, "GMV rủi ro": top_s.gmv_risk.round(0),
+                             "Khả năng sụt": top_s.p_decline.map(lambda v: pct(v, 0)), "Ngày chưa bán": top_s.recency.round(0),
+                             "Giao VC trễ": top_s.seller_late_rate.map(lambda v: pct(v, 0)), "Xử lý": handled, "Lý do": top_s.reason})
+        cfg = {c: st.column_config.NumberColumn(format="localized") for c in ("GMV rủi ro", "Ngày chưa bán")}
+        cfg["Xử lý"] = st.column_config.TextColumn(width="medium")
         cfg["Lý do"] = st.column_config.TextColumn(width="large")
         key = f"attn-{as_of}"
 
@@ -211,7 +211,7 @@ def attention(as_of):
                      on_select=_open, selection_mode="single-row")
     with c2:
         title(f"{len(new_risk)} seller mới vào Nguy cơ được xử lý thế nào")
-        order = ["Trong kế hoạch", f"Khả năng sụt dưới ngưỡng {pct(p.risk_threshold, 0)}", "Ngoài top 20% GMV, chỉ gửi email", "Hết ngân sách hoặc suất"]
+        order = ["Trong kế hoạch", f"Dưới ngưỡng rủi ro {pct(p.risk_threshold, 0)}", "Ngoài top 20% GMV: email", "Hết ngân sách/suất"]
         w = new_risk.groupby("why").size().reindex(order).fillna(0)
         fig = go.Figure(go.Bar(y=w.index, x=w.values, orientation="h", marker_color=[BLUE, LIGHT_BLUE, LIGHT_BLUE, "#9C1C4A"], text=w.values.astype(int),
                                textposition="outside", cliponaxis=False, hovertemplate="%{y}: %{x} seller<extra></extra>"))
@@ -333,7 +333,7 @@ def _explain(as_of, sid, p):
     f["abs"] = f.contrib.abs()
     top = f.nlargest(6, "abs").sort_values("contrib")
     ups = f[f.contrib > 0].nlargest(3, "contrib")
-    words = "; ".join(f"{FEAT_LABEL[x].lower()} {FEAT_FMT.get(x, num)(v) if pd.notna(v) else '—'}" for x, v in zip(ups.feature, ups.value))
+    words = "; ".join(f"{FEAT_LABEL[x]} {FEAT_FMT.get(x, num)(v) if pd.notna(v) else '—'}" for x, v in zip(ups.feature, ups.value))
     title(f"Vì sao khả năng sụt {pct(p, 0)}", f"Đẩy rủi ro lên nhiều nhất: {words}." if words else "Không yếu tố nào đẩy rủi ro lên.")
     labels = [f"{FEAT_LABEL[x]} = {FEAT_FMT.get(x, num)(v) if pd.notna(v) else '—'}" for x, v in zip(top.feature, top.value)]
     fig = go.Figure(go.Bar(x=top.contrib, y=labels, orientation="h", marker_color=[ORANGE if c > 0 else BLUE for c in top.contrib],

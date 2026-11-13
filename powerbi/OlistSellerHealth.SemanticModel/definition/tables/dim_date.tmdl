@@ -3,6 +3,16 @@ table dim_date
 	lineageTag: e8664cf1-c36b-5b32-b749-14095ea1e468
 	dataCategory: Time
 
+	/// Khoảng thời gian thẻ số đang cộng: tháng đầu – tháng cuối của lát cắt (trang có khóa sẵn 01/2017 – 08/2018).
+	measure 'Kỳ đang xem' =
+			VAR d1 = MIN ( dim_date[full_date] )
+			VAR d2 = MAX ( dim_date[full_date] )
+			VAR t1 = FORMAT ( d1, "MM/yyyy" )
+			VAR t2 = FORMAT ( d2, "MM/yyyy" )
+			RETURN
+			    IF ( t1 = t2, t1, t1 & " – " & t2 )
+		lineageTag: 02db4537-200d-40ae-8f87-26bd8f429e81
+
 	/// Khóa dạng YYYYMMDD.
 	column date_key
 		dataType: int64

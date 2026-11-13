@@ -3,9 +3,9 @@
   "name": "a6a3f4a6ca59ddb02480",
   "position": {
     "x": 792,
-    "y": 456,
+    "y": 458,
     "z": 11000,
-    "height": 248,
+    "height": 246,
     "width": 468,
     "tabOrder": 11000
   },
@@ -51,12 +51,14 @@
                 }
               },
               "queryRef": "kpi_monthly.Seller có bán tháng",
-              "nativeQueryRef": "Seller có bán tháng"
+              "nativeQueryRef": "Seller có bán tháng",
+              "displayName": "Seller có bán"
             }
           ]
         }
       }
     },
+    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -79,6 +81,20 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true
+    "objects": {
+      "valueAxis": [
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

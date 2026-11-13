@@ -27,8 +27,7 @@
                 }
               },
               "queryRef": "dim_region.region",
-              "nativeQueryRef": "region",
-              "active": true
+              "nativeQueryRef": "region"
             }
           ]
         }

@@ -3,7 +3,7 @@
   "name": "08710c323491dde32ab6",
   "position": {
     "x": 959,
-    "y": 84,
+    "y": 88,
     "z": 7000,
     "height": 96,
     "width": 301,
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "fact_order_seller.Đơn trễ, seller đúng hạn",
-              "nativeQueryRef": "Đơn trễ, seller đúng hạn"
+              "nativeQueryRef": "Đơn trễ, seller đúng hạn",
+              "displayName": "Đơn trễ mà seller đúng hạn"
             }
           ]
         }

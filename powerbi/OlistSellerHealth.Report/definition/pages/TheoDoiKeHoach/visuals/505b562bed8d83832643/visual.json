@@ -3,11 +3,11 @@
   "name": "505b562bed8d83832643",
   "position": {
     "x": 20,
-    "y": 192,
-    "z": 8000,
-    "height": 250,
-    "width": 610,
-    "tabOrder": 8000
+    "y": 196,
+    "z": 9000,
+    "height": 230,
+    "width": 560,
+    "tabOrder": 9000
   },
   "visual": {
     "visualType": "lineChart",
@@ -51,7 +51,8 @@
                 }
               },
               "queryRef": "dss_recommendation.GMV rủi ro 45 ngày",
-              "nativeQueryRef": "GMV rủi ro 45 ngày"
+              "nativeQueryRef": "GMV rủi ro 45 ngày",
+              "displayName": "GMV rủi ro toàn bộ"
             },
             {
               "field": {
@@ -65,12 +66,14 @@
                 }
               },
               "queryRef": "dss_recommendation.GMV rủi ro trong kế hoạch",
-              "nativeQueryRef": "GMV rủi ro trong kế hoạch"
+              "nativeQueryRef": "GMV rủi ro trong kế hoạch",
+              "displayName": "Phần kế hoạch xử lý"
             }
           ]
         }
       }
     },
+    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -85,14 +88,13 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'GMV rủi ro toàn bộ và phần kế hoạch xử lý, theo mốc as-of'"
+                  "Value": "'Rủi ro tăng theo số seller, ngân sách cố định nên phần xử lý đi ngang'"
                 }
               }
             }
           }
         }
       ]
-    },
-    "drillFilterOtherVisuals": true
+    }
   }
 }

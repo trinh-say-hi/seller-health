@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "889f1a0ca441f2adab4b",
+  "name": "f07d620d837d7f7474c9",
   "position": {
-    "x": 646,
-    "y": 84,
-    "z": 6000,
+    "x": 770,
+    "y": 88,
+    "z": 7000,
     "height": 96,
-    "width": 301,
-    "tabOrder": 6000
+    "width": 238,
+    "tabOrder": 7000
   },
   "visual": {
     "visualType": "card",
@@ -23,11 +23,11 @@
                       "Entity": "dss_recommendation"
                     }
                   },
-                  "Property": "Seller được đề xuất gọi"
+                  "Property": "Seller trong kế hoạch"
                 }
               },
-              "queryRef": "dss_recommendation.Seller được đề xuất gọi",
-              "nativeQueryRef": "Seller được đề xuất gọi"
+              "queryRef": "dss_recommendation.Seller trong kế hoạch",
+              "nativeQueryRef": "Seller trong kế hoạch"
             }
           ]
         }

@@ -16,7 +16,7 @@ cd DW_DSS
 docker compose up --build
 ```
 
-Lần đầu mất khoảng 10–15 phút: tải Python, cài thư viện, dựng kho từ 9 CSV, chạy DSS và 127 test. Test hỏng thì build dừng. Khi thấy dòng `You can now view your Streamlit app`, mở http://localhost:8501.
+Lần đầu mất khoảng 10–15 phút: tải Python, cài thư viện, dựng kho từ 9 CSV, chạy DSS và 130 test. Test hỏng thì build dừng. Khi thấy dòng `You can now view your Streamlit app`, mở http://localhost:8501.
 
 Những lần sau chỉ cần `docker compose up`. Tắt bằng `Ctrl+C`. Nếu cổng 8501 đã bị dùng, đổi dòng `"8501:8501"` trong `docker-compose.yml` thành `"8502:8501"` rồi mở http://localhost:8502.
 
@@ -73,7 +73,7 @@ Power BI không thay được Streamlit: nó không giải được MILP, không
 
 ## Lớp Power BI (OLAP server, RLS)
 
-Mô hình Tabular nạp vào VertiPaq, có quan hệ star, measure DAX, hierarchy để drill và phân quyền theo dòng (RLS). Báo cáo có 4 trang: **Tổng quan KPI tháng**, **OLAP drill-down**, **Giao hàng** (trễ do seller hay do vận chuyển, theo tháng nhận và bang khách), **Theo dõi kế hoạch** (GMV rủi ro, kế hoạch MILP theo vùng, danh sách seller trong kế hoạch).
+Mô hình Tabular nạp vào VertiPaq, có quan hệ star, measure DAX, hierarchy để drill và phân quyền theo dòng (RLS). Báo cáo có 4 trang, đều khóa khoảng 01/2017 – 08/2018 (trừ trang kế hoạch), lọc theo cây Năm → Tháng và ghi rõ "Kỳ đang xem": **KPI tháng** (số chốt sổ), **Doanh số dồn ở đâu?** (cây phân rã vùng → bang → danh mục → hạng, tán xạ danh mục GMV × trễ), **Giao hàng** (trễ do seller hay do vận chuyển), **Kế hoạch đề xuất** (bấm một mốc trên đường để xem kế hoạch của mốc đó, kế hoạch theo vùng, seller theo hạng, danh sách seller trong kế hoạch).
 
 ```powershell
 .\run_pipeline.ps1 -Job xuat_power_bi      # chỉ xuất lại Parquet từ bản đang dùng
@@ -138,17 +138,17 @@ CSV chỉ có trạng thái cuối của đơn. Vì vậy mỗi đợt che đi c
 
 Tài liệu: [thiết kế và báo cáo](docs/thiet-ke-he-thong.md) · [data catalog](docs/data_catalog.md) · [quy tắc đặt tên](docs/naming_conventions.md) · [yêu cầu](docs/requirements.md) · [định nghĩa KPI](metrics.yml) · [truy vấn OLAP](src/sql/olap_examples.sql).
 
-## Năm màn hình Streamlit
+## Năm màn hình Streamlit, hai luồng quyết định
 
 Mỗi màn hình vừa khung 1440 × 800, không phải cuộn. Cửa sổ khác cỡ thì bố cục tự dàn theo chiều rộng thật và chữ co nhẹ theo bề ngang, nên biểu đồ luôn lấp kín ô; cửa sổ thấp hơn 800 thì cuộn dọc. Danh sách màn hình nằm ở sidebar bên trái, mặc định thu gọn, bấm » ở góc trên để mở.
 
 | Màn hình | Câu hỏi được trả lời | Quyết định rút ra |
 |---|---|---|
-| Cần chú ý tháng này | Seller nào vừa rơi vào Nguy cơ, GMV nào đang rủi ro, kế hoạch đề xuất xử lý bao nhiêu? | Mở hồ sơ seller nào trước |
-| Chi tiết seller | Seller này sụt ở đâu, vì sao? | Can thiệp kiểu gì |
-| Bảng kế hoạch | Với ngân sách này thì làm gì với ai? (kéo thả) | Danh sách hành động, xuất CSV |
-| What-if tuyến | Hứa thêm N ngày thì tỷ lệ trễ còn bao nhiêu? | Có đổi lời hẹn không |
-| Kiểm chứng | Các tháng trước danh sách trúng bao nhiêu? | Có nên tin hệ thống không |
+| 1 · Cần chú ý tháng này | Seller nào vừa rơi vào Nguy cơ, vì sao chưa được xử lý? | Mở hồ sơ seller nào trước (bấm dòng) |
+| 2 · Chi tiết seller | Seller này sụt ở đâu, lỗi ở khâu seller hay vận chuyển? | Hỗ trợ seller hay chuyển sang luồng giao nhận |
+| 3 · Bảng kế hoạch | Với ngân sách và số suất này thì làm gì với ai? (kéo thả, kịch bản, khoảng P10–P90) | Danh sách hành động, xuất CSV |
+| 4 · Kiểm chứng | Các tháng trước danh sách trúng bao nhiêu, kế hoạch đổi bao nhiêu khi giả định đổi? | Có nên tin hệ thống không |
+| What-if hẹn giao (luồng giao nhận) | Hứa thêm N ngày trên tuyến thì tỷ lệ trễ còn bao nhiêu? | Có đổi lời hẹn không (Quản lý vận hành) |
 
 Màn Tổng quan, Lỗi giao trễ và Đa chiều (OLAP) cũ vẫn còn trong `src/app/` nhưng không còn trên menu: phần theo dõi KPI, OLAP và giao hàng đã chuyển sang Power BI.
 
@@ -161,6 +161,7 @@ Màn Tổng quan, Lỗi giao trễ và Đa chiều (OLAP) cũ vẫn còn trong `
 | Bảng luật và lý do bằng chữ | Luật theo rủi ro, giá trị, vận hành | `src/dss/rules.py` |
 | Tối ưu kế hoạch | MILP: mỗi seller tối đa 1 hành động, giới hạn ngân sách và số suất | `src/dss/optimize.py` |
 | What-if | Tính lại kế hoạch, tính lại tỷ lệ trễ trên đơn lịch sử | `src/app/screens_dss.py` |
+| Mô phỏng Monte Carlo | Seller sụt hay không theo khả năng sụt, hiệu quả rút quanh giả định ± độ bất định; ra khoảng P10–P90 của GMV giữ được | `src/dss/simulate.py` |
 
 Ngưỡng rủi ro và ngân sách mặc định được chọn trên 09/2017–02/2018 (`scripts/tune_threshold.py`). Các tháng 03–07/2018 chỉ dùng để báo cáo kết quả.
 

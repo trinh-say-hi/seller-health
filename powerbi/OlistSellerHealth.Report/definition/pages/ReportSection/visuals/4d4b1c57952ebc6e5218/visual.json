@@ -3,9 +3,9 @@
   "name": "4d4b1c57952ebc6e5218",
   "position": {
     "x": 20,
-    "y": 456,
+    "y": 458,
     "z": 10000,
-    "height": 248,
+    "height": 246,
     "width": 760,
     "tabOrder": 10000
   },
@@ -51,12 +51,14 @@
                 }
               },
               "queryRef": "kpi_monthly.Review TB tháng",
-              "nativeQueryRef": "Review TB tháng"
+              "nativeQueryRef": "Review TB tháng",
+              "displayName": "Review trung bình"
             }
           ]
         }
       }
     },
+    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -71,14 +73,13 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Review trung bình theo tháng trả lời'"
+                  "Value": "'Review trung bình theo tháng trả lời: tụt đúng các tháng giao trễ'"
                 }
               }
             }
           }
         }
       ]
-    },
-    "drillFilterOtherVisuals": true
+    }
   }
 }

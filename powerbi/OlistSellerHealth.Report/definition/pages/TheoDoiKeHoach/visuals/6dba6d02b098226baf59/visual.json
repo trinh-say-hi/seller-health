@@ -1,0 +1,95 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "6dba6d02b098226baf59",
+  "position": {
+    "x": 934,
+    "y": 196,
+    "z": 11000,
+    "height": 230,
+    "width": 326,
+    "tabOrder": 11000
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_seller_health"
+                    }
+                  },
+                  "Property": "health_tier"
+                }
+              },
+              "queryRef": "dim_seller_health.health_tier",
+              "nativeQueryRef": "health_tier",
+              "displayName": "Hạng"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_seller_monthly"
+                    }
+                  },
+                  "Property": "Seller (snapshot cuối kỳ)"
+                }
+              },
+              "queryRef": "fact_seller_monthly.Seller (snapshot cuối kỳ)",
+              "nativeQueryRef": "Seller (snapshot cuối kỳ)",
+              "displayName": "Seller"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Seller theo hạng tháng'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

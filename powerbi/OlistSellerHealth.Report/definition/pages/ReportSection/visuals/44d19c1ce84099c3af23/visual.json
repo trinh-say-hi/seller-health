@@ -27,8 +27,7 @@
                 }
               },
               "queryRef": "dim_region.region",
-              "nativeQueryRef": "region",
-              "active": true
+              "nativeQueryRef": "region"
             }
           ]
         }
@@ -67,7 +66,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Vùng'"
+                  "Value": "'Vùng seller'"
                 }
               }
             }

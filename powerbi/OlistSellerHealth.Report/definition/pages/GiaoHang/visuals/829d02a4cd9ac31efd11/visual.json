@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "829d02a4cd9ac31efd11",
   "position": {
-    "x": 20,
-    "y": 12,
+    "x": 16,
+    "y": 8,
     "z": 1000,
-    "height": 60,
-    "width": 760,
+    "height": 72,
+    "width": 560,
     "tabOrder": 1000
   },
   "visual": {
@@ -19,10 +19,10 @@
               {
                 "textRuns": [
                   {
-                    "value": "Giao hàng: trễ do seller hay do vận chuyển?",
+                    "value": "Trễ hẹn do seller hay do vận chuyển?",
                     "textStyle": {
                       "fontFamily": "Segoe UI Semibold",
-                      "fontSize": "18pt",
+                      "fontSize": "17pt",
                       "color": "#5C1A36"
                     }
                   }
@@ -31,10 +31,10 @@
               {
                 "textRuns": [
                   {
-                    "value": "Theo ngày khách nhận (dim_date đóng vai ngày nhận)",
+                    "value": "Xếp theo tháng khách nhận hàng. Phần lớn đơn trễ có seller đúng hạn: lỗi ở vận chuyển, cách sửa là lời hẹn giao (What-if hẹn giao trên app).",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
-                      "fontSize": "10pt",
+                      "fontSize": "9pt",
                       "color": "#B06A88"
                     }
                   }

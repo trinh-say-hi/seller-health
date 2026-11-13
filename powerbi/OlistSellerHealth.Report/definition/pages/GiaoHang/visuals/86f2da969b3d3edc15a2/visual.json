@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "86f2da969b3d3edc15a2",
   "position": {
-    "x": 792,
-    "y": 192,
+    "x": 732,
+    "y": 196,
     "z": 9000,
-    "height": 512,
-    "width": 468,
+    "height": 508,
+    "width": 528,
     "tabOrder": 9000
   },
   "visual": {
@@ -28,7 +28,7 @@
               },
               "queryRef": "dim_location.state",
               "nativeQueryRef": "state",
-              "active": true
+              "displayName": "Bang khách"
             }
           ]
         },
@@ -49,9 +49,46 @@
               "nativeQueryRef": "Trễ hẹn với khách"
             }
           ]
+        },
+        "Tooltips": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_order_seller"
+                    }
+                  },
+                  "Property": "Đơn đã giao"
+                }
+              },
+              "queryRef": "fact_order_seller.Đơn đã giao",
+              "nativeQueryRef": "Đơn đã giao"
+            }
+          ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_order_seller"
+                  }
+                },
+                "Property": "Trễ hẹn với khách"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
+    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "title": [
         {
@@ -66,7 +103,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Trễ hẹn với khách theo bang của khách'"
+                  "Value": "'Trễ hẹn với khách theo bang của khách (rê chuột xem số đơn)'"
                 }
               }
             }
@@ -74,6 +111,20 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

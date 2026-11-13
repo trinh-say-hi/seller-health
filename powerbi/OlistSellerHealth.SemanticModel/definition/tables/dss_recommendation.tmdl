@@ -11,6 +11,29 @@ table dss_recommendation
 		displayFolder: DSS
 		lineageTag: 8efb3e14-6049-5c9b-82b3-f6024137080f
 
+	/// Mốc as-of của kế hoạch đang xem: mốc cuối trong lát cắt thời gian (bấm một điểm trên đường để chọn mốc khác).
+	measure 'Mốc kế hoạch' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			RETURN
+			    IF ( NOT ISBLANK ( asOf ), FORMAT ( DATE ( INT ( asOf / 10000 ), MOD ( INT ( asOf / 100 ), 100 ), MOD ( asOf, 100 ) ), "dd/MM/yyyy" ) )
+		displayFolder: DSS
+		lineageTag: 4bb7ca71-75bb-4e36-b92f-d75bdc989afc
+
+	/// Số seller kế hoạch gọi hoặc hỗ trợ, kèm số từng loại.
+	measure 'Seller trong kế hoạch' =
+			VAR goi = [Seller được đề xuất gọi] + 0
+			VAR hoTro = [Seller được đề xuất hỗ trợ] + 0
+			RETURN
+			    FORMAT ( goi + hoTro, "0" ) & " (" & goi & " gọi, " & hoTro & " hỗ trợ)"
+		displayFolder: DSS
+		lineageTag: cb511da2-8625-45bf-8c24-d546a12d8893
+
+	/// Phần GMV rủi ro thuộc seller được gọi hoặc hỗ trợ.
+	measure '% GMV rủi ro được xử lý' = DIVIDE ( [GMV rủi ro trong kế hoạch], [GMV rủi ro 45 ngày] )
+		formatString: 0%
+		displayFolder: DSS
+		lineageTag: 0d824449-93c5-4213-b41d-2fd21926b4a2
+
 	/// Số seller có hành động CALL ở mốc as-of cuối.
 	measure 'Seller được đề xuất gọi' =
 			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )

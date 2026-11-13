@@ -3,7 +3,7 @@
   "name": "26e56cfa7dec3d521210",
   "position": {
     "x": 959,
-    "y": 84,
+    "y": 88,
     "z": 7000,
     "height": 96,
     "width": 301,
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "kpi_monthly.Đơn trễ tháng",
-              "nativeQueryRef": "Đơn trễ tháng"
+              "nativeQueryRef": "Đơn trễ tháng",
+              "displayName": "Đơn trễ (chốt sổ)"
             }
           ]
         }

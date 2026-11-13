@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "05886ea6c152b195a819",
   "position": {
-    "x": 20,
-    "y": 12,
+    "x": 16,
+    "y": 8,
     "z": 1000,
-    "height": 60,
-    "width": 760,
+    "height": 72,
+    "width": 560,
     "tabOrder": 1000
   },
   "visual": {
@@ -19,10 +19,10 @@
               {
                 "textRuns": [
                   {
-                    "value": "Tổng quan KPI tháng",
+                    "value": "Sàn đang thế nào qua từng tháng?",
                     "textStyle": {
                       "fontFamily": "Segoe UI Semibold",
-                      "fontSize": "18pt",
+                      "fontSize": "17pt",
                       "color": "#5C1A36"
                     }
                   }
@@ -31,10 +31,10 @@
               {
                 "textRuns": [
                   {
-                    "value": "Số chốt sổ từng tháng từ mart.kpi_monthly, khớp màn Tổng quan của app",
+                    "value": "Số chốt sổ cuối mỗi tháng. Trễ hẹn xếp theo tháng hẹn giao, review theo tháng khách trả lời. Bấm một cột để xem riêng tháng đó.",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
-                      "fontSize": "10pt",
+                      "fontSize": "9pt",
                       "color": "#B06A88"
                     }
                   }
