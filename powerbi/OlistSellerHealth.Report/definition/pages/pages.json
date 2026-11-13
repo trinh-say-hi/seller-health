@@ -3,7 +3,8 @@
   "pageOrder": [
     "ReportSection",
     "OlapDrill",
-    "DssWhatIf"
+    "GiaoHang",
+    "TheoDoiKeHoach"
   ],
   "activePageName": "ReportSection"
 }

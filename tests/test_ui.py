@@ -15,8 +15,8 @@ from src.config import DB_PATH, EVIDENCE_DIR
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else EVIDENCE_DIR / "screenshots"
 OUT.mkdir(parents=True, exist_ok=True)
 URL = "http://localhost:8599"
-SCREENS = ["Tổng quan", "Lỗi giao trễ", "Chi tiết seller", "Bảng kế hoạch", "What-if tuyến", "Kiểm chứng", "Đa chiều"]
-ASCII = dict(zip(SCREENS, ["tong_quan", "loi_giao_tre", "chi_tiet_seller", "bang_ke_hoach", "whatif_tuyen", "kiem_chung", "da_chieu"]))
+SCREENS = ["Cần chú ý", "Chi tiết seller", "Bảng kế hoạch", "What-if tuyến", "Kiểm chứng"]
+ASCII = dict(zip(SCREENS, ["can_chu_y", "chi_tiet_seller", "bang_ke_hoach", "whatif_tuyen", "kiem_chung"]))
 results = []
 
 
@@ -81,7 +81,7 @@ with sync_playwright() as p:
         check(f"Man hinh '{name}' vua 1440x800, khong cuon", v <= 0 and h <= 0, f"doc {v}px, ngang {h}px")
         page.screenshot(path=str(OUT / f"{i}_{ASCII[name]}.png"))
 
-    goto(page, "Tổng quan")
+    goto(page, "Cần chú ý")
     check("Co chu thich KPI tu metrics.yml", page.locator('[data-testid="stMetric"] [data-testid="stTooltipIcon"], [data-testid="stMetric"] [data-testid="stTooltipHoverTarget"]').count() >= 4)
     v1 = metric(page, "GMV")
     db = duckdb.connect(str(DB_PATH), read_only=True)
@@ -94,7 +94,6 @@ with sync_playwright() as p:
     db.close()
     fmt = lambda x, d=0: f"{x:,.{d}f}".replace(",", "§").replace(".", ",").replace("§", ".")
     check("GMV tren giao dien khop SQL", v1 == f"{fmt(float(gmv) / 1000)}k", f"{v1} / {float(gmv):,.2f}")
-    check("So don tren giao dien khop SQL", metric(page, "Số đơn") == fmt(orders), metric(page, "Số đơn"))
     check("Ty le tre tren giao dien khop SQL", metric(page, "Tỷ lệ đơn trễ hẹn") == fmt(100 * late / due, 1) + "%", f"{metric(page, 'Tỷ lệ đơn trễ hẹn')} / {late}/{due}")
 
     slider = page.locator('input[type="range"][aria-label*="as-of"]').first

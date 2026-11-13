@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "0795f35a795bf6cf53ad",
+  "position": {
+    "x": 20,
+    "y": 84,
+    "z": 4,
+    "width": 301,
+    "height": 96,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dss_recommendation"
+                    }
+                  },
+                  "Property": "GMV rủi ro 45 ngày"
+                }
+              },
+              "queryRef": "dss_recommendation.GMV rủi ro 45 ngày",
+              "nativeQueryRef": "GMV rủi ro 45 ngày"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "ae89cba8ff71080d6f52",
+  "position": {
+    "x": 20,
+    "y": 192,
+    "z": 8,
+    "width": 760,
+    "height": 512,
+    "tabOrder": 8
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_date"
+                        }
+                      },
+                      "Hierarchy": "Lịch"
+                    }
+                  },
+                  "Level": "Tháng"
+                }
+              },
+              "queryRef": "dim_date.Lịch.Tháng",
+              "nativeQueryRef": "Lịch Tháng"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_order_seller"
+                    }
+                  },
+                  "Property": "Trễ hẹn với khách"
+                }
+              },
+              "queryRef": "fact_order_seller.Trễ hẹn với khách",
+              "nativeQueryRef": "Trễ hẹn với khách"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_order_seller"
+                    }
+                  },
+                  "Property": "Seller giao vận chuyển trễ"
+                }
+              },
+              "queryRef": "fact_order_seller.Seller giao vận chuyển trễ",
+              "nativeQueryRef": "Seller giao vận chuyển trễ"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Trễ với khách và seller giao trễ theo tháng nhận'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

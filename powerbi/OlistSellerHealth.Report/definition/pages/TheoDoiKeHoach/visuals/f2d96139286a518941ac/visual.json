@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "f2d96139286a518941ac",
+  "position": {
+    "x": 959,
+    "y": 84,
+    "z": 7,
+    "width": 301,
+    "height": 96,
+    "tabOrder": 7
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dss_recommendation"
+                    }
+                  },
+                  "Property": "Tiền đã dùng"
+                }
+              },
+              "queryRef": "dss_recommendation.Tiền đã dùng",
+              "nativeQueryRef": "Tiền đã dùng"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

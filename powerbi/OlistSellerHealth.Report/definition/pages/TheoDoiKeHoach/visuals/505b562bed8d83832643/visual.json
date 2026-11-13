@@ -1,0 +1,97 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "505b562bed8d83832643",
+  "position": {
+    "x": 20,
+    "y": 192,
+    "z": 8,
+    "width": 610,
+    "height": 250,
+    "tabOrder": 8
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dim_date"
+                        }
+                      },
+                      "Hierarchy": "Lịch"
+                    }
+                  },
+                  "Level": "Tháng"
+                }
+              },
+              "queryRef": "dim_date.Lịch.Tháng",
+              "nativeQueryRef": "Lịch Tháng"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dss_recommendation"
+                    }
+                  },
+                  "Property": "GMV rủi ro 45 ngày"
+                }
+              },
+              "queryRef": "dss_recommendation.GMV rủi ro 45 ngày",
+              "nativeQueryRef": "GMV rủi ro 45 ngày"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dss_recommendation"
+                    }
+                  },
+                  "Property": "GMV rủi ro trong kế hoạch"
+                }
+              },
+              "queryRef": "dss_recommendation.GMV rủi ro trong kế hoạch",
+              "nativeQueryRef": "GMV rủi ro trong kế hoạch"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'GMV rủi ro toàn bộ và phần kế hoạch xử lý, theo mốc as-of'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

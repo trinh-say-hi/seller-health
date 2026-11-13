@@ -58,9 +58,22 @@ Các asset chỉ bọc các bước sẵn có, không viết lại logic, nên s
 
 Vì sao không ghi đè lên file cũ: app giữ file kho ở chế độ chỉ đọc, và DuckDB khóa file nên tiến trình khác không mở để ghi được. Ngoài ra, một đợt lỗi giữa chừng sẽ làm hỏng kho đang dùng.
 
-## Lớp Power BI (OLAP server, RLS, DSS generator)
+## Hai giao diện, một kho
 
-Streamlit giữ phần MILP, Kanban và what-if theo seller. Power BI thêm một OLAP server thật: mô hình Tabular nạp vào VertiPaq, có quan hệ star, measure DAX, hierarchy để drill và phân quyền theo dòng (RLS).
+Cả hai giao diện đọc cùng một bản kho đã phát hành và cùng tên chỉ số trong `metrics.yml`. Không có giao diện nào gửi dữ liệu thẳng cho giao diện kia. Chúng chia nhau theo các pha ra quyết định (Simon):
+
+| Pha | Câu hỏi | Công cụ | Người dùng |
+|---|---|---|---|
+| Nhận biết | Có vấn đề không, ở đâu? | Power BI: KPI tháng, OLAP drill-down, Giao hàng | Quản lý, quản lý vùng (RLS) |
+| Thiết kế | Seller nào cần xử lý, vì sao? | Streamlit: Cần chú ý, Chi tiết seller, What-if tuyến | Trưởng nhóm Seller Success |
+| Lựa chọn | Làm gì với ai trong ngân sách? | Streamlit: Bảng kế hoạch (MILP, kéo thả), Kiểm chứng | Trưởng nhóm Seller Success |
+| Theo dõi | Kế hoạch đang xử lý bao nhiêu GMV rủi ro, ở vùng nào? | Power BI: Theo dõi kế hoạch | Quản lý, quản lý vùng (RLS) |
+
+Power BI không thay được Streamlit: nó không giải được MILP, không ghi lại quyết định và không chạy trong Docker. Streamlit không thay được Power BI: nó không có OLAP server (VertiPaq) và không có phân quyền theo dòng. Hai giao diện dùng chung tông hồng trắng.
+
+## Lớp Power BI (OLAP server, RLS)
+
+Mô hình Tabular nạp vào VertiPaq, có quan hệ star, measure DAX, hierarchy để drill và phân quyền theo dòng (RLS). Báo cáo có 4 trang: **Tổng quan KPI tháng**, **OLAP drill-down**, **Giao hàng** (trễ do seller hay do vận chuyển, theo tháng nhận và bang khách), **Theo dõi kế hoạch** (GMV rủi ro, kế hoạch MILP theo vùng, danh sách seller trong kế hoạch).
 
 ```powershell
 .\run_pipeline.ps1 -Job xuat_power_bi      # chỉ xuất lại Parquet từ bản đang dùng
@@ -76,7 +89,7 @@ Sau đó mở `powerbi/OlistSellerHealth.pbip` bằng Power BI Desktop rồi b�
 | Hierarchy | Lịch (năm → quý → tháng → ngày), Địa lý seller và Địa lý khách (vùng → bang → thành phố), Sản phẩm (danh mục → sản phẩm) |
 | Measure | 32 measure dịch từ `metrics.yml`, chia thư mục: KPI tháng (chốt sổ), OLAP bán hàng, Giao hàng và review, Sức khỏe seller, DSS |
 | RLS | Role **Quản lý vùng Sudeste**: `dim_region[region] = "Sudeste"`, lan qua `dim_seller` tới mọi fact theo seller và qua `kpi_monthly` |
-| What-if | Bảng tham số **Hiệu quả can thiệp** (0–100%), measure *Giữ được (what-if)* = GMV rủi ro trong kế hoạch × hiệu quả chọn |
+| What-if | Bảng tham số **Hiệu quả can thiệp** vẫn có trong mô hình nhưng không đặt lên báo cáo: what-if nằm ở Streamlit |
 
 Hai nhóm KPI có chủ ý tách nhau:
 
@@ -125,19 +138,19 @@ CSV chỉ có trạng thái cuối của đơn. Vì vậy mỗi đợt che đi c
 
 Tài liệu: [thiết kế và báo cáo](docs/thiet-ke-he-thong.md) · [data catalog](docs/data_catalog.md) · [quy tắc đặt tên](docs/naming_conventions.md) · [yêu cầu](docs/requirements.md) · [định nghĩa KPI](metrics.yml) · [truy vấn OLAP](src/sql/olap_examples.sql).
 
-## Bảy màn hình
+## Năm màn hình Streamlit
 
 Mỗi màn hình vừa khung 1440 × 800, không phải cuộn. Cửa sổ khác cỡ thì bố cục tự dàn theo chiều rộng thật và chữ co nhẹ theo bề ngang, nên biểu đồ luôn lấp kín ô; cửa sổ thấp hơn 800 thì cuộn dọc. Danh sách màn hình nằm ở sidebar bên trái, mặc định thu gọn, bấm » ở góc trên để mở.
 
 | Màn hình | Câu hỏi được trả lời | Quyết định rút ra |
 |---|---|---|
-| Tổng quan | Tháng này có gì bất thường? GMV nào đang rủi ro? | Tập trung vào đâu |
-| Lỗi giao trễ | Trễ do seller hay do vận chuyển? | Hỗ trợ seller hay sửa tuyến |
+| Cần chú ý tháng này | Seller nào vừa rơi vào Nguy cơ, GMV nào đang rủi ro, kế hoạch đề xuất xử lý bao nhiêu? | Mở hồ sơ seller nào trước |
 | Chi tiết seller | Seller này sụt ở đâu, vì sao? | Can thiệp kiểu gì |
 | Bảng kế hoạch | Với ngân sách này thì làm gì với ai? (kéo thả) | Danh sách hành động, xuất CSV |
 | What-if tuyến | Hứa thêm N ngày thì tỷ lệ trễ còn bao nhiêu? | Có đổi lời hẹn không |
 | Kiểm chứng | Các tháng trước danh sách trúng bao nhiêu? | Có nên tin hệ thống không |
-| Đa chiều (OLAP) | Số liệu dồn ở đâu? Đi sâu từ vùng xuống bang, thành phố, seller thì thấy gì? | Khoanh vùng cần xem kỹ; drill-down, roll-up, slice, dice, pivot trên lớp core |
+
+Màn Tổng quan, Lỗi giao trễ và Đa chiều (OLAP) cũ vẫn còn trong `src/app/` nhưng không còn trên menu: phần theo dõi KPI, OLAP và giao hàng đã chuyển sang Power BI.
 
 ## Thành phần DSS
 

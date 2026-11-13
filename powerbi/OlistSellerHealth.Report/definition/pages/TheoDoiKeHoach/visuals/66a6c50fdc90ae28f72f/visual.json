@@ -1,0 +1,92 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "66a6c50fdc90ae28f72f",
+  "position": {
+    "x": 642,
+    "y": 192,
+    "z": 9,
+    "width": 618,
+    "height": 250,
+    "tabOrder": 9
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_region"
+                    }
+                  },
+                  "Property": "region"
+                }
+              },
+              "queryRef": "dim_region.region",
+              "nativeQueryRef": "region"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dss_recommendation"
+                    }
+                  },
+                  "Property": "GMV rủi ro 45 ngày"
+                }
+              },
+              "queryRef": "dss_recommendation.GMV rủi ro 45 ngày",
+              "nativeQueryRef": "GMV rủi ro 45 ngày"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dss_recommendation"
+                    }
+                  },
+                  "Property": "GMV rủi ro trong kế hoạch"
+                }
+              },
+              "queryRef": "dss_recommendation.GMV rủi ro trong kế hoạch",
+              "nativeQueryRef": "GMV rủi ro trong kế hoạch"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Theo vùng seller, mốc cuối'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

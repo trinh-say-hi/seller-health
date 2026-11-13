@@ -1,4 +1,4 @@
-"""Ba man hinh phan tich: Tong quan, Loi giao tre, Chi tiet seller. Moi man hinh vua mot khung hinh."""
+"""Man hinh phan tich: Can chu y (dang dung), Chi tiet seller; Tong quan va Loi giao tre giu lai nhung da chuyen sang Power BI."""
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -131,6 +131,73 @@ def overview(as_of):
         top_s = new_risk.nlargest(20, "gmv_90")
         table(pd.DataFrame({"Seller": top_s.seller_id.map(short), "GMV 90 ngày": top_s.gmv_90.round(0), "Ngày chưa bán": top_s.recency.round(0),
                             "Giao VC trễ": top_s.seller_late_rate.map(pct), "Hành động": top_s.action.map(ACTION_LABEL)}), H1)
+
+
+def attention(as_of):
+    """Man vao cua DSS: seller nao can xu ly thang nay. Phan theo doi KPI, OLAP va giao hang nam o Power BI."""
+    kpi_rows = q("""SELECT * FROM mart.kpi_monthly WHERE is_all_region AND is_all_category AND month >= DATE '2017-01-01'
+                    AND month < CAST(? AS DATE) ORDER BY month""", (as_of,))
+    kpi_rows["late_rate"] = kpi_rows.n_late_orders / kpi_rows.n_due_orders.where(kpi_rows.n_due_orders > 0)
+    last = kpi_rows.iloc[-1]
+    prev = kpi_rows.iloc[-2] if len(kpi_rows) > 1 else last
+    trail = kpi_rows.tail(12)
+    month_txt = pd.Timestamp(last.month).strftime("%m/%Y")
+
+    cur = q("""SELECT f.*, r.gmv_risk, r.p_decline, r.action, r.reason, r.cost, s.region, s.state
+               FROM mart.seller_features f JOIN dss.recommendation r USING (as_of, seller_id)
+               LEFT JOIN core.dim_seller s ON s.seller_id = f.seller_id AND s.is_current
+               WHERE as_of = CAST(? AS DATE)""", (as_of,))
+    prev_t = q("SELECT seller_id, health_tier FROM mart.seller_features WHERE as_of = CAST(? AS DATE)", (_prev_month(as_of),))
+    new_risk = cur[(cur.health_tier == "Nguy cơ") & ~cur.seller_id.isin(prev_t[prev_t.health_tier == "Nguy cơ"].seller_id)]
+    n_risk = int((cur.health_tier == "Nguy cơ").sum())
+    risk_trail = q("""SELECT f.as_of, count(*) FILTER (WHERE f.health_tier = 'Nguy cơ') AS n_risk, sum(r.gmv_risk) AS gmv_risk
+                      FROM mart.seller_features f LEFT JOIN dss.recommendation r USING (as_of, seller_id)
+                      WHERE f.as_of <= CAST(? AS DATE) GROUP BY 1 ORDER BY 1""", (as_of,)).tail(12)
+    paid = cur[cur.action.isin(["CALL", "OPS"])]
+
+    note(f"Mốc {pd.Timestamp(as_of).strftime('%d/%m/%Y')}. Bối cảnh tháng {month_txt} lấy từ số chốt sổ. "
+         "Xu hướng, drill theo vùng, danh mục và nguyên nhân giao trễ xem ở Power BI (powerbi/OlistSellerHealth.pbip).")
+    g = st.columns([2, 3, 2], gap="medium")
+    kgroup(g[0], "Bối cảnh tháng", BLUE)
+    kgroup(g[1], "Rủi ro seller", "#9C1C4A")
+    kgroup(g[2], "Kế hoạch đề xuất", ORANGE)
+    m = g[0].columns(2, gap="small") + g[1].columns(3, gap="small") + g[2].columns(2, gap="small")
+    gmv_change = last.gmv / prev.gmv - 1 if prev.gmv else None
+    late_change = last.late_rate - prev.late_rate if pd.notna(last.late_rate) and pd.notna(prev.late_rate) else None
+    kpi(m[0], "gmv", compact(last.gmv), signed_pct(gmv_change), chart=trail.gmv.tolist())
+    kpi(m[1], "late_rate_month", pct(last.late_rate), points(late_change), chart=trail.late_rate.tolist(), tone="inverse")
+    kpi(m[2], "new_at_risk", num(len(new_risk)), f"{n_risk} seller Nguy cơ", tone="off", chart=risk_trail.n_risk.tolist())
+    kpi(m[3], "gmv_at_risk", compact(cur.gmv_risk.sum()), f"{num(len(cur))} seller hoạt động", tone="off", chart=risk_trail.gmv_risk.tolist())
+    kpi(m[4], "plan_risk", compact(paid.gmv_risk.sum()), f"{pct(paid.gmv_risk.sum() / cur.gmv_risk.sum() if cur.gmv_risk.sum() else None, 0)} GMV rủi ro",
+        tone="off")
+    kpi(m[5], "plan_cost", brl(paid.cost.sum()), None, label="Tiền đề xuất")
+    kpi(m[6], "plan_slots", num(len(paid)), f"{(paid.action == 'CALL').sum()} gọi, {(paid.action == 'OPS').sum()} hỗ trợ", label="Seller cần xử lý",
+        tone="off")
+
+    c1, c2 = st.columns([3, 2])
+    with c1:
+        title(f"{len(new_risk)} seller mới vào Nguy cơ, sắp theo GMV 90 ngày", "Bấm sang 'Chi tiết seller' để xem vì sao, 'Bảng kế hoạch' để chốt hành động")
+        top_s = new_risk.nlargest(30, "gmv_90")
+        table(pd.DataFrame({"Seller": top_s.seller_id.map(short), "Vùng": top_s.region, "Bang": top_s.state, "GMV 90 ngày": top_s.gmv_90.round(0),
+                            "Khả năng sụt": top_s.p_decline.map(lambda v: pct(v, 0)), "Ngày chưa bán": top_s.recency.round(0),
+                            "Giao VC trễ": top_s.seller_late_rate.map(pct), "Đề xuất": top_s.action.map(ACTION_LABEL), "Lý do": top_s.reason}), H2 + H1 + 10)
+    with c2:
+        title(f"{n_risk} seller hạng Nguy cơ trên {num(len(cur))} seller hoạt động")
+        t = cur.groupby("health_tier").size().reindex(TIER_ORDER).fillna(0).reset_index(name="n")
+        colors = ["#9C1C4A" if x == "Nguy cơ" else ("#F59F00" if x == "Theo dõi" else LIGHT_BLUE) for x in t.health_tier]
+        fig = go.Figure(go.Bar(y=t.health_tier, x=t.n, orientation="h", marker_color=colors, text=t.n.astype(int), textposition="outside",
+                               cliponaxis=False, hovertemplate="%{y}: %{x} seller<extra></extra>"))
+        fig.update_yaxes(autorange="reversed", showgrid=False)
+        fig.update_xaxes(showgrid=False, showticklabels=False)
+        show(style(fig, H1))
+        title("GMV rủi ro theo hành động đề xuất")
+        a = cur.groupby("action").agg(n=("seller_id", "size"), risk=("gmv_risk", "sum")).reindex(["CALL", "OPS", "EMAIL", "NONE"]).fillna(0)
+        fig = go.Figure(go.Bar(y=[ACTION_LABEL[x] for x in a.index], x=a.risk, orientation="h", marker_color=[BLUE, "#9C1C4A", LIGHT_BLUE, "#E9D3DC"],
+                               text=[f"{compact(v)} · {int(n)} seller" for v, n in zip(a.risk, a.n)], textposition="outside", cliponaxis=False,
+                               hovertemplate="%{y}<br>%{x:,.0f} BRL<extra></extra>"))
+        fig.update_yaxes(autorange="reversed", showgrid=False)
+        fig.update_xaxes(showgrid=False, showticklabels=False, range=[0, max(a.risk.max(), 1) * 1.6])
+        show(style(fig, H1))
 
 
 def blame(as_of):

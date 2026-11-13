@@ -4,16 +4,38 @@ table dss_recommendation
 
 	/// gmv_at_risk: Σ p_decline × gmv_90 / 2 ở mốc as-of cuối của lát cắt. Là ước tính, không phải số đã mất.
 	measure 'GMV rủi ro 45 ngày' =
-			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
 			RETURN
 			    CALCULATE ( SUM ( dss_recommendation[gmv_risk] ), dss_recommendation[as_of_key] = asOf )
 		formatString: #,0
 		displayFolder: DSS
 		lineageTag: 8efb3e14-6049-5c9b-82b3-f6024137080f
 
+	/// Hành động trả phí (Gọi ngay, Hỗ trợ vận hành) mà kế hoạch MILP chọn cho seller ở mốc as-of cuối. Trống nếu seller không nằm trong kế hoạch.
+	measure 'Hành động trong kế hoạch' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			VAR hanhDong = CALCULATE ( SELECTEDVALUE ( dss_recommendation[action] ), dss_recommendation[as_of_key] = asOf )
+			RETURN
+			    SWITCH ( hanhDong, "CALL", "Gọi ngay", "OPS", "Hỗ trợ vận hành" )
+		displayFolder: DSS
+		lineageTag: 16943399-c409-42f6-a50c-d167da7f7b13
+
+	/// p_decline của seller trong kế hoạch ở mốc as-of cuối. Chưa hiệu chỉnh, dùng để xếp thứ tự.
+	measure 'Khả năng sụt (kế hoạch)' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			RETURN
+			    CALCULATE (
+			        MAX ( dss_recommendation[p_decline] ),
+			        dss_recommendation[as_of_key] = asOf,
+			        dss_recommendation[action] IN { "CALL", "OPS" }
+			    )
+		formatString: 0%
+		displayFolder: DSS
+		lineageTag: d6f7dd89-b309-4dcc-a280-564f2972050c
+
 	/// Số seller có hành động CALL ở mốc as-of cuối.
 	measure 'Seller được đề xuất gọi' =
-			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
 			RETURN
 			    CALCULATE ( COUNTROWS ( dss_recommendation ), dss_recommendation[as_of_key] = asOf, dss_recommendation[action] = "CALL" )
 		formatString: #,0
@@ -22,7 +44,7 @@ table dss_recommendation
 
 	/// Số seller có hành động OPS ở mốc as-of cuối.
 	measure 'Seller được đề xuất hỗ trợ' =
-			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
 			RETURN
 			    CALCULATE ( COUNTROWS ( dss_recommendation ), dss_recommendation[as_of_key] = asOf, dss_recommendation[action] = "OPS" )
 		formatString: #,0
@@ -31,7 +53,7 @@ table dss_recommendation
 
 	/// plan_cost: Tổng chi phí các hành động trong kế hoạch MILP ở mốc as-of cuối.
 	measure 'Tiền đã dùng' =
-			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
 			RETURN
 			    CALCULATE ( SUM ( dss_recommendation[cost] ), dss_recommendation[as_of_key] = asOf )
 		formatString: #,0
@@ -40,7 +62,7 @@ table dss_recommendation
 
 	/// plan_risk: Tổng GMV rủi ro của các seller được gọi hoặc hỗ trợ.
 	measure 'GMV rủi ro trong kế hoạch' =
-			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
 			RETURN
 			    CALCULATE (
 			        SUM ( dss_recommendation[gmv_risk] ),
@@ -53,7 +75,7 @@ table dss_recommendation
 
 	/// plan_saved: GMV kỳ vọng giữ được theo các hệ số hiệu quả mặc định của DSS. Không phải số đo được.
 	measure 'Giữ được (mô hình)' =
-			VAR asOf = MAX ( dss_recommendation[as_of_key] )
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
 			RETURN
 			    CALCULATE ( SUM ( dss_recommendation[expected_saved] ), dss_recommendation[as_of_key] = asOf )
 		formatString: #,0

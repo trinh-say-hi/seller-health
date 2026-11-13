@@ -10,17 +10,17 @@ import yaml
 
 from src.config import ROOT, current_db
 
-BLUE, ORANGE, AQUA, LIGHT_BLUE = "#2a78d6", "#eb6834", "#1baf7a", "#9ec5f4"
+BLUE, ORANGE, AQUA, LIGHT_BLUE = "#D6336C", "#F59F00", "#1baf7a", "#F7A8C4"
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e8e7e3"
-SEQ = ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"]
+SEQ = ["#FDE2EC", "#F9B9CF", "#F48FB1", "#EC6195", "#D6336C", "#A61E4D", "#6E1033"]
 TIER_ORDER = ["Vàng", "Ổn định", "Ít đơn", "Theo dõi", "Nguy cơ", "Tạm ngừng"]
 
 CSS = """
 <style>
 /* Mau va khoang cach theo boi so 8px: trang xam nhat, moi the va moi bieu do la mot o trang rieng */
 :root {
-  --sh-page: #f3f5f8; --sh-card: #ffffff; --sh-line: #e1e5ec; --sh-ink: #0f1722; --sh-muted: #5b6472;
-  --sh-blue: #2a78d6; --sh-blue-ink: #184f95; --sh-blue-soft: #eaf2fc; --sh-shadow: 0 1px 2px rgba(16, 24, 40, .06);
+  --sh-page: #FFF7FA; --sh-card: #ffffff; --sh-line: #F3D9E4; --sh-ink: #2B1A24; --sh-muted: #5b6472;
+  --sh-blue: #D6336C; --sh-blue-ink: #9C1C4A; --sh-blue-soft: #FDEAF2; --sh-shadow: 0 1px 2px rgba(16, 24, 40, .06);
 }
 footer {display: none !important;}
 header[data-testid="stHeader"] {background: transparent !important; height: 2.75rem; pointer-events: none;}
@@ -43,13 +43,13 @@ header[data-testid="stHeader"] * {pointer-events: auto;}
 [data-testid="stSidebar"] [data-testid="stRadioOption"] {padding: 7px 10px; margin: 0; border-radius: 8px; cursor: pointer; width: 100%;}
 [data-testid="stSidebar"] [data-testid="stRadioOption"] > div > div:first-child {display: none;}
 [data-testid="stSidebar"] [data-testid="stRadioOption"] p {font-size: 14px;}
-[data-testid="stSidebar"] [data-testid="stRadioOption"]:hover {background: #f1f4f8;}
+[data-testid="stSidebar"] [data-testid="stRadioOption"]:hover {background: #FDF0F5;}
 [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] {background: var(--sh-blue-soft);}
 [data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] p {font-weight: 600; color: var(--sh-blue-ink);}
 .sidenote {font-size: 11.5px; color: var(--sh-muted); line-height: 1.4;}
 
 /* Muc tieu cua man hinh dang xem, nam trong sidebar */
-.sidegoal {font-size: 12px; color: #2b3340; line-height: 1.45; background: #f6f8fb; border: 1px solid var(--sh-line); border-radius: 8px; padding: 8px 10px; margin-top: 4px;}
+.sidegoal {font-size: 12px; color: #2b3340; line-height: 1.45; background: #FFF5F9; border: 1px solid var(--sh-line); border-radius: 8px; padding: 8px 10px; margin-top: 4px;}
 .sidegoal i {color: var(--sh-muted);}
 .tb-step {background: var(--sh-blue); color: #fff; font-weight: 700; font-size: 10px; padding: 1px 6px; border-radius: 4px; white-space: nowrap;}
 
@@ -95,7 +95,7 @@ _FS_PARENT = (
     "var OFF='<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"><path d=\"M6 2v4H2M14 6h-4V2M10 14v-4h4M2 10h4v4\"/></svg>';"
     "var b=document.createElement('button');b.id='sh-fs';b.type='button';"
     "b.style.cssText='position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:14px;z-index:999990;width:32px;height:32px;"
-    "border-radius:8px;border:1px solid #e1e5ec;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.06);cursor:pointer;"
+    "border-radius:8px;border:1px solid #F3D9E4;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.06);cursor:pointer;"
     "display:flex;align-items:center;justify-content:center;color:#3b4452;padding:0;';"
     "function sync(){var on=!!document.fullscreenElement;b.innerHTML=on?OFF:ON;"
     "b.title=on?'Thoát toàn màn hình (Esc)':'Toàn màn hình';b.setAttribute('aria-label',b.title);}"
