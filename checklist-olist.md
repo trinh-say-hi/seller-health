@@ -155,3 +155,31 @@ Nhánh `power-bi` (local, chưa push). Sửa file report thì phải đóng Powe
 - [ ] Khép vòng: kế hoạch đã chốt ở Streamlit ghi ra Parquet để trang Theo dõi kế hoạch đọc
 - [ ] Tham số `ThuMucParquet` đang ghi cứng đường dẫn máy này; ghi hướng dẫn đổi cho người chấm
 - [ ] Push `dagster-dieu-phoi` và `power-bi`, mở PR vào `main`
+
+## 11. Sprint sửa theo phân tích người dùng (bắt đầu 13/11/2026)
+
+Căn cứ: [docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md](docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md). Nguyên tắc: Streamlit cho người ra quyết định (Trưởng nhóm Seller Success, Quản lý giao nhận), Power BI cho người xem và theo dõi (Ban điều hành, Quản lý vùng). Thứ gì là theo dõi, thống kê thì để Power BI; thứ gì cần mô hình, tối ưu, giả định thì để Streamlit.
+
+**Sprint 1: Streamlit**
+- [ ] S1.1 Menu chia hai luồng: "Giữ chân seller" (Cần chú ý, Chi tiết seller, Bảng kế hoạch, Kiểm chứng) và "Giao nhận" (What-if tuyến). OLAP không đưa lại (thuộc Power BI)
+- [ ] S1.2 Cần chú ý: bỏ thẻ GMV, Tỷ lệ trễ, Tiền đề xuất; một dòng bối cảnh; thống nhất "GMV rủi ro" (toàn bộ seller) và "phần vượt ngưỡng"; bảng sắp theo GMV rủi ro, thêm cột "Vì sao chưa xử lý", bấm dòng mở Chi tiết seller; biểu đồ phân bố hạng chuyển sang Power BI
+- [ ] S1.3 Chi tiết seller: một thẻ Hạng; bỏ Khả năng tạm ngừng, Điểm vận hành; câu dẫn sang What-if tuyến khi lỗi ở vận chuyển; 3 lý do bằng chữ; SCD2, mini-dimension, log-odds vào mục mở rộng; nhận seller từ màn trước
+- [ ] S1.4 Bảng kế hoạch: giải thích ngưỡng; nhãn "giả định"; tổng GMV rủi ro cùng định nghĩa; cột Kanban "trên bảng / tổng"; giải thích đường ngân sách; khoảng P10–P90 cho Giữ được (Monte Carlo)
+- [ ] S1.5 What-if tuyến: tiêu đề phụ nêu bằng chứng lỗi vận chuyển
+- [ ] S1.6 Kiểm chứng: AUC và chất lượng kho vào mục mở rộng
+
+**Sprint 2: Mô hình**
+- [ ] S2.1 Monte Carlo trên hiệu quả can thiệp (`src/dss/simulate.py`), test
+
+**Sprint 3: Power BI** (Desktop phải đóng)
+- [ ] S3.1 Thời gian: cây Năm → Tháng, khóa 01/2017–08/2018, ô "Kỳ đang xem"
+- [ ] S3.2 Trang KPI: tên thẻ "(chốt sổ)", trục seller, dòng phụ
+- [ ] S3.3 Trang OLAP: tên "Doanh số dồn ở đâu?", cây phân rã, tán xạ danh mục
+- [ ] S3.4 Trang Giao hàng: dòng phụ, xếp bang giảm dần, nhãn, tooltip số đơn
+- [ ] S3.5 Trang Kế hoạch đề xuất: đổi tên, chọn mốc bằng cách bấm đường, thẻ gộp, bảng cột tiếng Việt, phân bố hạng (chuyển từ Streamlit)
+- [ ] S3.6 Đối chiếu lại DAX với DuckDB
+
+**Sprint 4: Kiểm thử và tài liệu**
+- [ ] S4.1 test_edges, test_system, test_release, chụp 5 màn
+- [ ] S4.2 README
+- [ ] S4.3 Ghi chú viết báo cáo: [docs/ghi-chu-bao-cao.md](docs/ghi-chu-bao-cao.md)
