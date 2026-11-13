@@ -42,6 +42,36 @@ table fact_sales_item
 		displayFolder: OLAP bán hàng
 		lineageTag: d7cd32e2-8703-534f-823f-e9b26d3eb88a
 
+	/// GMV, chỉ trả về cho 20 danh mục lớn nhất trong lát cắt (cho biểu đồ tán xạ).
+	measure 'GMV (top 20 danh mục)' =
+			VAR hang = RANKX ( ALLSELECTED ( dim_product[category_en] ), [GMV],, DESC )
+			VAR trong = HASONEVALUE ( dim_product[category_en] ) && hang <= 20
+			RETURN
+			    IF ( trong, [GMV] )
+		formatString: #,0
+		displayFolder: OLAP bán hàng
+		lineageTag: dba287e1-fe16-4cea-8a2a-3edd75317918
+
+	/// Tỷ lệ trễ hẹn, chỉ cho 20 danh mục lớn nhất; danh mục nhỏ ít đơn nên tỷ lệ không đáng tin.
+	measure 'Tỷ lệ trễ hẹn (top 20 danh mục)' =
+			VAR hang = RANKX ( ALLSELECTED ( dim_product[category_en] ), [GMV],, DESC )
+			VAR trong = HASONEVALUE ( dim_product[category_en] ) && hang <= 20
+			RETURN
+			    IF ( trong, [Tỷ lệ trễ hẹn] )
+		formatString: 0.0%
+		displayFolder: OLAP bán hàng
+		lineageTag: 839ad59c-f5c5-432e-a1c4-5c57102b469f
+
+	/// Số đơn, chỉ cho 20 danh mục lớn nhất.
+	measure 'Số đơn (top 20 danh mục)' =
+			VAR hang = RANKX ( ALLSELECTED ( dim_product[category_en] ), [GMV],, DESC )
+			VAR trong = HASONEVALUE ( dim_product[category_en] ) && hang <= 20
+			RETURN
+			    IF ( trong, [Số đơn] )
+		formatString: #,0
+		displayFolder: OLAP bán hàng
+		lineageTag: 6b927720-579c-4b79-9a70-acdea968eaff
+
 	/// Mã đơn, khóa tự nhiên từ nguồn.
 	column order_id
 		dataType: string

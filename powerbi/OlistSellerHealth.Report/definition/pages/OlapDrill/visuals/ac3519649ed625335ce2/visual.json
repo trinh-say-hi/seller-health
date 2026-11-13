@@ -42,11 +42,12 @@
                       "Entity": "fact_sales_item"
                     }
                   },
-                  "Property": "GMV"
+                  "Property": "GMV (top 20 danh mục)"
                 }
               },
-              "queryRef": "fact_sales_item.GMV",
-              "nativeQueryRef": "GMV"
+              "queryRef": "fact_sales_item.GMV (top 20 danh mục)",
+              "nativeQueryRef": "GMV (top 20 danh mục)",
+              "displayName": "GMV"
             }
           ]
         },
@@ -57,14 +58,15 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "fact_order_seller"
+                      "Entity": "fact_sales_item"
                     }
                   },
-                  "Property": "Tỷ lệ trễ hẹn"
+                  "Property": "Tỷ lệ trễ hẹn (top 20 danh mục)"
                 }
               },
-              "queryRef": "fact_order_seller.Tỷ lệ trễ hẹn",
-              "nativeQueryRef": "Tỷ lệ trễ hẹn"
+              "queryRef": "fact_sales_item.Tỷ lệ trễ hẹn (top 20 danh mục)",
+              "nativeQueryRef": "Tỷ lệ trễ hẹn (top 20 danh mục)",
+              "displayName": "Tỷ lệ trễ hẹn"
             }
           ]
         },
@@ -78,11 +80,12 @@
                       "Entity": "fact_sales_item"
                     }
                   },
-                  "Property": "Số đơn"
+                  "Property": "Số đơn (top 20 danh mục)"
                 }
               },
-              "queryRef": "fact_sales_item.Số đơn",
-              "nativeQueryRef": "Số đơn"
+              "queryRef": "fact_sales_item.Số đơn (top 20 danh mục)",
+              "nativeQueryRef": "Số đơn (top 20 danh mục)",
+              "displayName": "Số đơn"
             }
           ]
         }
@@ -103,7 +106,22 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Danh mục: lớn (phải) mà hay trễ (trên) là chỗ cần ưu tiên'"
+                  "Value": "'20 danh mục lớn nhất: càng phải càng bán nhiều, càng cao càng hay trễ'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "objects": {
+      "categoryLabels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }

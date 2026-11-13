@@ -3,10 +3,10 @@
   "name": "d4af0669580d3ebc4eee",
   "position": {
     "x": 16,
-    "y": 8,
+    "y": 6,
     "z": 1000,
-    "height": 72,
-    "width": 560,
+    "height": 80,
+    "width": 540,
     "tabOrder": 1000
   },
   "visual": {
@@ -31,7 +31,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Số mới nhất của kho. Trễ hẹn xếp theo tháng mua. Bấm + trên cây để tách tiếp theo vùng, bang, danh mục, hạng.",
+                    "value": "Số mới nhất của kho, trễ hẹn theo tháng mua. Trên cây: bấm + rồi tự chọn Vùng → Bang → Danh mục.",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
                       "fontSize": "9pt",

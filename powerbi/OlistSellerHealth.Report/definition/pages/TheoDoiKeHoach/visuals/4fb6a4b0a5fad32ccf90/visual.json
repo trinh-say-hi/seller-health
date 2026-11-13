@@ -3,10 +3,10 @@
   "name": "4fb6a4b0a5fad32ccf90",
   "position": {
     "x": 16,
-    "y": 8,
+    "y": 6,
     "z": 1000,
-    "height": 72,
-    "width": 560,
+    "height": 80,
+    "width": 540,
     "tabOrder": 1000
   },
   "visual": {
@@ -31,7 +31,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Kế hoạch tối ưu (MILP) ở mốc as-of cuối, với ngân sách và giả định mặc định. Bấm một điểm trên đường để xem mốc khác. Lập và chỉnh kế hoạch trên app.",
+                    "value": "Bản Trưởng nhóm đã chốt trên app; chưa chốt thì là đề xuất mặc định của MILP. Bấm một điểm trên đường để xem mốc khác.",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
                       "fontSize": "9pt",

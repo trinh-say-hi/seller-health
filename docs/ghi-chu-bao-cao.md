@@ -142,6 +142,40 @@ Số liệu lấy từ bản kho đang phát hành. Dựng lại kho thì số k
 
 ---
 
+## 5b. Khép vòng và luật xếp hạng
+
+### Khép vòng: kế hoạch đã chốt từ app sang Power BI
+
+1. Trưởng nhóm chỉnh kế hoạch ở màn **Bảng kế hoạch** rồi bấm **Chốt kế hoạch**. App ghi kế hoạch đang có, kể cả thao tác kéo tay, ra `%LOCALAPPDATA%\seller_health\powerbi\ke_hoach_da_chot.parquet` (`src/app/decisions.py`). Mỗi mốc giữ một bản; chốt lại thì thay.
+2. Power BI đọc file này thành bảng `ke_hoach_da_chot`, nối với `dim_seller` và `dim_date`, nên RLS theo vùng vẫn áp dụng.
+3. Các measure "(áp dụng)" dùng bản đã chốt nếu mốc đó đã chốt, còn không thì dùng đề xuất mặc định của MILP. Thẻ **Nguồn kế hoạch** ghi rõ đang xem bản nào.
+4. Power BI cập nhật khi bấm **Làm mới** (vài giây). Đây không phải thời gian thực: mô hình chạy chế độ Import. Muốn tự động thì đưa lên Power BI Service và đặt lịch làm mới; muốn thời gian thực thật thì phải chuyển kế hoạch sang một cơ sở dữ liệu cho phép DirectQuery.
+
+Đã kiểm: chốt một kế hoạch 27 seller, 1.850 BRL ở mốc 01/09/2018 thì Power BI hiện "Đã chốt trên app", đúng 27 seller, 1.850 BRL, GMV rủi ro 83.869,93; mốc chưa chốt vẫn hiện đề xuất mặc định; dưới role Sudeste chỉ thấy 17 seller của vùng, khớp DuckDB.
+
+### Luật xếp hạng seller
+
+Mỗi mốc as-of, mỗi seller có bán trong 90 ngày được xét **lần lượt từ trên xuống**, dừng ở luật đầu tiên đúng (`src/sql/12_batch_close.sql`):
+
+| Thứ tự | Hạng | Điều kiện | Ý nghĩa |
+|---|---|---|---|
+| 1 | **Tạm ngừng** | quá 45 ngày không có đơn | Đã ngừng bán, gọi giữ chân ít tác dụng |
+| 2 | **Ít đơn** | dưới 6 đơn trong 90 ngày | Quá ít dữ liệu để đánh giá |
+| 3 | **Nguy cơ** | (xu hướng < −50% **và** quá 21 ngày không bán) **hoặc** (giao vận chuyển trễ ≥ 30% **và** có ít nhất 5 đơn đã tới hạn bàn giao) | Đang sụt mạnh hoặc vận hành rất kém |
+| 4 | **Theo dõi** | xu hướng < −40% **hoặc** giao vận chuyển trễ ≥ 15% (có ít nhất 5 đơn) **hoặc** review trung bình < 3,5 | Có dấu hiệu xấu nhưng chưa nặng |
+| 5 | **Vàng** | GMV 90 ngày thuộc top 20% seller đang bán | Seller lớn, khỏe |
+| 6 | **Ổn định** | còn lại | Bình thường |
+
+Xu hướng = GMV 30 ngày ÷ (GMV 90 ngày ÷ 3) − 1, tức là tháng gần nhất so với trung bình 3 tháng. Seller chưa bán lần nào là **Chưa hoạt động**.
+
+Có hai loại hạng. **Hạng tháng** tính lại mỗi mốc theo bảng trên (`mart.seller_features`, `dim_seller_health`). **Hạng ổn định** nằm trong `dim_seller` (SCD2) và chỉ đổi khi hạng tháng giữ nguyên 2 kỳ liên tiếp, để tránh một tháng xấu ngẫu nhiên làm seller đổi hạng.
+
+Hạng là **luật để mô tả**; kế hoạch gọi ai do **mô hình và bộ tối ưu** quyết. Vì vậy một seller có thể ở hạng Nguy cơ mà không được gọi (khả năng sụt dưới ngưỡng, ngoài top 20% GMV, hoặc hết ngân sách). Màn Cần chú ý ghi rõ lý do ở cột Xử lý.
+
+**Câu nên dùng:** "Quyết định của người dùng được ghi lại và chảy về lớp theo dõi, nên Ban điều hành và Quản lý vùng thấy kế hoạch thật sự được thực hiện, không phải kế hoạch máy đề xuất. Đây là pha Thực hiện và theo dõi trong mô hình của Simon."
+
+**Không được viết:** "Power BI cập nhật thời gian thực".
+
 ## 6. Đánh giá
 
 **Kiểm chứng ngược 03–07/2018, cùng số seller (khoảng 30 mỗi tháng):**
@@ -197,11 +231,11 @@ Chép mục 7 của tài liệu người dùng. Thêm:
 - Không có dữ liệu hiệu quả can thiệp thật; cần thí nghiệm có nhóm đối chứng (A/B) để đo.
 - Nạp theo tháng là giả lập từ một bản CSV cuối; không có ngày hủy đơn.
 - Streamlit chưa có đăng nhập; RLS mới có một vùng.
-- Kế hoạch đã chốt ở Streamlit chưa chảy về kho, nên trang Kế hoạch đề xuất của Power BI hiện đề xuất mặc định, chưa phải quyết định cuối.
+- Kế hoạch đã chốt chảy sang Power BI qua một file, không qua kho; Power BI phải bấm Làm mới, không phải thời gian thực.
 - What-if hẹn giao giả định thời gian giao không đổi, không đo được hẹn dài hơn làm mất bao nhiêu đơn.
 - Power BI cần Windows và phải đổi tham số `ThuMucParquet` trên máy khác.
 - DuckDB 2.0 không chịu được giao dịch lớn, nên đợt lỗi không rollback tự động; hệ thống dừng, ghi `failed`, chạy lại an toàn.
-- Hướng phát triển: ghi kế hoạch đã chốt ra kho để khép vòng; xác thực và phân quyền cho Streamlit; HOLAP với DirectQuery; hiệu chỉnh xác suất của mô hình.
+- Hướng phát triển: đo kết quả của kế hoạch đã chốt 45 ngày sau; xác thực và phân quyền cho Streamlit; HOLAP với DirectQuery; hiệu chỉnh xác suất của mô hình.
 
 ---
 

@@ -3,56 +3,56 @@
   "as_of": "01/09/2017",
   "screen": "Cần chú ý",
   "ok": true,
-  "seconds": 0.2,
+  "seconds": 0.32,
   "error": []
  },
  {
   "as_of": "01/09/2017",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.5,
+  "seconds": 0.77,
   "error": []
  },
  {
   "as_of": "01/09/2017",
   "screen": "Bảng kế hoạch",
   "ok": true,
-  "seconds": 3.84,
+  "seconds": 6.94,
   "error": []
  },
  {
   "as_of": "01/09/2017",
   "screen": "What-if tuyến",
   "ok": true,
-  "seconds": 0.26,
+  "seconds": 0.53,
   "error": []
  },
  {
   "as_of": "01/09/2017",
   "screen": "Kiểm chứng",
   "ok": true,
-  "seconds": 0.45,
+  "seconds": 0.63,
   "error": []
  },
  {
   "as_of": "01/10/2017",
   "screen": "Cần chú ý",
   "ok": true,
-  "seconds": 0.27,
+  "seconds": 0.35,
   "error": []
  },
  {
   "as_of": "01/10/2017",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.39,
+  "seconds": 0.47,
   "error": []
  },
  {
   "as_of": "01/10/2017",
   "screen": "Bảng kế hoạch",
   "ok": true,
-  "seconds": 0.68,
+  "seconds": 0.76,
   "error": []
  },
  {
@@ -66,63 +66,63 @@
   "as_of": "01/10/2017",
   "screen": "Kiểm chứng",
   "ok": true,
-  "seconds": 0.33,
+  "seconds": 0.34,
   "error": []
  },
  {
   "as_of": "01/11/2017",
   "screen": "Cần chú ý",
   "ok": true,
-  "seconds": 0.34,
+  "seconds": 0.23,
   "error": []
  },
  {
   "as_of": "01/11/2017",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.43,
+  "seconds": 0.33,
   "error": []
  },
  {
   "as_of": "01/11/2017",
   "screen": "Bảng kế hoạch",
   "ok": true,
-  "seconds": 0.6,
+  "seconds": 0.59,
   "error": []
  },
  {
   "as_of": "01/11/2017",
   "screen": "What-if tuyến",
   "ok": true,
-  "seconds": 0.17,
+  "seconds": 0.14,
   "error": []
  },
  {
   "as_of": "01/11/2017",
   "screen": "Kiểm chứng",
   "ok": true,
-  "seconds": 0.34,
+  "seconds": 0.31,
   "error": []
  },
  {
   "as_of": "01/12/2017",
   "screen": "Cần chú ý",
   "ok": true,
-  "seconds": 0.25,
+  "seconds": 0.23,
   "error": []
  },
  {
   "as_of": "01/12/2017",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.36,
+  "seconds": 0.31,
   "error": []
  },
  {
   "as_of": "01/12/2017",
   "screen": "Bảng kế hoạch",
   "ok": true,
-  "seconds": 0.55,
+  "seconds": 0.54,
   "error": []
  },
  {
@@ -136,322 +136,322 @@
   "as_of": "01/12/2017",
   "screen": "Kiểm chứng",
   "ok": true,
-  "seconds": 0.32,
+  "seconds": 0.31,
   "error": []
  },
  {
   "as_of": "01/01/2018",
-  "screen": "Cần chú ý",
-  "ok": true,
-  "seconds": 0.32,
-  "error": []
- },
- {
-  "as_of": "01/01/2018",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.46,
-  "error": []
- },
- {
-  "as_of": "01/01/2018",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 2.0,
-  "error": []
- },
- {
-  "as_of": "01/01/2018",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.19,
-  "error": []
- },
- {
-  "as_of": "01/01/2018",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.33,
-  "error": []
- },
- {
-  "as_of": "01/02/2018",
-  "screen": "Cần chú ý",
-  "ok": true,
-  "seconds": 0.25,
-  "error": []
- },
- {
-  "as_of": "01/02/2018",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.52,
-  "error": []
- },
- {
-  "as_of": "01/02/2018",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.59,
-  "error": []
- },
- {
-  "as_of": "01/02/2018",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.19,
-  "error": []
- },
- {
-  "as_of": "01/02/2018",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.35,
-  "error": []
- },
- {
-  "as_of": "01/03/2018",
   "screen": "Cần chú ý",
   "ok": true,
   "seconds": 0.26,
   "error": []
  },
  {
-  "as_of": "01/03/2018",
+  "as_of": "01/01/2018",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.5,
+  "seconds": 0.35,
   "error": []
  },
  {
-  "as_of": "01/03/2018",
+  "as_of": "01/01/2018",
   "screen": "Bảng kế hoạch",
   "ok": true,
-  "seconds": 0.78,
+  "seconds": 1.69,
   "error": []
  },
  {
-  "as_of": "01/03/2018",
+  "as_of": "01/01/2018",
   "screen": "What-if tuyến",
   "ok": true,
-  "seconds": 0.25,
+  "seconds": 0.14,
   "error": []
  },
  {
-  "as_of": "01/03/2018",
+  "as_of": "01/01/2018",
   "screen": "Kiểm chứng",
   "ok": true,
-  "seconds": 0.54,
+  "seconds": 0.21,
   "error": []
  },
  {
-  "as_of": "01/04/2018",
+  "as_of": "01/02/2018",
   "screen": "Cần chú ý",
   "ok": true,
-  "seconds": 0.39,
+  "seconds": 0.16,
   "error": []
  },
  {
-  "as_of": "01/04/2018",
+  "as_of": "01/02/2018",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.59,
+  "seconds": 0.38,
   "error": []
  },
  {
-  "as_of": "01/04/2018",
+  "as_of": "01/02/2018",
   "screen": "Bảng kế hoạch",
   "ok": true,
-  "seconds": 0.79,
+  "seconds": 0.42,
   "error": []
  },
  {
-  "as_of": "01/04/2018",
+  "as_of": "01/02/2018",
   "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.11,
+  "error": []
+ },
+ {
+  "as_of": "01/02/2018",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.21,
+  "error": []
+ },
+ {
+  "as_of": "01/03/2018",
+  "screen": "Cần chú ý",
   "ok": true,
   "seconds": 0.18,
   "error": []
  },
  {
-  "as_of": "01/04/2018",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.46,
-  "error": []
- },
- {
-  "as_of": "01/05/2018",
-  "screen": "Cần chú ý",
-  "ok": true,
-  "seconds": 0.4,
-  "error": []
- },
- {
-  "as_of": "01/05/2018",
+  "as_of": "01/03/2018",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.55,
+  "seconds": 0.23,
   "error": []
  },
  {
-  "as_of": "01/05/2018",
+  "as_of": "01/03/2018",
   "screen": "Bảng kế hoạch",
   "ok": true,
-  "seconds": 0.71,
+  "seconds": 0.48,
   "error": []
  },
  {
-  "as_of": "01/05/2018",
+  "as_of": "01/03/2018",
   "screen": "What-if tuyến",
   "ok": true,
-  "seconds": 0.22,
+  "seconds": 0.11,
   "error": []
  },
  {
-  "as_of": "01/05/2018",
+  "as_of": "01/03/2018",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.21,
+  "error": []
+ },
+ {
+  "as_of": "01/04/2018",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.17,
+  "error": []
+ },
+ {
+  "as_of": "01/04/2018",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.29,
+  "error": []
+ },
+ {
+  "as_of": "01/04/2018",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 0.65,
+  "error": []
+ },
+ {
+  "as_of": "01/04/2018",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.19,
+  "error": []
+ },
+ {
+  "as_of": "01/04/2018",
   "screen": "Kiểm chứng",
   "ok": true,
   "seconds": 0.38,
   "error": []
  },
  {
-  "as_of": "01/06/2018",
+  "as_of": "01/05/2018",
   "screen": "Cần chú ý",
   "ok": true,
-  "seconds": 0.29,
+  "seconds": 0.24,
   "error": []
  },
  {
-  "as_of": "01/06/2018",
+  "as_of": "01/05/2018",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.45,
+  "seconds": 0.53,
   "error": []
  },
  {
-  "as_of": "01/06/2018",
+  "as_of": "01/05/2018",
   "screen": "Bảng kế hoạch",
   "ok": true,
-  "seconds": 0.73,
+  "seconds": 0.61,
+  "error": []
+ },
+ {
+  "as_of": "01/05/2018",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.18,
+  "error": []
+ },
+ {
+  "as_of": "01/05/2018",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.39,
   "error": []
  },
  {
   "as_of": "01/06/2018",
-  "screen": "What-if tuyến",
+  "screen": "Cần chú ý",
   "ok": true,
   "seconds": 0.21,
   "error": []
  },
  {
   "as_of": "01/06/2018",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.26,
+  "error": []
+ },
+ {
+  "as_of": "01/06/2018",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 0.41,
+  "error": []
+ },
+ {
+  "as_of": "01/06/2018",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.13,
+  "error": []
+ },
+ {
+  "as_of": "01/06/2018",
   "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.28,
+  "error": []
+ },
+ {
+  "as_of": "01/07/2018",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.2,
+  "error": []
+ },
+ {
+  "as_of": "01/07/2018",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.27,
+  "error": []
+ },
+ {
+  "as_of": "01/07/2018",
+  "screen": "Bảng kế hoạch",
   "ok": true,
   "seconds": 0.38,
   "error": []
  },
  {
   "as_of": "01/07/2018",
-  "screen": "Cần chú ý",
-  "ok": true,
-  "seconds": 0.26,
-  "error": []
- },
- {
-  "as_of": "01/07/2018",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.5,
-  "error": []
- },
- {
-  "as_of": "01/07/2018",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.7,
-  "error": []
- },
- {
-  "as_of": "01/07/2018",
   "screen": "What-if tuyến",
   "ok": true,
-  "seconds": 0.16,
+  "seconds": 0.1,
   "error": []
  },
  {
   "as_of": "01/07/2018",
   "screen": "Kiểm chứng",
   "ok": true,
-  "seconds": 0.35,
+  "seconds": 0.2,
   "error": []
  },
  {
   "as_of": "01/08/2018",
   "screen": "Cần chú ý",
   "ok": true,
-  "seconds": 0.26,
+  "seconds": 0.15,
   "error": []
  },
  {
   "as_of": "01/08/2018",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.32,
+  "seconds": 0.23,
   "error": []
  },
  {
   "as_of": "01/08/2018",
   "screen": "Bảng kế hoạch",
   "ok": true,
-  "seconds": 0.58,
+  "seconds": 0.34,
   "error": []
  },
  {
   "as_of": "01/08/2018",
   "screen": "What-if tuyến",
   "ok": true,
-  "seconds": 0.16,
+  "seconds": 0.09,
   "error": []
  },
  {
   "as_of": "01/08/2018",
   "screen": "Kiểm chứng",
   "ok": true,
-  "seconds": 0.36,
+  "seconds": 0.19,
   "error": []
  },
  {
   "as_of": "01/09/2018",
   "screen": "Cần chú ý",
   "ok": true,
-  "seconds": 0.27,
+  "seconds": 0.15,
   "error": []
  },
  {
   "as_of": "01/09/2018",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.42,
+  "seconds": 0.22,
   "error": []
  },
  {
   "as_of": "01/09/2018",
   "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.59,
-  "error": []
- },
- {
-  "as_of": "01/09/2018",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.12,
-  "error": []
- },
- {
-  "as_of": "01/09/2018",
-  "screen": "Kiểm chứng",
   "ok": true,
   "seconds": 0.39,
+  "error": []
+ },
+ {
+  "as_of": "01/09/2018",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.13,
+  "error": []
+ },
+ {
+  "as_of": "01/09/2018",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.34,
   "error": []
  }
 ]

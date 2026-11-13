@@ -78,6 +78,9 @@ def export(db: Path | None = None, out_dir: Path = OUT_DIR) -> dict:
         raise RuntimeError(f"Khong ghi de duoc {e.filename}: Power BI dang lam moi? Thu lai sau khi refresh xong.") from e
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+    # Ke hoach da chot do app ghi rieng (src/app/decisions.py); chua ai chot thi tao file rong de Power BI refresh khong loi
+    from src.app import decisions
+    decisions.ensure(out_dir / decisions.FILE.name)
     manifest = {"release": db.name, "as_of": AS_OF, "exported_at": dt.datetime.now().isoformat(timespec="seconds"),
                 "out_dir": str(out_dir), "rows": rows}
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")

@@ -16,7 +16,7 @@ cd DW_DSS
 docker compose up --build
 ```
 
-Lần đầu mất khoảng 10–15 phút: tải Python, cài thư viện, dựng kho từ 9 CSV, chạy DSS và 130 test. Test hỏng thì build dừng. Khi thấy dòng `You can now view your Streamlit app`, mở http://localhost:8501.
+Lần đầu mất khoảng 10–15 phút: tải Python, cài thư viện, dựng kho từ 9 CSV, chạy DSS và 133 test. Test hỏng thì build dừng. Khi thấy dòng `You can now view your Streamlit app`, mở http://localhost:8501.
 
 Những lần sau chỉ cần `docker compose up`. Tắt bằng `Ctrl+C`. Nếu cổng 8501 đã bị dùng, đổi dòng `"8501:8501"` trong `docker-compose.yml` thành `"8502:8501"` rồi mở http://localhost:8502.
 
@@ -137,6 +137,34 @@ CSV chỉ có trạng thái cuối của đơn. Vì vậy mỗi đợt che đi c
 | `fact_seller_monthly` | Periodic snapshot | 1 seller × 1 tháng |
 
 Tài liệu: [thiết kế và báo cáo](docs/thiet-ke-he-thong.md) · [data catalog](docs/data_catalog.md) · [quy tắc đặt tên](docs/naming_conventions.md) · [yêu cầu](docs/requirements.md) · [định nghĩa KPI](metrics.yml) · [truy vấn OLAP](src/sql/olap_examples.sql).
+
+### Khép vòng: kế hoạch đã chốt từ app sang Power BI
+
+1. Trưởng nhóm chỉnh kế hoạch ở màn **Bảng kế hoạch** rồi bấm **Chốt kế hoạch**. App ghi kế hoạch đang có, kể cả thao tác kéo tay, ra `%LOCALAPPDATA%\seller_health\powerbi\ke_hoach_da_chot.parquet` (`src/app/decisions.py`). Mỗi mốc giữ một bản; chốt lại thì thay.
+2. Power BI đọc file này thành bảng `ke_hoach_da_chot`, nối với `dim_seller` và `dim_date`, nên RLS theo vùng vẫn áp dụng.
+3. Các measure "(áp dụng)" dùng bản đã chốt nếu mốc đó đã chốt, còn không thì dùng đề xuất mặc định của MILP. Thẻ **Nguồn kế hoạch** ghi rõ đang xem bản nào.
+4. Power BI cập nhật khi bấm **Làm mới** (vài giây). Đây không phải thời gian thực: mô hình chạy chế độ Import. Muốn tự động thì đưa lên Power BI Service và đặt lịch làm mới; muốn thời gian thực thật thì phải chuyển kế hoạch sang một cơ sở dữ liệu cho phép DirectQuery.
+
+Đã kiểm: chốt một kế hoạch 27 seller, 1.850 BRL ở mốc 01/09/2018 thì Power BI hiện "Đã chốt trên app", đúng 27 seller, 1.850 BRL, GMV rủi ro 83.869,93; mốc chưa chốt vẫn hiện đề xuất mặc định; dưới role Sudeste chỉ thấy 17 seller của vùng, khớp DuckDB.
+
+### Luật xếp hạng seller
+
+Mỗi mốc as-of, mỗi seller có bán trong 90 ngày được xét **lần lượt từ trên xuống**, dừng ở luật đầu tiên đúng (`src/sql/12_batch_close.sql`):
+
+| Thứ tự | Hạng | Điều kiện | Ý nghĩa |
+|---|---|---|---|
+| 1 | **Tạm ngừng** | quá 45 ngày không có đơn | Đã ngừng bán, gọi giữ chân ít tác dụng |
+| 2 | **Ít đơn** | dưới 6 đơn trong 90 ngày | Quá ít dữ liệu để đánh giá |
+| 3 | **Nguy cơ** | (xu hướng < −50% **và** quá 21 ngày không bán) **hoặc** (giao vận chuyển trễ ≥ 30% **và** có ít nhất 5 đơn đã tới hạn bàn giao) | Đang sụt mạnh hoặc vận hành rất kém |
+| 4 | **Theo dõi** | xu hướng < −40% **hoặc** giao vận chuyển trễ ≥ 15% (có ít nhất 5 đơn) **hoặc** review trung bình < 3,5 | Có dấu hiệu xấu nhưng chưa nặng |
+| 5 | **Vàng** | GMV 90 ngày thuộc top 20% seller đang bán | Seller lớn, khỏe |
+| 6 | **Ổn định** | còn lại | Bình thường |
+
+Xu hướng = GMV 30 ngày ÷ (GMV 90 ngày ÷ 3) − 1, tức là tháng gần nhất so với trung bình 3 tháng. Seller chưa bán lần nào là **Chưa hoạt động**.
+
+Có hai loại hạng. **Hạng tháng** tính lại mỗi mốc theo bảng trên (`mart.seller_features`, `dim_seller_health`). **Hạng ổn định** nằm trong `dim_seller` (SCD2) và chỉ đổi khi hạng tháng giữ nguyên 2 kỳ liên tiếp, để tránh một tháng xấu ngẫu nhiên làm seller đổi hạng.
+
+Hạng là **luật để mô tả**; kế hoạch gọi ai do **mô hình và bộ tối ưu** quyết. Vì vậy một seller có thể ở hạng Nguy cơ mà không được gọi (khả năng sụt dưới ngưỡng, ngoài top 20% GMV, hoặc hết ngân sách). Màn Cần chú ý ghi rõ lý do ở cột Xử lý.
 
 ## Năm màn hình Streamlit, hai luồng quyết định
 

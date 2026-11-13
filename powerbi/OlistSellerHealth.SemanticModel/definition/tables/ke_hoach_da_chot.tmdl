@@ -1,0 +1,211 @@
+/// Kế hoạch Trưởng nhóm Seller Success đã chốt trên app (src/app/decisions.py). Mỗi mốc as-of một bản; chốt lại thì thay.
+table ke_hoach_da_chot
+	lineageTag: 9233d9b6-c88a-41f6-9b9a-1b8bb8c2ad0d
+
+	/// Kế hoạch đang hiện là bản Trưởng nhóm đã chốt trên app hay đề xuất mặc định của MILP.
+	measure 'Nguồn kế hoạch' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			VAR daChot = NOT ISEMPTY ( CALCULATETABLE ( ke_hoach_da_chot, ke_hoach_da_chot[as_of_key] = asOf, REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) ) )
+			RETURN
+			    IF (
+			        daChot,
+			        "Đã chốt trên app " & FORMAT ( CALCULATE ( MAX ( ke_hoach_da_chot[chot_luc] ), ke_hoach_da_chot[as_of_key] = asOf, REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) ), "HH:mm dd/MM" ),
+			        "Đề xuất mặc định (chưa chốt)"
+			    )
+		displayFolder: Kế hoạch áp dụng
+		lineageTag: 05e093d2-7043-4bcf-bd07-fb44f07b9634
+
+	/// GMV rủi ro của seller được gọi hoặc hỗ trợ trong kế hoạch đã chốt; chưa chốt thì theo đề xuất mặc định.
+	measure 'GMV rủi ro trong kế hoạch (áp dụng)' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			VAR daChot = NOT ISEMPTY ( CALCULATETABLE ( ke_hoach_da_chot, ke_hoach_da_chot[as_of_key] = asOf, REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) ) )
+			RETURN
+			    IF ( daChot, CALCULATE ( SUM ( ke_hoach_da_chot[gmv_risk] ), ke_hoach_da_chot[as_of_key] = asOf, ke_hoach_da_chot[action] IN { "CALL", "OPS" } ), [GMV rủi ro trong kế hoạch] )
+		formatString: #,0
+		displayFolder: Kế hoạch áp dụng
+		lineageTag: a6f5f35e-99f7-4ba8-81c6-4413424ebf05
+
+	measure 'Seller gọi (áp dụng)' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			VAR daChot = NOT ISEMPTY ( CALCULATETABLE ( ke_hoach_da_chot, ke_hoach_da_chot[as_of_key] = asOf, REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) ) )
+			RETURN
+			    IF ( daChot, CALCULATE ( COUNTROWS ( ke_hoach_da_chot ), ke_hoach_da_chot[as_of_key] = asOf, ke_hoach_da_chot[action] = "CALL" ) + 0, [Seller được đề xuất gọi] )
+		formatString: #,0
+		displayFolder: Kế hoạch áp dụng
+		lineageTag: 82be80d2-8341-4657-b509-11e25b09801e
+
+	measure 'Seller hỗ trợ (áp dụng)' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			VAR daChot = NOT ISEMPTY ( CALCULATETABLE ( ke_hoach_da_chot, ke_hoach_da_chot[as_of_key] = asOf, REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) ) )
+			RETURN
+			    IF ( daChot, CALCULATE ( COUNTROWS ( ke_hoach_da_chot ), ke_hoach_da_chot[as_of_key] = asOf, ke_hoach_da_chot[action] = "OPS" ) + 0, [Seller được đề xuất hỗ trợ] )
+		formatString: #,0
+		displayFolder: Kế hoạch áp dụng
+		lineageTag: c16eb785-f81c-41e4-a1bf-88cc4ce3b270
+
+	/// Số seller được gọi hoặc hỗ trợ.
+	measure 'Seller trong kế hoạch (áp dụng)' =
+			[Seller gọi (áp dụng)] + [Seller hỗ trợ (áp dụng)]
+		formatString: #,0
+		displayFolder: Kế hoạch áp dụng
+		lineageTag: ea9ff39e-9c1a-488f-8a4e-2fd91e91af6b
+
+	measure 'Tiền đã dùng (áp dụng)' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			VAR daChot = NOT ISEMPTY ( CALCULATETABLE ( ke_hoach_da_chot, ke_hoach_da_chot[as_of_key] = asOf, REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) ) )
+			RETURN
+			    IF ( daChot, CALCULATE ( SUM ( ke_hoach_da_chot[cost] ), ke_hoach_da_chot[as_of_key] = asOf ), [Tiền đã dùng] )
+		formatString: #,0
+		displayFolder: Kế hoạch áp dụng
+		lineageTag: 103dca43-9225-4efb-8881-55463bc0b588
+
+	measure '% GMV rủi ro được xử lý (áp dụng)' =
+			DIVIDE ( [GMV rủi ro trong kế hoạch (áp dụng)], [GMV rủi ro 45 ngày] )
+		formatString: 0%
+		displayFolder: Kế hoạch áp dụng
+		lineageTag: 68474c94-0ef6-440b-9e72-769fab3b8c89
+
+	measure 'Hành động (áp dụng)' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			VAR daChot = NOT ISEMPTY ( CALCULATETABLE ( ke_hoach_da_chot, ke_hoach_da_chot[as_of_key] = asOf, REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) ) )
+			VAR a = CALCULATE ( SELECTEDVALUE ( ke_hoach_da_chot[action] ), ke_hoach_da_chot[as_of_key] = asOf )
+			RETURN
+			    IF ( daChot, SWITCH ( a, "CALL", "Gọi ngay", "OPS", "Hỗ trợ vận hành" ), [Hành động trong kế hoạch] )
+		displayFolder: Kế hoạch áp dụng
+		lineageTag: f77f04b6-ea6d-4a51-a71a-282a1c7a8a5d
+
+	measure 'Khả năng sụt (áp dụng)' =
+			VAR asOf = CALCULATE ( MAX ( dss_recommendation[as_of_key] ), REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) )
+			VAR daChot = NOT ISEMPTY ( CALCULATETABLE ( ke_hoach_da_chot, ke_hoach_da_chot[as_of_key] = asOf, REMOVEFILTERS ( dim_seller ), REMOVEFILTERS ( dim_region ) ) )
+			RETURN
+			    IF ( daChot, CALCULATE ( MAX ( ke_hoach_da_chot[p_decline] ), ke_hoach_da_chot[as_of_key] = asOf, ke_hoach_da_chot[action] IN { "CALL", "OPS" } ), [Khả năng sụt (kế hoạch)] )
+		formatString: 0%
+		displayFolder: Kế hoạch áp dụng
+		lineageTag: 825f3a6f-d41e-4b10-bb01-d74335948ac5
+
+	column as_of
+		dataType: dateTime
+		formatString: dd/MM/yyyy
+		isHidden
+		lineageTag: 4e81de6a-5cb6-4fe4-97d8-68936ff4d658
+		summarizeBy: none
+		sourceColumn: as_of
+
+		annotation SummarizationSetBy = Automatic
+
+	column as_of_key
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 7aea3f07-a471-4d35-bab1-34a20c7d18e5
+		summarizeBy: none
+		sourceColumn: as_of_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_id
+		dataType: string
+		lineageTag: 72596ce2-988c-4e43-8040-c8532597645b
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_key
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 4ebc40b1-668c-4eaf-95b3-083bc5af8879
+		summarizeBy: none
+		sourceColumn: seller_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column action
+		dataType: string
+		lineageTag: 02a8108e-2b71-434a-972c-9d0698ac7f22
+		summarizeBy: none
+		sourceColumn: action
+
+		annotation SummarizationSetBy = Automatic
+
+	column cost
+		dataType: double
+		formatString: #,0
+		lineageTag: 9b160180-4a3f-4831-bb98-a1670b1c0851
+		summarizeBy: none
+		sourceColumn: cost
+
+		annotation SummarizationSetBy = Automatic
+
+	column gmv_risk
+		dataType: double
+		formatString: #,0
+		lineageTag: 29d0a78b-f1f1-422b-8afb-89c778e61e80
+		summarizeBy: none
+		sourceColumn: gmv_risk
+
+		annotation SummarizationSetBy = Automatic
+
+	column p_decline
+		dataType: double
+		formatString: 0%
+		lineageTag: b3787607-a8d8-4702-821e-0543f46eb4df
+		summarizeBy: none
+		sourceColumn: p_decline
+
+		annotation SummarizationSetBy = Automatic
+
+	column expected_saved
+		dataType: double
+		formatString: #,0
+		lineageTag: da41a471-3310-4a29-b1e6-616adddeac4c
+		summarizeBy: none
+		sourceColumn: expected_saved
+
+		annotation SummarizationSetBy = Automatic
+
+	column chot_luc
+		dataType: dateTime
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: 28da0eef-383f-4877-94d1-1c000f185cdd
+		summarizeBy: none
+		sourceColumn: chot_luc
+
+		annotation SummarizationSetBy = Automatic
+
+	column nguoi_chot
+		dataType: string
+		lineageTag: acd97e35-d429-4f12-8caf-bf6e12daac0f
+		summarizeBy: none
+		sourceColumn: nguoi_chot
+
+		annotation SummarizationSetBy = Automatic
+
+	column tham_so
+		dataType: string
+		isHidden
+		lineageTag: bde43575-0657-425b-8cdf-9239454b1859
+		summarizeBy: none
+		sourceColumn: tham_so
+
+		annotation SummarizationSetBy = Automatic
+
+	column so_the_keo_tay
+		dataType: int64
+		formatString: 0
+		lineageTag: eedba4eb-73a6-4a7b-a448-06ccc914bdd4
+		summarizeBy: none
+		sourceColumn: so_the_keo_tay
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ke_hoach_da_chot = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "ke_hoach_da_chot.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table

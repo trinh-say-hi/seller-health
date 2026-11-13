@@ -590,6 +590,21 @@
   "detail": ""
  },
  {
+  "test": "Khep vong: file ke hoach rong co du cot cho Power BI",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Khep vong: chot lai mot moc thi thay ban cu, moc khac giu nguyen",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Khep vong: trang thai chot dung so seller va so the keo tay",
+  "ok": true,
+  "detail": ""
+ },
+ {
   "test": "Catalog: moi cot o Gold, DSS, van hanh deu co mo ta",
   "ok": true,
   "detail": "319/319"

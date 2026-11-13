@@ -3,9 +3,9 @@
   "name": "f2d96139286a518941ac",
   "position": {
     "x": 1020,
-    "y": 88,
+    "y": 92,
     "z": 8000,
-    "height": 96,
+    "height": 94,
     "width": 238,
     "tabOrder": 8000
   },
@@ -20,14 +20,14 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dss_recommendation"
+                      "Entity": "ke_hoach_da_chot"
                     }
                   },
-                  "Property": "Tiền đã dùng"
+                  "Property": "Tiền đã dùng (áp dụng)"
                 }
               },
-              "queryRef": "dss_recommendation.Tiền đã dùng",
-              "nativeQueryRef": "Tiền đã dùng",
+              "queryRef": "ke_hoach_da_chot.Tiền đã dùng (áp dụng)",
+              "nativeQueryRef": "Tiền đã dùng (áp dụng)",
               "displayName": "Ngân sách đã dùng (BRL)"
             }
           ]

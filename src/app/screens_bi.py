@@ -379,19 +379,22 @@ def seller(as_of):
     with c1:
         last = h.iloc[-1] if len(h) else None
         change = last.gmv / last.gmv_prev_3m_avg - 1 if last is not None and last.gmv_prev_3m_avg else None
-        title(f"GMV tháng gần nhất {signed_pct(change, 0)} so với trung bình 3 tháng trước" if change is not None else "GMV theo tháng")
+        title(f"GMV tháng gần nhất {signed_pct(change, 0)} so với trung bình 3 tháng trước" if change is not None else "GMV theo tháng",
+              "Doanh số mỗi tháng của seller. Cột cuối thấp hẳn so với các tháng trước là dấu hiệu sụt.")
         fig = go.Figure(go.Bar(x=h.month, y=h.gmv, marker_color=BLUE, hovertemplate="%{x|%m/%Y}<br>%{y:,.0f} BRL<extra></extra>"))
         show(style(fig, H1, date_x=True))
     with c2:
         recent = h.tail(3)
-        title(f"3 tháng gần đây: seller {num(recent.avg_days_to_carrier.mean(), 1)} ngày, vận chuyển {num(recent.avg_days_in_transit.mean(), 1)} ngày")
+        title(f"3 tháng gần đây: seller {num(recent.avg_days_to_carrier.mean(), 1)} ngày, vận chuyển {num(recent.avg_days_in_transit.mean(), 1)} ngày",
+              "Đường hồng cao: seller bàn giao chậm (khâu seller). Đường vàng cao: hàng nằm lâu ở vận chuyển.")
         fig = go.Figure()
         for col, name, color in [("avg_days_to_carrier", "Seller giao cho vận chuyển", BLUE), ("avg_days_in_transit", "Vận chuyển tới khách", ORANGE)]:
             fig.add_trace(go.Scatter(x=h.month, y=h[col], mode="lines+markers", name=name, line=dict(color=color, width=2), marker=dict(size=7), hovertemplate="%{x|%m/%Y}<br>%{y:.1f} ngày<extra>" + name + "</extra>"))
         fig.update_yaxes(rangemode="tozero")
         show(style(fig, H1, legend=True, date_x=True))
     with c3:
-        title(f"So với {'trung vị toàn sàn' if other == MEDIAN else short(other)}")
+        title(f"So với {'trung vị toàn sàn' if other == MEDIAN else short(other)}",
+              "Đặt seller này cạnh seller ở giữa (trung vị) trong mọi seller đang bán; lệch xa là điểm bất thường.")
         feats = [("GMV 90 ngày", "gmv_90", lambda v: num(v)), ("Đơn 90 ngày", "orders_90", lambda v: num(v)), ("Xu hướng 30 ngày", "trend", lambda v: signed_pct(v, 0)),
                  ("Ngày chưa bán", "recency", lambda v: num(v)), ("Giao VC trễ", "seller_late_rate", lambda v: pct(v, 0)), ("Khách nhận trễ", "cust_late_rate", lambda v: pct(v, 0)),
                  ("Review", "avg_review", lambda v: num(v, 2)), ("Ngày tới VC", "days_to_carrier", lambda v: num(v, 1))]

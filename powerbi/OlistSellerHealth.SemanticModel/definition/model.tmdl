@@ -25,6 +25,7 @@ ref table fact_order_seller
 ref table fact_seller_monthly
 ref table kpi_monthly
 ref table dss_recommendation
+ref table ke_hoach_da_chot
 ref table 'Hiệu quả can thiệp'
 
 ref role 'Quản lý vùng Sudeste'

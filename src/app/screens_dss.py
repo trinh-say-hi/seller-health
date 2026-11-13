@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import streamlit as st
 import streamlit.components.v1 as components
 
-from src.app import scenarios
+from src.app import decisions, scenarios
 from src.app.common import (BLUE, MUTED, ORANGE, brl, compact, flash, kpi, note, num, pct, points, q, short, show, signed_pct, style, table, title)
 from src.config import EVIDENCE_DIR
 from src.dss.optimize import budget_curve, build_plan, cost_of, gain, slots_of, summarize
@@ -196,10 +196,22 @@ def board(as_of):
         st.markdown(f'<div class="rec" id="seller-detail"><b>{short(sid)} · {r["Hành động"]}</b><br>{r.reason}</div>', unsafe_allow_html=True)
         h = q("SELECT month, gmv FROM core.fact_seller_monthly WHERE seller_id = ? AND month < CAST(? AS DATE) ORDER BY month", (sid, as_of))
         title("GMV theo tháng")
-        show(style(go.Figure(go.Bar(x=h.month, y=h.gmv, marker_color=BLUE, hovertemplate="%{x|%m/%Y}<br>%{y:,.0f} BRL<extra></extra>")), 120, date_x=True))
+        show(style(go.Figure(go.Bar(x=h.month, y=h.gmv, marker_color=BLUE, hovertemplate="%{x|%m/%Y}<br>%{y:,.0f} BRL<extra></extra>")), 96, date_x=True))
         note(f"Chi phí {num(r.cost)} BRL. GMV rủi ro {num(r.gmv_risk)} BRL.")
         export = picked.assign(as_of=as_of)[["as_of", "seller_id", "Hành động", "state", "gmv_90", "p_decline", "gmv_risk", "cost", "expected_saved", "reason"]].sort_values("gmv_risk", ascending=False)
-        st.download_button("Xuất kế hoạch ra CSV", export.to_csv(index=False).encode("utf-8-sig"), f"ke_hoach_{as_of}.csv", "text/csv", width="stretch")
+        b1, b2 = st.columns(2)
+        b1.download_button("Xuất CSV", export.to_csv(index=False).encode("utf-8-sig"), f"ke_hoach_{as_of}.csv", "text/csv", width="stretch",
+                           help="Danh sách cho nhân viên chăm sóc seller thực hiện.")
+        violates = s["cost"] > p.budget or s["slots"] > p.max_slots
+        if b2.button("Chốt kế hoạch", type="primary", width="stretch", disabled=violates,
+                     help="Ghi kế hoạch này (kể cả thao tác kéo tay) làm quyết định của mốc. Power BI trang Kế hoạch dùng bản đã chốt sau khi bấm Làm mới."):
+            keys = q("SELECT seller_id, seller_key FROM core.dim_seller WHERE is_current")
+            decisions.save(as_of, current, dict(zip(keys.seller_id, keys.seller_key)), p.as_dict(), edited)
+        stt = decisions.status(as_of)
+        if stt:
+            keo = f", {stt['edited']} thẻ kéo tay" if stt["edited"] else ""
+            note(f"Đã chốt lúc {pd.Timestamp(stt['chot_luc']).strftime('%H:%M %d/%m')}: {stt['n']} seller, {num(stt['cost'])} BRL{keo}. "
+                 "Power BI: bấm Làm mới.")
         note("Bảng chỉ hiện tối đa 45 seller đáng cân nhắc nhất, số trong ngoặc là tổng của cả kế hoạch. Kéo thẻ để đổi hành động, bấm thẻ để xem chi tiết. "
              "Đổi ràng buộc sẽ tính lại đề xuất và xóa thao tác kéo tay. VH kém: giao vận chuyển trễ từ 15%.")
 

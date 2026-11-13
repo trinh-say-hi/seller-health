@@ -3,10 +3,10 @@
   "name": "829d02a4cd9ac31efd11",
   "position": {
     "x": 16,
-    "y": 8,
+    "y": 6,
     "z": 1000,
-    "height": 72,
-    "width": 560,
+    "height": 80,
+    "width": 540,
     "tabOrder": 1000
   },
   "visual": {
@@ -31,7 +31,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Xếp theo tháng khách nhận hàng. Phần lớn đơn trễ có seller đúng hạn: lỗi ở vận chuyển, cách sửa là lời hẹn giao (What-if hẹn giao trên app).",
+                    "value": "Theo tháng khách nhận. Phần lớn đơn trễ có seller đúng hạn: lỗi ở vận chuyển, sửa bằng lời hẹn giao (app, What-if hẹn giao).",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
                       "fontSize": "9pt",

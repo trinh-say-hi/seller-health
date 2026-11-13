@@ -54,14 +54,14 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dss_recommendation"
+                      "Entity": "ke_hoach_da_chot"
                     }
                   },
-                  "Property": "GMV rủi ro trong kế hoạch"
+                  "Property": "GMV rủi ro trong kế hoạch (áp dụng)"
                 }
               },
-              "queryRef": "dss_recommendation.GMV rủi ro trong kế hoạch",
-              "nativeQueryRef": "GMV rủi ro trong kế hoạch",
+              "queryRef": "ke_hoach_da_chot.GMV rủi ro trong kế hoạch (áp dụng)",
+              "nativeQueryRef": "GMV rủi ro trong kế hoạch (áp dụng)",
               "displayName": "Trong kế hoạch"
             }
           ]

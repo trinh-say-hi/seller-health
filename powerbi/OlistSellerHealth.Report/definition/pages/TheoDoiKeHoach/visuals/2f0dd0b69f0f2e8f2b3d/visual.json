@@ -1,0 +1,67 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "2f0dd0b69f0f2e8f2b3d",
+  "position": {
+    "x": 746,
+    "y": 12,
+    "z": 2000,
+    "height": 66,
+    "width": 324,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ke_hoach_da_chot"
+                    }
+                  },
+                  "Property": "Nguồn kế hoạch"
+                }
+              },
+              "queryRef": "ke_hoach_da_chot.Nguồn kế hoạch",
+              "nativeQueryRef": "Nguồn kế hoạch",
+              "displayName": "Nguồn kế hoạch"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "14D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "categoryLabels": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

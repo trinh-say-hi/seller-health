@@ -3,10 +3,10 @@
   "name": "05886ea6c152b195a819",
   "position": {
     "x": 16,
-    "y": 8,
+    "y": 6,
     "z": 1000,
-    "height": 72,
-    "width": 560,
+    "height": 80,
+    "width": 540,
     "tabOrder": 1000
   },
   "visual": {
@@ -31,7 +31,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Số chốt sổ cuối mỗi tháng. Trễ hẹn xếp theo tháng hẹn giao, review theo tháng khách trả lời. Bấm một cột để xem riêng tháng đó.",
+                    "value": "Số chốt sổ cuối tháng. Trễ hẹn theo tháng hẹn giao, review theo tháng trả lời. Bấm một cột để xem riêng tháng đó.",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
                       "fontSize": "9pt",

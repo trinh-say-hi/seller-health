@@ -3,9 +3,9 @@
   "name": "f07d620d837d7f7474c9",
   "position": {
     "x": 770,
-    "y": 88,
+    "y": 92,
     "z": 7000,
-    "height": 96,
+    "height": 94,
     "width": 238,
     "tabOrder": 7000
   },
@@ -20,14 +20,15 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dss_recommendation"
+                      "Entity": "ke_hoach_da_chot"
                     }
                   },
-                  "Property": "Seller trong kế hoạch"
+                  "Property": "Seller trong kế hoạch (áp dụng)"
                 }
               },
-              "queryRef": "dss_recommendation.Seller trong kế hoạch",
-              "nativeQueryRef": "Seller trong kế hoạch"
+              "queryRef": "ke_hoach_da_chot.Seller trong kế hoạch (áp dụng)",
+              "nativeQueryRef": "Seller trong kế hoạch (áp dụng)",
+              "displayName": "Seller được gọi hoặc hỗ trợ"
             }
           ]
         }

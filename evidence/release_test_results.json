@@ -2,22 +2,22 @@
  {
   "test": "Chua co con tro thi dung file cu olist.duckdb",
   "ok": true,
-  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmpkxl5yo90\\olist.duckdb"
+  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmp2sxaqedt\\olist.duckdb"
  },
  {
   "test": "Ban moi nam trong releases/",
   "ok": true,
-  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmpkxl5yo90\\releases\\olist_20261113_132309_a.duckdb"
+  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmp2sxaqedt\\releases\\olist_20261113_144504_a.duckdb"
  },
  {
   "test": "Phat hanh: current_db tro sang ban moi",
   "ok": true,
-  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmpkxl5yo90\\releases\\olist_20261113_132309_a.duckdb"
+  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmp2sxaqedt\\releases\\olist_20261113_144504_a.duckdb"
  },
  {
   "test": "Phat hanh duoc khi app dang mo ban cu",
   "ok": true,
-  "detail": "{'current': 'olist_20261113_132310_b.duckdb', 'previous': 'olist_20261113_132309_a.duckdb', 'published_at': '2026-11-13T13:23:10', 'note': ''}"
+  "detail": "{'current': 'olist_20261113_144505_b.duckdb', 'previous': 'olist_20261113_144504_a.duckdb', 'published_at': '2026-11-13T14:45:05', 'note': ''}"
  },
  {
   "test": "App van doc duoc ban cu trong luc chuyen",
@@ -27,7 +27,7 @@
  {
   "test": "Khoa ghi: app dang doc thi tien trinh khac khong mo ghi duoc (ly do phai dung ban moi)",
   "ok": true,
-  "detail": "kdb\": The process cannot access the file because it is being used by another process.\n\n\nFile is already open in \nC:\\Users\\ASUS ExpertBook\\AppData\\Local\\Programs\\Python\\Python313\\python.exe (PID 2376)\n"
+  "detail": "db\": The process cannot access the file because it is being used by another process.\n\n\nFile is already open in \nC:\\Users\\ASUS ExpertBook\\AppData\\Local\\Programs\\Python\\Python313\\python.exe (PID 23760)\n"
  },
  {
   "test": "Ket noi moi doc ban moi",
@@ -37,12 +37,12 @@
  {
   "test": "Don dep: giu ban dang dung va ban truoc",
   "ok": true,
-  "detail": "['olist_20261113_132310_b.duckdb', 'olist_20261113_132312_c.duckdb']"
+  "detail": "['olist_20261113_144505_b.duckdb', 'olist_20261113_144508_c.duckdb']"
  },
  {
   "test": "Don dep: chi con 2 ban",
   "ok": true,
-  "detail": "['olist_20261113_132310_b.duckdb', 'olist_20261113_132312_c.duckdb']"
+  "detail": "['olist_20261113_144505_b.duckdb', 'olist_20261113_144508_c.duckdb']"
  },
  {
   "test": "Don dep khi app con mo ban cu: app van doc duoc toi khi tai lai trang",
@@ -52,7 +52,7 @@
  {
   "test": "Quay lui: tro ve ban truoc",
   "ok": true,
-  "detail": "{'current': 'olist_20261113_132310_b.duckdb', 'previous': 'olist_20261113_132312_c.duckdb', 'published_at': '2026-11-13T13:23:12', 'note': 'quay lui tu olist_20261113_132312_c.duckdb'}"
+  "detail": "{'current': 'olist_20261113_144505_b.duckdb', 'previous': 'olist_20261113_144508_c.duckdb', 'published_at': '2026-11-13T14:45:08', 'note': 'quay lui tu olist_20261113_144508_c.duckdb'}"
  },
  {
   "test": "Quay lui lan nua: tro lai ban moi",
@@ -72,6 +72,6 @@
  {
   "test": "Con tro hong thi quay ve file mac dinh, khong vo app",
   "ok": true,
-  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmpkxl5yo90\\olist.duckdb"
+  "detail": "C:\\Users\\ASUSEX~1\\AppData\\Local\\Temp\\tmp2sxaqedt\\olist.duckdb"
  }
 ]

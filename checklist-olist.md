@@ -189,18 +189,18 @@ Căn cứ: [docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md](docs/nguoi-dung-phan-
 ## 12. Sprint khép vòng và bàn giao (13/11/2026)
 
 **Sprint 5: Khép vòng kế hoạch DSS → Power BI**
-- [ ] S5.1 Nút "Chốt kế hoạch" ở Bảng kế hoạch: ghi kế hoạch đang có (kể cả kéo tay) ra `powerbi/ke_hoach_da_chot.parquet`, thay bản cũ của cùng mốc
-- [ ] S5.2 Export tạo file rỗng đúng cấu trúc nếu chưa có, để Power BI refresh không lỗi
-- [ ] S5.3 Power BI: bảng `ke_hoach_da_chot`, quan hệ tới `dim_seller`, `dim_date`; measure "(áp dụng)" lấy kế hoạch đã chốt nếu có, không thì đề xuất mặc định; thẻ "Nguồn kế hoạch"
-- [ ] S5.4 Test ghi/đọc kế hoạch đã chốt
+- [x] S5.1 Nút "Chốt kế hoạch" ở Bảng kế hoạch: ghi kế hoạch đang có (kể cả kéo tay) ra `powerbi/ke_hoach_da_chot.parquet`, thay bản cũ của cùng mốc
+- [x] S5.2 Export tạo file rỗng đúng cấu trúc nếu chưa có, để Power BI refresh không lỗi
+- [x] S5.3 Power BI: bảng `ke_hoach_da_chot`, quan hệ tới `dim_seller`, `dim_date`; measure "(áp dụng)" lấy kế hoạch đã chốt nếu có, không thì đề xuất mặc định; thẻ "Nguồn kế hoạch"
+- [x] S5.4 Test ghi/đọc kế hoạch đã chốt
 
 **Sprint 6: Sửa trình bày**
-- [ ] S6.1 Tán xạ: chỉ top 20 danh mục theo GMV, hiện tên
-- [ ] S6.2 Cả 4 trang: ô tiêu đề cao hơn, dòng phụ ngắn, thẻ "Kỳ đang xem"/"Mốc kế hoạch" và ô lọc không bị cắt
-- [ ] S6.3 Trang Kế hoạch: thẻ seller không bị cắt chữ, bảng bỏ dòng Tổng, biểu đồ hạng bỏ đơn vị "nghìn"
-- [ ] S6.4 Streamlit Chi tiết seller: dòng phụ giải thích từng biểu đồ
+- [x] S6.1 Tán xạ: chỉ top 20 danh mục theo GMV, hiện tên
+- [x] S6.2 Cả 4 trang: ô tiêu đề cao hơn, dòng phụ ngắn, thẻ "Kỳ đang xem"/"Mốc kế hoạch" và ô lọc không bị cắt
+- [x] S6.3 Trang Kế hoạch: thẻ seller không bị cắt chữ, bảng bỏ dòng Tổng, biểu đồ hạng bỏ đơn vị "nghìn"
+- [x] S6.4 Streamlit Chi tiết seller: dòng phụ giải thích từng biểu đồ
 
 **Sprint 7: Bàn giao**
-- [ ] S7.1 Test: test_system, test_edges, test_release; đối chiếu DAX
-- [ ] S7.2 README, ghi chú báo cáo (khép vòng, luật xếp hạng)
-- [ ] S7.3 Tắt app, đóng Power BI, merge vào `main`, push
+- [x] S7.1 Test: test_system, test_edges, test_release; đối chiếu DAX
+- [x] S7.2 README, ghi chú báo cáo (khép vòng, luật xếp hạng)
+- [x] S7.3 Tắt app, đóng Power BI, merge vào `main`, push

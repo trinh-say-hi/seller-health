@@ -3,9 +3,9 @@
   "name": "4d4930d320529d3f3b9e",
   "position": {
     "x": 270,
-    "y": 88,
+    "y": 92,
     "z": 5000,
-    "height": 96,
+    "height": 94,
     "width": 238,
     "tabOrder": 5000
   },
@@ -20,14 +20,15 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dss_recommendation"
+                      "Entity": "ke_hoach_da_chot"
                     }
                   },
-                  "Property": "GMV rủi ro trong kế hoạch"
+                  "Property": "GMV rủi ro trong kế hoạch (áp dụng)"
                 }
               },
-              "queryRef": "dss_recommendation.GMV rủi ro trong kế hoạch",
-              "nativeQueryRef": "GMV rủi ro trong kế hoạch"
+              "queryRef": "ke_hoach_da_chot.GMV rủi ro trong kế hoạch (áp dụng)",
+              "nativeQueryRef": "GMV rủi ro trong kế hoạch (áp dụng)",
+              "displayName": "GMV rủi ro trong kế hoạch"
             }
           ]
         }

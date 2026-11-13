@@ -76,3 +76,10 @@ relationship a85c5adc-ceec-5844-b43a-716a509c8390
 	fromColumn: dim_seller.region
 	toColumn: dim_region.region
 
+relationship 7a13a439-be6b-4ce9-ac64-cd9668e95763
+	fromColumn: ke_hoach_da_chot.as_of_key
+	toColumn: dim_date.date_key
+
+relationship 1e1482d2-7c17-41cd-bb96-378a3c948761
+	fromColumn: ke_hoach_da_chot.seller_key
+	toColumn: dim_seller.seller_key

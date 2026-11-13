@@ -18,7 +18,7 @@ import yaml
 from src.config import DB_PATH, EVIDENCE_DIR, LAST_BATCH, RAW_DIR, ROOT, SQL_DIR
 from src.dss.optimize import build_plan
 from src.dss.simulate import simulate
-from src.dss.rules import CALL, OPS, Params
+from src.dss.rules import CALL, NONE, OPS, Params
 from src.etl.build import MANIFEST, ReconciliationError, attach_sources, run_batch, verify_sources
 
 results = []
@@ -227,6 +227,21 @@ check("Mo phong: trung binh gan ky vong, P10 <= P50 <= P90", abs(sim["mean"] / s
       f"{sim['p10']:.0f} / {sim['p50']:.0f} / {sim['p90']:.0f}")
 check("Mo phong: do bat dinh lon hon thi khoang rong hon", (lambda a, b: a["p90"] - a["p10"] < b["p90"] - b["p10"])(
       simulate(tp.reset_index(), t, spread=0, n=4000), simulate(tp.reset_index(), t, spread=.9, n=4000)))
+import tempfile
+from src.app import decisions
+with tempfile.TemporaryDirectory() as d:
+    f = Path(d) / "ke_hoach_da_chot.parquet"
+    decisions.ensure(f)
+    check("Khep vong: file ke hoach rong co du cot cho Power BI", list(decisions.load(f).columns) == list(decisions.COLUMNS))
+    pl = tp.reset_index()
+    decisions.save("2018-07-01", pl, {"a": 1, "b": 2}, {"budget": 200}, 0, path=f)
+    decisions.save("2018-08-01", pl, {"a": 1, "b": 2}, {"budget": 200}, 0, path=f)
+    decisions.save("2018-07-01", pl.assign(action=NONE, cost=0.0), {"a": 1}, {"budget": 0}, 3, path=f)
+    kh = decisions.load(f)
+    check("Khep vong: chot lai mot moc thi thay ban cu, moc khac giu nguyen",
+          len(kh) == 2 * len(pl) and (kh[kh.as_of_key == 20180701].action == NONE).all() and kh[kh.as_of_key == 20180801].cost.sum() == pl.cost.sum())
+    st_ = decisions.status("2018-07-01", f)
+    check("Khep vong: trang thai chot dung so seller va so the keo tay", st_["n"] == 0 and st_["edited"] == 3 and decisions.status("2018-09-01", f) is None)
 
 # --- Tai lieu
 n_col, n_com = con.execute("SELECT count(*), count(comment) FROM duckdb_columns() WHERE schema_name IN ('core','mart','dss','ops')").fetchone()

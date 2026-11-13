@@ -3,9 +3,9 @@
   "name": "32025b8063e1748030b5",
   "position": {
     "x": 520,
-    "y": 88,
+    "y": 92,
     "z": 6000,
-    "height": 96,
+    "height": 94,
     "width": 238,
     "tabOrder": 6000
   },
@@ -20,14 +20,15 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dss_recommendation"
+                      "Entity": "ke_hoach_da_chot"
                     }
                   },
-                  "Property": "% GMV rủi ro được xử lý"
+                  "Property": "% GMV rủi ro được xử lý (áp dụng)"
                 }
               },
-              "queryRef": "dss_recommendation.% GMV rủi ro được xử lý",
-              "nativeQueryRef": "% GMV rủi ro được xử lý"
+              "queryRef": "ke_hoach_da_chot.% GMV rủi ro được xử lý (áp dụng)",
+              "nativeQueryRef": "% GMV rủi ro được xử lý (áp dụng)",
+              "displayName": "% GMV rủi ro được xử lý"
             }
           ]
         }
