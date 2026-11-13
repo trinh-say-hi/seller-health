@@ -136,8 +136,15 @@ Nhánh `power-bi` (local, chưa push). Sửa file report thì phải đóng Powe
 - [ ] Biểu đồ theo bang: đang xếp theo chữ cái, phải xếp từ cao xuống thấp; thêm số đơn đã giao vào tooltip để thấy bang ít đơn (AP, RR) không đáng tin; đặt nhãn % ở cuối thanh
 - [ ] Thêm một dòng kết luận cạnh thẻ "Đơn trễ, seller đúng hạn": phần lớn trễ nằm ở khâu vận chuyển, xem What-if tuyến ở Streamlit
 
+**Lỗi và trình bày trang Theo dõi kế hoạch:**
+- [ ] Bộ lọc Năm vô nghĩa ở trang này: đổi thành chọn một mốc as-of (chọn đơn, mặc định mốc cuối 01/09/2018)
+- [ ] Thẻ: gộp "Seller trong kế hoạch: 28 (22 gọi, 6 hỗ trợ)"; thêm thẻ "% GMV rủi ro được xử lý" (90k/444k ≈ 20%); "Tiền đã dùng" ghi đơn vị BRL và "/ 2.000"
+- [ ] Bảng seller: đổi tên cột sang tiếng Việt (Seller, Vùng, Bang, Hành động, Khả năng sụt, GMV rủi ro), seller_id rút còn 8 ký tự như Streamlit, xếp theo GMV rủi ro giảm dần
+- [ ] Đường: thêm dòng phụ "Rủi ro tăng gấp 2,5 lần (175k → 444k) nhưng ngân sách cố định nên phần được xử lý giữ quanh 50–140k"
+- [ ] Dòng phụ bị cắt chữ, thanh cuộn xám ở tiêu đề (giống các trang khác)
+- [ ] Cân nhắc: tên trang nói "theo dõi" nhưng mới chỉ hiện đề xuất. Có thể thêm phần "kết quả sau 45 ngày" (seller trong kế hoạch có thật sự sụt không) từ dss.eval_lists cho các mốc 03–07/2018, nhưng tránh trùng màn Kiểm chứng của Streamlit; hoặc đổi tên trang thành "Kế hoạch đề xuất"
+
 **Chờ xem lại:**
-- [ ] Xem trang Theo dõi kế hoạch trên Power BI, ghi lỗi
 - [ ] Xem 5 màn Streamlit (http://localhost:8502), ghi lỗi
 - [ ] Gom mọi lỗi lại sửa một lần, chạy lại test_edges, test_system, đối chiếu DAX với DuckDB
 
