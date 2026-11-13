@@ -102,3 +102,25 @@ Chi tiết các chương nằm trong `ke-hoach-bao-cao.md`.
 - [ ] Nếu làm video: 10–15 phút, mọi thành viên xuất hiện, link trên bìa, đã thử mở khi không đăng nhập
 - [ ] Không có credentials hay file lớn trong repo
 - [ ] Đã mở thử ZIP và nộp LMS trước 23:59 ngày 15/11/2026
+
+## 10. Power BI và Streamlit: việc còn treo (ghi 13/11/2026)
+
+Nhánh `power-bi` (local, chưa push). Sửa file report thì phải đóng Power BI Desktop trước, vì Desktop lưu đè lên.
+
+**Phần thời gian trên Power BI (đã chốt cách làm, chưa sửa):**
+- [ ] Ô lọc thời gian đổi từ chỉ Năm sang cây Năm → Tháng (dropdown) ở trang KPI, OLAP, Giao hàng, Theo dõi kế hoạch
+- [ ] Khóa khoảng 01/2017 – 08/2018 cho trang KPI, OLAP, Giao hàng (2016 quá ít đơn, 09–10/2018 dữ liệu đã hết nên GMV rơi về 0). Trang Theo dõi kế hoạch giữ nguyên vì as-of cuối là 01/09/2018
+- [ ] Thêm ô "Kỳ đang xem" cạnh tiêu đề trang (không lọc: 01/2017 – 08/2018; bấm cột 2018-06: 06/2018)
+- [ ] Đổi tên thẻ trang KPI: "GMV (chốt sổ)", "Số đơn (chốt sổ)", "Tỷ lệ trễ hẹn (chốt sổ)", "Đơn trễ (chốt sổ)"; bỏ chữ "tháng" gây hiểu nhầm
+- [ ] Trục biểu đồ "Seller có bán theo tháng" đang hiện chữ "nghìn" mà mất số: tắt đơn vị hiển thị
+
+**Chờ xem lại:**
+- [ ] Xem trang OLAP drill-down, Giao hàng, Theo dõi kế hoạch trên Power BI, ghi lỗi
+- [ ] Xem 5 màn Streamlit (http://localhost:8502), ghi lỗi
+- [ ] Gom mọi lỗi lại sửa một lần, chạy lại test_edges, test_system, đối chiếu DAX với DuckDB
+
+**Để sau nếu còn thời gian:**
+- [ ] Monte Carlo cho hiệu quả can thiệp
+- [ ] Khép vòng: kế hoạch đã chốt ở Streamlit ghi ra Parquet để trang Theo dõi kế hoạch đọc
+- [ ] Tham số `ThuMucParquet` đang ghi cứng đường dẫn máy này; ghi hướng dẫn đổi cho người chấm
+- [ ] Push `dagster-dieu-phoi` và `power-bi`, mở PR vào `main`
