@@ -118,6 +118,13 @@ Nhánh `power-bi` (local, chưa push). Sửa file report thì phải đóng Powe
 - [ ] Ma trận địa lý đang mở thẳng ở cấp Thành phố (mất ngữ cảnh vùng, bang); phải mặc định ở cấp Vùng, bấm + mới xuống Bang, Thành phố
 - [ ] Có một thanh cuộn xám ở giữa phần tiêu đề: ô tiêu đề thấp quá so với 2 dòng chữ, cần tăng chiều cao hoặc bỏ thanh cuộn
 
+**Trình bày lại trang OLAP (đã chốt hướng, chưa làm):**
+- [ ] Đổi tên trang thành "Doanh số dồn ở đâu?"; dòng phụ ghi "Số mới nhất của kho" (trang KPI ghi "Số chốt sổ từng tháng")
+- [ ] Thay ma trận địa lý dài bằng cây phân rã (Decomposition Tree): GMV tách theo Vùng → Bang → Danh mục → Hạng, chỉ mở nhánh được bấm
+- [ ] Thay bảng 71 danh mục bằng biểu đồ tán xạ: trục ngang GMV, trục dọc tỷ lệ trễ, cỡ chấm là số đơn, 2 đường kẻ trung bình chia 4 góc; góc phải trên là danh mục lớn mà hay trễ
+- [ ] Nếu vẫn cần bảng: chỉ Top 10 kèm dòng "Khác", tô hồng đậm ô trễ trên 10%
+- [ ] Giữ 4 thẻ số và bộ lọc; bộ lọc thời gian theo cây Năm → Tháng như các trang khác
+
 **Chờ xem lại:**
 - [ ] Xem trang Giao hàng, Theo dõi kế hoạch trên Power BI, ghi lỗi
 - [ ] Xem 5 màn Streamlit (http://localhost:8502), ghi lỗi
