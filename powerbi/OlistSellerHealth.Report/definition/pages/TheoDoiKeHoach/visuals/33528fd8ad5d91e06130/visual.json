@@ -1,0 +1,168 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "33528fd8ad5d91e06130",
+  "position": {
+    "x": 20,
+    "y": 438,
+    "z": 12000,
+    "height": 266,
+    "width": 1240,
+    "tabOrder": 12000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_seller"
+                    }
+                  },
+                  "Property": "Seller"
+                }
+              },
+              "queryRef": "dim_seller.Seller",
+              "nativeQueryRef": "Seller"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_seller"
+                    }
+                  },
+                  "Property": "region"
+                }
+              },
+              "queryRef": "dim_seller.region",
+              "nativeQueryRef": "region",
+              "displayName": "Vùng seller"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_seller"
+                    }
+                  },
+                  "Property": "state"
+                }
+              },
+              "queryRef": "dim_seller.state",
+              "nativeQueryRef": "state",
+              "displayName": "Bang seller"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ke_hoach_da_chot"
+                    }
+                  },
+                  "Property": "Hành động (áp dụng)"
+                }
+              },
+              "queryRef": "ke_hoach_da_chot.Hành động (áp dụng)",
+              "nativeQueryRef": "Hành động (áp dụng)",
+              "displayName": "Hành động"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ke_hoach_da_chot"
+                    }
+                  },
+                  "Property": "Khả năng sụt (áp dụng)"
+                }
+              },
+              "queryRef": "ke_hoach_da_chot.Khả năng sụt (áp dụng)",
+              "nativeQueryRef": "Khả năng sụt (áp dụng)",
+              "displayName": "Khả năng sụt GMV"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ke_hoach_da_chot"
+                    }
+                  },
+                  "Property": "GMV rủi ro trong kế hoạch (áp dụng)"
+                }
+              },
+              "queryRef": "ke_hoach_da_chot.GMV rủi ro trong kế hoạch (áp dụng)",
+              "nativeQueryRef": "GMV rủi ro trong kế hoạch (áp dụng)",
+              "displayName": "GMV rủi ro 45 ngày"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "ke_hoach_da_chot"
+                  }
+                },
+                "Property": "GMV rủi ro trong kế hoạch (áp dụng)"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Seller trong kế hoạch, sắp theo GMV rủi ro 45 ngày'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "objects": {
+      "total": [
+        {
+          "properties": {
+            "totals": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -535,6 +535,11 @@
   "detail": "nho nhat 59 ngay"
  },
  {
+  "test": "Giai thich: tong dong gop doi ra xac suat khop p_decline",
+  "ok": true,
+  "detail": "lech lon nhat 2.22e-16"
+ },
+ {
   "test": "DSS: moi seller 1 khuyen nghi moi as-of",
   "ok": true,
   "detail": ""
@@ -570,6 +575,36 @@
   "detail": ""
  },
  {
+  "test": "Mo phong: ky vong bang GMV giu duoc cua bo toi uu",
+  "ok": true,
+  "detail": "430.0"
+ },
+ {
+  "test": "Mo phong: trung binh gan ky vong, P10 <= P50 <= P90",
+  "ok": true,
+  "detail": "229 / 462 / 581"
+ },
+ {
+  "test": "Mo phong: do bat dinh lon hon thi khoang rong hon",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Khep vong: file ke hoach rong co du cot cho Power BI",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Khep vong: chot lai mot moc thi thay ban cu, moc khac giu nguyen",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "test": "Khep vong: trang thai chot dung so seller va so the keo tay",
+  "ok": true,
+  "detail": ""
+ },
+ {
   "test": "Catalog: moi cot o Gold, DSS, van hanh deu co mo ta",
   "ok": true,
   "detail": "319/319"
@@ -587,12 +622,12 @@
  {
   "test": "Metrics: moi KPI du truong bat buoc",
   "ok": true,
-  "detail": "27"
+  "detail": "35"
  },
  {
   "test": "Metrics: giao dien chi dung KPI co dinh nghia",
   "ok": true,
-  "detail": "27 KPI"
+  "detail": "31 KPI"
  },
  {
   "test": "Tai lieu: co naming_conventions.md",

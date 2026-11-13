@@ -1,0 +1,267 @@
+/// Doanh số. Đây là nguồn chuẩn của GMV.
+table fact_sales_item
+	lineageTag: c0f1c3de-fef0-5039-b058-2aefd4bdd09c
+
+	/// olap_gmv: Tổng tiền hàng của các dòng hàng không bị hủy trong lát cắt, theo trạng thái cuối của kho.
+	measure GMV = CALCULATE ( SUM ( fact_sales_item[price] ), fact_sales_item[is_valid_sale] = TRUE () )
+		formatString: #,0.00
+		displayFolder: OLAP bán hàng
+		lineageTag: 0ca18295-2864-5d27-acd1-643dd11f1ad5
+
+	/// olap_orders: Số đơn không bị hủy có ít nhất một dòng hàng thuộc lát cắt.
+	measure 'Số đơn' = CALCULATE ( DISTINCTCOUNT ( fact_sales_item[order_id] ), fact_sales_item[is_valid_sale] = TRUE () )
+		formatString: #,0
+		displayFolder: OLAP bán hàng
+		lineageTag: 86198eb0-43db-5868-98d0-2c657d24558f
+
+	/// olap_sellers: Số seller có bán trong lát cắt.
+	measure 'Số seller' = CALCULATE ( DISTINCTCOUNT ( fact_sales_item[seller_id] ), fact_sales_item[is_valid_sale] = TRUE () )
+		formatString: #,0
+		displayFolder: OLAP bán hàng
+		lineageTag: 48c1d6fa-ce83-5e48-a237-1519d3b12225
+
+	/// Tổng phí vận chuyển của các dòng hàng không bị hủy.
+	measure 'Phí vận chuyển' = CALCULATE ( SUM ( fact_sales_item[freight_value] ), fact_sales_item[is_valid_sale] = TRUE () )
+		formatString: #,0.00
+		displayFolder: OLAP bán hàng
+		lineageTag: 18595d9d-db14-557f-8c59-9994ce666e46
+
+	/// GMV cùng kỳ năm trước theo ngày mua.
+	measure 'GMV cùng kỳ năm trước' = CALCULATE ( [GMV], SAMEPERIODLASTYEAR ( dim_date[full_date] ) )
+		formatString: #,0.00
+		displayFolder: OLAP bán hàng
+		lineageTag: 8c60b60d-9f73-5528-9ce5-d542fe39e8eb
+
+	/// (GMV − GMV cùng kỳ) / GMV cùng kỳ.
+	measure 'Tăng trưởng GMV so cùng kỳ' =
+			VAR hienTai = [GMV]
+			VAR namTruoc = [GMV cùng kỳ năm trước]
+			RETURN
+			    IF ( NOT ISBLANK ( hienTai ), DIVIDE ( hienTai - namTruoc, namTruoc ) )
+		formatString: 0.0%
+		displayFolder: OLAP bán hàng
+		lineageTag: d7cd32e2-8703-534f-823f-e9b26d3eb88a
+
+	/// GMV, chỉ trả về cho 20 danh mục lớn nhất trong lát cắt (cho biểu đồ tán xạ).
+	measure 'GMV (top 20 danh mục)' =
+			VAR hang = RANKX ( ALLSELECTED ( dim_product[category_en] ), [GMV],, DESC )
+			VAR trong = HASONEVALUE ( dim_product[category_en] ) && hang <= 20
+			RETURN
+			    IF ( trong, [GMV] )
+		formatString: #,0
+		displayFolder: OLAP bán hàng
+		lineageTag: dba287e1-fe16-4cea-8a2a-3edd75317918
+
+	/// Tỷ lệ trễ hẹn, chỉ cho 20 danh mục lớn nhất; danh mục nhỏ ít đơn nên tỷ lệ không đáng tin.
+	measure 'Tỷ lệ trễ hẹn (top 20 danh mục)' =
+			VAR hang = RANKX ( ALLSELECTED ( dim_product[category_en] ), [GMV],, DESC )
+			VAR trong = HASONEVALUE ( dim_product[category_en] ) && hang <= 20
+			RETURN
+			    IF ( trong, [Tỷ lệ trễ hẹn] )
+		formatString: 0.0%
+		displayFolder: OLAP bán hàng
+		lineageTag: 839ad59c-f5c5-432e-a1c4-5c57102b469f
+
+	/// Số đơn, chỉ cho 20 danh mục lớn nhất.
+	measure 'Số đơn (top 20 danh mục)' =
+			VAR hang = RANKX ( ALLSELECTED ( dim_product[category_en] ), [GMV],, DESC )
+			VAR trong = HASONEVALUE ( dim_product[category_en] ) && hang <= 20
+			RETURN
+			    IF ( trong, [Số đơn] )
+		formatString: #,0
+		displayFolder: OLAP bán hàng
+		lineageTag: 6b927720-579c-4b79-9a70-acdea968eaff
+
+	/// Mã đơn, khóa tự nhiên từ nguồn.
+	column order_id
+		dataType: string
+		lineageTag: c5b95b9b-0a89-546a-9ece-8d36d6dbd6b0
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Thứ tự dòng hàng trong đơn.
+	column order_item_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 6c20bd62-efd3-5370-9f7f-89aadec1b851
+		summarizeBy: none
+		sourceColumn: order_item_id
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khóa thay thế, trỏ tới dim_product.
+	column product_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e16a2fa8-ab31-589d-add0-1e03679910e1
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khóa thay thế, trỏ tới dòng dim_seller có hiệu lực lúc mua.
+	column seller_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: eaec0c4c-2167-57d0-8ac8-2692a0fbf9c6
+		summarizeBy: none
+		sourceColumn: seller_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Mã seller, khóa tự nhiên từ nguồn.
+	column seller_id
+		dataType: string
+		lineageTag: 4341bef5-cdf4-54ff-a8d5-937e4a510470
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khóa thay thế, trỏ tới dim_customer.
+	column customer_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 6124d8ea-2969-52f4-9211-5e7abe49e442
+		summarizeBy: none
+		sourceColumn: customer_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khóa thay thế, trỏ tới dim_route.
+	column route_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 0c445a91-5bd7-5b8a-baeb-1f41215e6992
+		summarizeBy: none
+		sourceColumn: route_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// ZIP của khách, trỏ tới dim_location.
+	column customer_location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4957be3d-fba5-5408-8929-20e97398baf9
+		summarizeBy: none
+		sourceColumn: customer_location_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// ZIP của seller, trỏ tới dim_location.
+	column seller_location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d2993dc0-3cd1-5bbd-9a75-4aaf9ec71244
+		summarizeBy: none
+		sourceColumn: seller_location_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày mua, trỏ tới dim_date.
+	column purchase_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 0ee4ab40-1f0f-51df-bef6-2c7e16ba0d75
+		summarizeBy: none
+		sourceColumn: purchase_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Hạn bàn giao cho vận chuyển, trỏ tới dim_date.
+	column shipping_limit_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 484c573c-be7c-5700-aaa0-7a4ad8a2cbcd
+		summarizeBy: none
+		sourceColumn: shipping_limit_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Thời điểm mua.
+	column purchase_ts
+		dataType: dateTime
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: 7b4ad20a-2829-5bac-9ea5-5eecb4ecb24d
+		summarizeBy: none
+		sourceColumn: purchase_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Hạn seller phải bàn giao cho vận chuyển.
+	column shipping_limit_ts
+		dataType: dateTime
+		formatString: dd/MM/yyyy HH:mm
+		lineageTag: 061dc44e-d555-5b7e-93fa-65a2e9db87c2
+		summarizeBy: none
+		sourceColumn: shipping_limit_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Giá dòng hàng, BRL.
+	column price
+		dataType: decimal
+		formatString: #,0.00
+		lineageTag: 218c5979-d04f-5881-8374-13e1aa7d2557
+		summarizeBy: none
+		sourceColumn: price
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Phí vận chuyển dòng hàng, BRL.
+	column freight_value
+		dataType: decimal
+		formatString: #,0.00
+		lineageTag: ef71d95c-e29f-5b1f-a98d-445b8b1ba744
+		summarizeBy: none
+		sourceColumn: freight_value
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số lượng.
+	column qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 6d245028-0ce4-5bad-8af6-6e47606f997e
+		summarizeBy: none
+		sourceColumn: qty
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Có ít nhất một dòng hàng không bị hủy.
+	column is_valid_sale
+		dataType: boolean
+		lineageTag: b50637f1-78a8-58a4-a6dd-abe9c3b221c9
+		summarizeBy: none
+		sourceColumn: is_valid_sale
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Khóa số của cặp đơn × seller, dùng để lọc fact_order_seller theo sản phẩm.
+	column os_key
+		dataType: int64
+		isHidden
+		lineageTag: 4bec29ae-d73b-4a59-bdbb-1ad849b8d16b
+		summarizeBy: none
+		sourceColumn: os_key
+
+	partition fact_sales_item = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "fact_sales_item.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

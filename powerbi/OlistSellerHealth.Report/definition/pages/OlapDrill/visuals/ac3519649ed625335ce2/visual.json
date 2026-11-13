@@ -1,0 +1,133 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "ac3519649ed625335ce2",
+  "position": {
+    "x": 732,
+    "y": 196,
+    "z": 9000,
+    "height": 508,
+    "width": 528,
+    "tabOrder": 9000
+  },
+  "visual": {
+    "visualType": "scatterChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_product"
+                    }
+                  },
+                  "Property": "category_en"
+                }
+              },
+              "queryRef": "dim_product.category_en",
+              "nativeQueryRef": "category_en",
+              "displayName": "Danh mục"
+            }
+          ]
+        },
+        "X": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_item"
+                    }
+                  },
+                  "Property": "GMV (top 20 danh mục)"
+                }
+              },
+              "queryRef": "fact_sales_item.GMV (top 20 danh mục)",
+              "nativeQueryRef": "GMV (top 20 danh mục)",
+              "displayName": "GMV"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_item"
+                    }
+                  },
+                  "Property": "Tỷ lệ trễ hẹn (top 20 danh mục)"
+                }
+              },
+              "queryRef": "fact_sales_item.Tỷ lệ trễ hẹn (top 20 danh mục)",
+              "nativeQueryRef": "Tỷ lệ trễ hẹn (top 20 danh mục)",
+              "displayName": "Tỷ lệ trễ hẹn"
+            }
+          ]
+        },
+        "Size": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_sales_item"
+                    }
+                  },
+                  "Property": "Số đơn (top 20 danh mục)"
+                }
+              },
+              "queryRef": "fact_sales_item.Số đơn (top 20 danh mục)",
+              "nativeQueryRef": "Số đơn (top 20 danh mục)",
+              "displayName": "Số đơn"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'20 danh mục lớn nhất: càng phải càng bán nhiều, càng cao càng hay trễ'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "objects": {
+      "categoryLabels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

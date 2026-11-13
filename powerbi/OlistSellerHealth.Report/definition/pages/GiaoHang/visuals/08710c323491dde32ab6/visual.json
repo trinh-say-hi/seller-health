@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "08710c323491dde32ab6",
+  "position": {
+    "x": 959,
+    "y": 92,
+    "z": 7000,
+    "height": 94,
+    "width": 301,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_order_seller"
+                    }
+                  },
+                  "Property": "Đơn trễ, seller đúng hạn"
+                }
+              },
+              "queryRef": "fact_order_seller.Đơn trễ, seller đúng hạn",
+              "nativeQueryRef": "Đơn trễ, seller đúng hạn"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

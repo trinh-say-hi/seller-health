@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "91d372b803c2e192a118",
+  "position": {
+    "x": 646,
+    "y": 92,
+    "z": 6000,
+    "height": 94,
+    "width": 301,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "kpi_monthly"
+                    }
+                  },
+                  "Property": "Tỷ lệ trễ hẹn tháng"
+                }
+              },
+              "queryRef": "kpi_monthly.Tỷ lệ trễ hẹn tháng",
+              "nativeQueryRef": "Tỷ lệ trễ hẹn tháng",
+              "displayName": "Tỷ lệ trễ hẹn (chốt sổ)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

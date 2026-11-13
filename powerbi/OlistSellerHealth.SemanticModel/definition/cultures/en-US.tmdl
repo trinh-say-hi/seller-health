@@ -1,0 +1,679 @@
+cultureInfo en-US
+
+	linguisticMetadata =
+			{
+			  "Version": "2.0.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "kpi_monthly.số_đơn_tháng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "kpi_monthly",
+			          "ConceptualProperty": "Số đơn tháng"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Số đơn (chốt sổ)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "kpi_monthly.gmv_tháng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "kpi_monthly",
+			          "ConceptualProperty": "GMV tháng"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "GMV (chốt sổ)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "GMV": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "kpi_monthly.đơn_trễ_tháng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "kpi_monthly",
+			          "ConceptualProperty": "Đơn trễ tháng"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Đơn trễ (chốt sổ)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "kpi_monthly.review_tb_tháng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "kpi_monthly",
+			          "ConceptualProperty": "Review TB tháng"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Review trung bình": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "kpi_monthly.tỷ_lệ_trễ_hẹn_tháng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "kpi_monthly",
+			          "ConceptualProperty": "Tỷ lệ trễ hẹn tháng"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Tỷ lệ trễ hẹn (chốt sổ)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Tỷ lệ trễ hẹn": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "kpi_monthly.seller_có_bán_tháng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "kpi_monthly",
+			          "ConceptualProperty": "Seller có bán tháng"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Seller có bán": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_date.kỳ_đang_xem": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_date",
+			          "ConceptualProperty": "Kỳ đang xem"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Kỳ đang xem": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_product.category_en": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_product",
+			          "ConceptualProperty": "category_en"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Danh mục": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_sales_item.gmv_top_20_danh_mục": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_sales_item",
+			          "ConceptualProperty": "GMV (top 20 danh mục)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "GMV": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_sales_item.tỷ_lệ_trễ_hẹn_top_20_danh_mục": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_sales_item",
+			          "ConceptualProperty": "Tỷ lệ trễ hẹn (top 20 danh mục)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Tỷ lệ trễ hẹn": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_sales_item.số_đơn_top_20_danh_mục": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_sales_item",
+			          "ConceptualProperty": "Số đơn (top 20 danh mục)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Số đơn": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_region.region": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_region",
+			          "ConceptualProperty": "region"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Vùng": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_seller.state": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_seller",
+			          "ConceptualProperty": "state"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Bang seller": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Bang": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_seller.health_tier": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_seller",
+			          "ConceptualProperty": "health_tier"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Hạng seller": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_seller.region": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_seller",
+			          "ConceptualProperty": "region"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Vùng": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_order_seller.đơn_trễ_seller_đúng_hạn": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_order_seller",
+			          "ConceptualProperty": "Đơn trễ, seller đúng hạn"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Đơn trễ mà seller đúng hạn": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_location.state": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_location",
+			          "ConceptualProperty": "state"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Bang khách": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dss_recommendation.gmv_rủi_ro_45_ngày": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dss_recommendation",
+			          "ConceptualProperty": "GMV rủi ro 45 ngày"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "GMV rủi ro 45 ngày (ước tính)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "GMV rủi ro toàn bộ": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Toàn bộ": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dss_recommendation.mốc_kế_hoạch": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dss_recommendation",
+			          "ConceptualProperty": "Mốc kế hoạch"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Mốc kế hoạch": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "ke_hoach_da_chot.nguồn_kế_hoạch": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ke_hoach_da_chot",
+			          "ConceptualProperty": "Nguồn kế hoạch"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Nguồn kế hoạch": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "ke_hoach_da_chot.gmv_rủi_ro_được_xử_lý_áp_dụng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ke_hoach_da_chot",
+			          "ConceptualProperty": "% GMV rủi ro được xử lý (áp dụng)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "% GMV rủi ro được xử lý": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "ke_hoach_da_chot.hành_động_áp_dụng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ke_hoach_da_chot",
+			          "ConceptualProperty": "Hành động (áp dụng)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Hành động": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "ke_hoach_da_chot.khả_năng_sụt_áp_dụng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ke_hoach_da_chot",
+			          "ConceptualProperty": "Khả năng sụt (áp dụng)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Khả năng sụt": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "ke_hoach_da_chot.gmv_rủi_ro_trong_kế_hoạch_áp_dụng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ke_hoach_da_chot",
+			          "ConceptualProperty": "GMV rủi ro trong kế hoạch (áp dụng)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "GMV rủi ro": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "GMV rủi ro trong kế hoạch": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Phần kế hoạch xử lý": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Trong kế hoạch": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "ke_hoach_da_chot.seller_trong_kế_hoạch_áp_dụng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ke_hoach_da_chot",
+			          "ConceptualProperty": "Seller trong kế hoạch (áp dụng)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Seller được gọi hoặc hỗ trợ": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "ke_hoach_da_chot.tiền_đã_dùng_áp_dụng": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ke_hoach_da_chot",
+			          "ConceptualProperty": "Tiền đã dùng (áp dụng)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Ngân sách đã dùng (BRL)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dim_seller_health.health_tier": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "dim_seller_health",
+			          "ConceptualProperty": "health_tier"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Hạng": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_seller_monthly.seller_snapshot_cuối_kỳ": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_seller_monthly",
+			          "ConceptualProperty": "Seller (snapshot cuối kỳ)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Seller": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    }
+			  }
+			}
+		contentType: json
+

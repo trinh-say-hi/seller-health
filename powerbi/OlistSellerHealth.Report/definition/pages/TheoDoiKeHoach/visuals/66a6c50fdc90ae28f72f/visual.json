@@ -1,0 +1,95 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "66a6c50fdc90ae28f72f",
+  "position": {
+    "x": 592,
+    "y": 196,
+    "z": 10000,
+    "height": 230,
+    "width": 330,
+    "tabOrder": 10000
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_region"
+                    }
+                  },
+                  "Property": "region"
+                }
+              },
+              "queryRef": "dim_region.region",
+              "nativeQueryRef": "region",
+              "displayName": "Vùng seller"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dss_recommendation"
+                    }
+                  },
+                  "Property": "GMV rủi ro 45 ngày"
+                }
+              },
+              "queryRef": "dss_recommendation.GMV rủi ro 45 ngày",
+              "nativeQueryRef": "GMV rủi ro 45 ngày",
+              "displayName": "GMV rủi ro 45 ngày"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ke_hoach_da_chot"
+                    }
+                  },
+                  "Property": "GMV rủi ro trong kế hoạch (áp dụng)"
+                }
+              },
+              "queryRef": "ke_hoach_da_chot.GMV rủi ro trong kế hoạch (áp dụng)",
+              "nativeQueryRef": "GMV rủi ro trong kế hoạch (áp dụng)",
+              "displayName": "GMV rủi ro trong kế hoạch"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'GMV rủi ro theo Vùng seller'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -2,13 +2,13 @@
 # Moi chi so gom: label, definition, formula, window, source. caveat la tuy chon.
 
 gmv:
-  label: GMV
+  label: GMV (chốt sổ)
   definition: Tổng tiền hàng của các đơn không bị hủy, chưa gồm phí vận chuyển.
   formula: Σ price, đơn hợp lệ mua trong tháng
   window: Tháng ngay trước as-of
   source: mart.kpi_monthly
 orders:
-  label: Số đơn
+  label: Số đơn (chốt sổ)
   definition: Số đơn không bị hủy mua trong tháng.
   formula: Đếm order_id khác nhau
   window: Tháng ngay trước as-of
@@ -20,14 +20,14 @@ active_sellers_month:
   window: Tháng ngay trước as-of
   source: mart.kpi_monthly
 late_rate_month:
-  label: Tỷ lệ đơn trễ hẹn
+  label: Tỷ lệ trễ hẹn (chốt sổ)
   definition: Trong các đơn đến ngày hẹn trong tháng, tỷ lệ chưa giao hoặc giao sau ngày hẹn, biết tại lúc chốt tháng.
   formula: Số đơn trễ / số đơn đến hạn
   window: Đơn có ngày hẹn trong tháng
   source: mart.kpi_monthly
   caveat: Tính theo ngày hẹn, nên khác với tỷ lệ tính theo tháng mua.
 avg_review_month:
-  label: Review trung bình
+  label: Review trung bình (chốt sổ)
   definition: Điểm trung bình của các review được khách trả lời trong tháng.
   formula: Trung bình review_score
   window: Review trả lời trong tháng
@@ -138,8 +138,27 @@ plan_saved:
   window: 45 ngày sau as-of
   source: Tính trên giao diện
   caveat: Không phải số đo được, dữ liệu không có hiệu quả can thiệp thật.
+plan_sellers:
+  label: Seller trong kế hoạch
+  definition: Số seller được gọi ngay hoặc hỗ trợ vận hành trong kế hoạch.
+  formula: Đếm seller có hành động Gọi ngay hoặc Hỗ trợ vận hành
+  window: Kế hoạch tại mốc as-of
+  source: dss.recommendation, kế hoạch đã chốt
+plan_share:
+  label: "% GMV rủi ro được xử lý"
+  definition: Phần GMV rủi ro 45 ngày thuộc các seller trong kế hoạch.
+  formula: GMV rủi ro trong kế hoạch / GMV rủi ro 45 ngày
+  window: 45 ngày sau as-of
+  source: dss.recommendation, kế hoạch đã chốt
+plan_saved_range:
+  label: Khoảng giữ được P10–P90
+  definition: Mô phỏng Monte Carlo 2.000 lần. Mỗi lần mỗi seller sụt hay không theo khả năng sụt của mô hình, và hiệu quả của từng loại hành động được rút trong khoảng giả định ± độ bất định. 80% số lần mô phỏng rơi vào khoảng này.
+  formula: Phân vị 10 và 90 của Σ (seller sụt) × gmv_90 / 2 × hiệu quả rút ngẫu nhiên
+  window: 45 ngày sau as-of
+  source: src/dss/simulate.py
+  caveat: Khoảng phản ánh bất định của giả định, không biến giả định thành số đo được.
 route_late:
-  label: Tỷ lệ trễ
+  label: Trễ hẹn với khách
   definition: Tỷ lệ đơn lịch sử của tuyến sẽ trễ nếu hứa thêm N ngày.
   formula: Số đơn có delay_days > N / số đơn
   window: Đơn mua từ 180 đến 60 ngày trước as-of, đã giao
@@ -170,3 +189,35 @@ loss_share:
   window: 03–07/2018
   source: dss.eval_lists
   caveat: Một phần GMV mất là biến động tự nhiên, nên chỉ số này thiên về seller lớn.
+olap_gmv:
+  label: GMV
+  definition: Tổng tiền hàng của các dòng hàng không bị hủy trong lát cắt đang chọn.
+  formula: Σ price
+  window: Đơn mua trong khoảng thời gian đã chọn, trước as-of
+  source: core.fact_sales_item
+olap_orders:
+  label: Số đơn
+  definition: Số đơn không bị hủy có ít nhất một dòng hàng thuộc lát cắt.
+  formula: Đếm order_id khác nhau
+  window: Đơn mua trong khoảng thời gian đã chọn, trước as-of
+  source: core.fact_sales_item
+  caveat: Một đơn có hàng thuộc nhiều danh mục được đếm ở mỗi danh mục, nên cộng các danh mục lớn hơn tổng.
+olap_sellers:
+  label: Số seller
+  definition: Số seller có bán trong lát cắt.
+  formula: Đếm seller_id khác nhau
+  window: Đơn mua trong khoảng thời gian đã chọn, trước as-of
+  source: core.fact_sales_item
+olap_late_rate:
+  label: Tỷ lệ trễ hẹn
+  definition: Trong các đơn đã tới ngày hẹn trước as-of, tỷ lệ chưa giao hoặc giao sau ngày hẹn.
+  formula: Số đơn trễ / số đơn đến hạn
+  window: Đơn mua trong khoảng đã chọn, ngày hẹn trước as-of
+  source: core.fact_order_seller
+  caveat: Tính theo tháng mua, nên khác với tỷ lệ theo tháng đến hạn ở màn Tổng quan.
+olap_review:
+  label: Review trung bình
+  definition: Điểm review trung bình của các cặp đơn × seller, chỉ tính review đã có trước as-of.
+  formula: Trung bình review_score theo đơn × seller
+  window: Đơn mua trong khoảng đã chọn, review trước as-of
+  source: core.fact_order_seller

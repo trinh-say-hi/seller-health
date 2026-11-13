@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "26e56cfa7dec3d521210",
+  "position": {
+    "x": 959,
+    "y": 92,
+    "z": 7000,
+    "height": 94,
+    "width": 301,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "kpi_monthly"
+                    }
+                  },
+                  "Property": "Đơn trễ tháng"
+                }
+              },
+              "queryRef": "kpi_monthly.Đơn trễ tháng",
+              "nativeQueryRef": "Đơn trễ tháng",
+              "displayName": "Đơn trễ (chốt sổ)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

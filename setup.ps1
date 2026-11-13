@@ -12,7 +12,7 @@ if (-not (Test-Path (Join-Path $venv "Scripts\python.exe"))) {
     python -m venv $venv
 }
 $py = Join-Path $venv "Scripts\python.exe"
-& $py -m pip install -q -r (Join-Path $root "requirements.txt")
+& $py -m pip install -q -r (Join-Path $root "requirements.txt") -r (Join-Path $root "requirements-pipeline.txt")
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Cai thu vien that bai. Kiem tra Python 3.13, mang, va duong dan khong qua dai."
     exit 1

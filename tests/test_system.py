@@ -17,7 +17,8 @@ import yaml
 
 from src.config import DB_PATH, EVIDENCE_DIR, LAST_BATCH, RAW_DIR, ROOT, SQL_DIR
 from src.dss.optimize import build_plan
-from src.dss.rules import CALL, OPS, Params
+from src.dss.simulate import simulate
+from src.dss.rules import CALL, NONE, OPS, Params
 from src.etl.build import MANIFEST, ReconciliationError, attach_sources, run_batch, verify_sources
 
 results = []
@@ -202,6 +203,9 @@ check("Doi chieu CSV: seller_late_rate tung seller", (j.late.fillna(-1) - j.sell
 train = con.execute("SELECT as_of, train_max_as_of FROM dss.eval_auc").df()
 gap = (pd.to_datetime(train.as_of) - pd.to_datetime(train.train_max_as_of)).dt.days
 check("DSS: train cach test it nhat 45 ngay", gap.min() >= 45, f"nho nhat {gap.min()} ngay")
+gap = one("""SELECT max(abs(1 / (1 + exp(-e.lo)) - s.p_decline)) FROM (SELECT as_of, seller_id, sum(contrib) AS lo FROM dss.explain GROUP BY 1, 2) e
+              JOIN dss.scores s USING (as_of, seller_id)""")
+check("Giai thich: tong dong gop doi ra xac suat khop p_decline", gap is not None and gap < 1e-6, f"lech lon nhat {gap:.2e}" if gap is not None else "khong co du lieu")
 check("DSS: moi seller 1 khuyen nghi moi as-of", one("SELECT count(*) FROM (SELECT as_of, seller_id FROM dss.recommendation GROUP BY 1,2 HAVING count(*) > 1)") == 0)
 check("DSS: moi khuyen nghi deu co ly do", one("SELECT count(*) FROM dss.recommendation WHERE reason IS NULL OR length(reason) < 10") == 0)
 over = con.execute("SELECT as_of, sum(cost) c, sum(CASE WHEN action='CALL' THEN 1 WHEN action='OPS' THEN 2 ELSE 0 END) s FROM dss.recommendation GROUP BY 1").df()
@@ -217,6 +221,27 @@ tp = build_plan(toy, t).set_index("seller_id")
 check("Toi uu: giai dung bai tinh tay", tp.loc["a", "action"] == OPS and tp.loc["b", "action"] == CALL and abs(tp.expected_saved.sum() - 430) < 1e-6, tp.action.to_dict())
 check("Toi uu: ton trong gioi han suat", build_plan(toy, replace(t, budget=1000, max_slots=1)).slots.sum() <= 1)
 check("Toi uu: ngan sach 0 khong chon gi tra phi", build_plan(toy, replace(t, budget=0)).cost.sum() == 0)
+sim = simulate(tp.reset_index(), t, spread=.5, n=4000)
+check("Mo phong: ky vong bang GMV giu duoc cua bo toi uu", abs(sim["expected"] - tp.expected_saved.sum()) < 1e-6, f"{sim['expected']:.1f}")
+check("Mo phong: trung binh gan ky vong, P10 <= P50 <= P90", abs(sim["mean"] / sim["expected"] - 1) < .05 and sim["p10"] <= sim["p50"] <= sim["p90"],
+      f"{sim['p10']:.0f} / {sim['p50']:.0f} / {sim['p90']:.0f}")
+check("Mo phong: do bat dinh lon hon thi khoang rong hon", (lambda a, b: a["p90"] - a["p10"] < b["p90"] - b["p10"])(
+      simulate(tp.reset_index(), t, spread=0, n=4000), simulate(tp.reset_index(), t, spread=.9, n=4000)))
+import tempfile
+from src.app import decisions
+with tempfile.TemporaryDirectory() as d:
+    f = Path(d) / "ke_hoach_da_chot.parquet"
+    decisions.ensure(f)
+    check("Khep vong: file ke hoach rong co du cot cho Power BI", list(decisions.load(f).columns) == list(decisions.COLUMNS))
+    pl = tp.reset_index()
+    decisions.save("2018-07-01", pl, {"a": 1, "b": 2}, {"budget": 200}, 0, path=f)
+    decisions.save("2018-08-01", pl, {"a": 1, "b": 2}, {"budget": 200}, 0, path=f)
+    decisions.save("2018-07-01", pl.assign(action=NONE, cost=0.0), {"a": 1}, {"budget": 0}, 3, path=f)
+    kh = decisions.load(f)
+    check("Khep vong: chot lai mot moc thi thay ban cu, moc khac giu nguyen",
+          len(kh) == 2 * len(pl) and (kh[kh.as_of_key == 20180701].action == NONE).all() and kh[kh.as_of_key == 20180801].cost.sum() == pl.cost.sum())
+    st_ = decisions.status("2018-07-01", f)
+    check("Khep vong: trang thai chot dung so seller va so the keo tay", st_["n"] == 0 and st_["edited"] == 3 and decisions.status("2018-09-01", f) is None)
 
 # --- Tai lieu
 n_col, n_com = con.execute("SELECT count(*), count(comment) FROM duckdb_columns() WHERE schema_name IN ('core','mart','dss','ops')").fetchone()

@@ -10,7 +10,7 @@ from streamlit.testing.v1 import AppTest
 
 from src.config import EVIDENCE_DIR, ROOT
 
-SCREENS = ["Tổng quan", "Lỗi giao trễ", "Chi tiết seller", "Bảng kế hoạch", "What-if tuyến", "Kiểm chứng"]
+SCREENS = ["Cần chú ý", "Chi tiết seller", "Bảng kế hoạch", "What-if tuyến", "Kiểm chứng"]
 results, failed = [], 0
 at = AppTest.from_file(str(ROOT / "src" / "app" / "app.py"), default_timeout=120).run()
 asofs = list(at.select_slider[0].options)
@@ -26,21 +26,6 @@ for label in asofs:
         if not ok:
             print("FAIL", label, screen, at.exception[0].message[:400], flush=True)
     print("xong", label, flush=True)
-
-# Bo loc hiem o moc som nhat: co the khong co du lieu
-at.select_slider[0].set_value(asofs[0])
-at.radio[0].set_value("Tổng quan")
-at.run()
-for region in at.selectbox[0].options:
-    for cat in at.selectbox[1].options[-4:]:
-        at.selectbox[0].set_value(region)
-        at.selectbox[1].set_value(cat)
-        at.run()
-        ok = not at.exception
-        failed += not ok
-        results.append({"as_of": asofs[0], "screen": f"Tổng quan: {region}/{cat}", "ok": ok, "error": [e.message[:200] for e in at.exception]})
-        if not ok:
-            print("FAIL", region, cat, at.exception[0].message[:400], flush=True)
 
 EVIDENCE_DIR.mkdir(exist_ok=True)
 (EVIDENCE_DIR / "edge_test_results.json").write_text(json.dumps(results, indent=1, ensure_ascii=False), encoding="utf-8")

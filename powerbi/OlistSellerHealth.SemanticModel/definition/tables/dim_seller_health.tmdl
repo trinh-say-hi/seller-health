@@ -1,0 +1,61 @@
+/// Thuộc tính thay đổi nhanh được tách khỏi dim_seller. fact_seller_monthly trỏ tới đây.
+table dim_seller_health
+	lineageTag: 37a0620d-ccc0-56a1-93a6-4145ae8d71d2
+
+	/// Hồ sơ sức khỏe, trỏ tới dim_seller_health.
+	column health_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 22a1ee98-7c5c-5d50-a316-ff7a5830d447
+		summarizeBy: none
+		sourceColumn: health_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Hạng tháng.
+	column health_tier
+		dataType: string
+		lineageTag: ade2e2ce-53d4-586b-8482-61bab6ba7040
+		summarizeBy: none
+		sourceColumn: health_tier
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Nhóm số đơn 90 ngày.
+	column size_band
+		dataType: string
+		lineageTag: fd73a14d-8e30-5fd6-bcc4-a6a2b373d737
+		summarizeBy: none
+		sourceColumn: size_band
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Nhóm tỷ lệ giao vận chuyển trễ.
+	column late_band
+		dataType: string
+		lineageTag: d5e0be6f-0f04-5f80-85ff-7c4ed26bf0a3
+		summarizeBy: none
+		sourceColumn: late_band
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Nhóm review trung bình.
+	column review_band
+		dataType: string
+		lineageTag: 09be96f8-948a-5c31-8f19-1d981a38bf41
+		summarizeBy: none
+		sourceColumn: review_band
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_seller_health = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "dim_seller_health.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

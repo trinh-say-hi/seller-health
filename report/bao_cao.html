@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo cáo Seller Health</title>
+<style>
+:root {
+  --ink: #1b1b1b; --muted: #5a5955; --line: #d9d7d1; --soft: #f4f6fa; --blue: #1f5fae; --blue2: #2a78d6; --orange: #d4572a; --green: #237a4b;
+}
+@page {
+  size: A4;
+  margin: 22mm 19mm 20mm 22mm;
+  @top-left { content: "CO4031 · Seller Health DW & DSS"; font: 8.5pt "Segoe UI", Arial, sans-serif; color: #8a8984; }
+  @top-right { content: string(chapter); font: 8.5pt "Segoe UI", Arial, sans-serif; color: #8a8984; }
+  @bottom-center { content: counter(page); font: 9pt "Segoe UI", Arial, sans-serif; color: #5a5955; }
+}
+@page cover { margin: 0; @top-left { content: none; } @top-right { content: none; } @bottom-center { content: none; } }
+@page front { @top-right { content: none; } }
+html { font-size: 11.6pt; }
+body { margin: 0; font-family: "Times New Roman", "Cambria", serif; color: var(--ink); line-height: 1.48; text-align: justify; hyphens: auto; background: #fff; }
+h1, h2, h3, h4, .sans { font-family: "Segoe UI", Arial, sans-serif; text-align: left; }
+h1 { font-size: 20pt; color: var(--blue); margin: 0 0 6mm 0; padding-bottom: 3mm; border-bottom: 2px solid var(--blue); break-before: page; string-set: chapter content(text); line-height: 1.2; }
+h1 .num { color: var(--orange); }
+h2 { font-size: 13.5pt; color: var(--ink); margin: 7mm 0 2.5mm 0; break-after: avoid; }
+h3 { font-size: 11.5pt; color: var(--blue); margin: 5mm 0 1.5mm 0; break-after: avoid; }
+p { margin: 0 0 2.6mm 0; orphans: 3; widows: 3; }
+ul, ol { margin: 0 0 2.6mm 0; padding-left: 6mm; }
+li { margin-bottom: 1mm; }
+a { color: var(--blue); text-decoration: none; }
+code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 9.2pt; background: #f1f0ec; padding: 0 1.2mm; border-radius: 2px; }
+pre { font-family: Consolas, "Courier New", monospace; font-size: 8.6pt; line-height: 1.38; background: #f7f7f4; border: 1px solid var(--line); border-left: 3px solid var(--blue2); padding: 2.5mm 3.5mm; margin: 0 0 3mm 0; white-space: pre-wrap; text-align: left; break-inside: avoid; }
+pre code { background: none; padding: 0; font-size: inherit; }
+table { width: 100%; border-collapse: collapse; margin: 1mm 0 1.5mm 0; font-family: "Segoe UI", Arial, sans-serif; font-size: 8.9pt; line-height: 1.32; text-align: left; break-inside: avoid; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; }
+th { background: #eaf0f8; color: #163f73; font-weight: 600; padding: 1.4mm 2mm; border-bottom: 1.5px solid #9db6d6; vertical-align: bottom; }
+td { padding: 1.2mm 2mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.r, th.r { text-align: right; white-space: nowrap; }
+tr.hl td { background: #fff6e8; font-weight: 600; }
+.cap { font-family: "Segoe UI", Arial, sans-serif; font-size: 8.8pt; color: var(--muted); text-align: center; margin: 1mm 0 4mm 0; }
+.cap b { color: var(--ink); }
+.tcap { font-family: "Segoe UI", Arial, sans-serif; font-size: 8.8pt; color: var(--muted); margin: 3mm 0 0.5mm 0; text-align: left; break-after: avoid; }
+.tcap b { color: var(--ink); }
+figure { margin: 2mm 0 0 0; text-align: center; break-inside: avoid; }
+figure img { max-width: 100%; border: 1px solid var(--line); border-radius: 3px; }
+figure img.noframe { border: none; }
+.two { display: flex; gap: 4mm; align-items: flex-start; }
+.two > * { flex: 1; min-width: 0; }
+.lo { display: inline-block; font-family: "Segoe UI", Arial, sans-serif; font-size: 7.6pt; font-weight: 700; color: #fff; background: var(--orange); border-radius: 3px; padding: 0.3mm 1.6mm; margin: 0 1mm 0 0; vertical-align: 1.2mm; letter-spacing: 0.2px; }
+.lo.dw { background: var(--blue2); } .lo.dss { background: var(--green); }
+.chap-lo { font-family: "Segoe UI", Arial, sans-serif; font-size: 9pt; color: var(--muted); margin: -3mm 0 4mm 0; text-align: left; }
+.box { border: 1px solid #c9d8ec; background: var(--soft); border-radius: 4px; padding: 3mm 4mm; margin: 2mm 0 4mm 0; break-inside: avoid; text-align: left; }
+.box.warn { border-color: #f0c9a8; background: #fff7f0; }
+.box.ok { border-color: #b8dcc6; background: #f2faf5; }
+.box h4 { margin: 0 0 1.5mm 0; font-size: 10.5pt; color: var(--blue); }
+.box.warn h4 { color: var(--orange); } .box.ok h4 { color: var(--green); }
+.box p:last-child, .box ul:last-child { margin-bottom: 0; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5mm; margin: 2mm 0 4mm 0; break-inside: avoid; }
+.stat { border: 1px solid var(--line); border-radius: 4px; padding: 2.2mm 3mm; font-family: "Segoe UI", Arial, sans-serif; text-align: left; }
+.stat b { display: block; font-size: 15pt; color: var(--blue); line-height: 1.15; }
+.stat span { font-size: 8.2pt; color: var(--muted); line-height: 1.25; display: block; }
+.todo { background: #fff2a8; padding: 0 1mm; }
+.small { font-size: 9.5pt; }
+.muted { color: var(--muted); }
+.nobreak { break-inside: avoid; }
+.pb { break-before: page; }
+
+/* Bia */
+.cover { page: cover; height: 295mm; overflow: hidden; width: 210mm; position: relative; box-sizing: border-box; padding: 18mm 20mm 16mm 22mm; font-family: "Segoe UI", Arial, sans-serif; text-align: center; border-left: 9mm solid var(--blue); }
+.cover .school { font-size: 12pt; line-height: 1.45; font-weight: 600; letter-spacing: 0.3px; }
+.cover .school span { display: block; font-weight: 400; }
+.cover img { width: 38mm; margin: 12mm 0 10mm 0; }
+.cover .course { font-size: 12pt; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
+.cover .kind { font-size: 15pt; font-weight: 700; margin: 3mm 0 7mm 0; color: var(--ink); letter-spacing: 1px; }
+.cover .title { font-size: 21pt; font-weight: 700; color: var(--blue); line-height: 1.25; margin: 0 6mm; }
+.cover .subtitle { font-size: 12.5pt; color: var(--muted); margin: 3mm 0 0 0; }
+.cover table { width: 150mm; margin: 12mm auto 0 auto; font-size: 10.5pt; }
+.cover table td { border-bottom: 1px solid #e6e4df; padding: 1.6mm 2mm; }
+.cover table th { background: none; border-bottom: 1.5px solid var(--blue); color: var(--blue); }
+.cover .links { width: 150mm; margin: 6mm auto 0 auto; text-align: left; font-size: 9.6pt; line-height: 1.6; }
+.cover .links div { display: flex; gap: 3mm; } .cover .links b { flex: 0 0 34mm; color: var(--muted); font-weight: 600; }
+.cover .place { position: absolute; bottom: 16mm; left: 0; right: 0; font-size: 11pt; color: var(--muted); }
+
+/* Muc luc */
+.front { page: front; }
+#tomtat { break-before: auto; }
+.toc h1 { break-before: page; }
+.toc ol { list-style: none; padding: 0; margin: 0; font-family: "Segoe UI", Arial, sans-serif; text-align: left; }
+.toc li { margin: 0; }
+.toc li.c { font-weight: 600; margin-top: 2.4mm; font-size: 10.6pt; }
+.toc li.s { padding-left: 7mm; font-size: 9.8pt; color: #333; }
+.toc a { display: flex; color: inherit; }
+.toc a .t { flex: 0 1 auto; }
+.toc a .d { flex: 1; border-bottom: 1px dotted #b5b3ad; margin: 0 1.5mm 1.3mm 1.5mm; }
+.toc a::after { content: target-counter(attr(href), page); flex: 0 0 auto; min-width: 7mm; text-align: right; }
+</style>
+</head>
+<body>
+
+<!-- ============================ BIA ============================ -->
+<section class="cover">
+  <div class="school">ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH<span>TRƯỜNG ĐẠI HỌC BÁCH KHOA</span><span>KHOA KHOA HỌC VÀ KỸ THUẬT MÁY TÍNH</span></div>
+  <img src="assets/logo_hcmut.png" alt="Logo Trường Đại học Bách Khoa">
+  <div class="course">Kho dữ liệu và Hệ hỗ trợ Quyết định (CO4031) · Học kỳ 261</div>
+  <div class="kind">BÁO CÁO BÀI TẬP LỚN</div>
+  <div class="title">SELLER HEALTH: KHO DỮ LIỆU VÀ HỆ HỖ TRỢ QUYẾT ĐỊNH CHĂM SÓC NGƯỜI BÁN TRÊN SÀN OLIST</div>
+  <div class="subtitle">Giữ chân người bán đang sụt doanh số trong giới hạn ngân sách và nhân sự</div>
+  <table>
+    <thead><tr><th>Giảng viên hướng dẫn</th><th colspan="2">Đỗ Thanh Thái</th></tr></thead>
+    <tbody>
+      <tr><td><b>Nhóm</b></td><td colspan="2"><span class="todo">[Số nhóm]</span></td></tr>
+      <tr><td><b>Thành viên</b></td><td>Nguyễn Khánh Trinh</td><td><span class="todo">[MSSV]</span></td></tr>
+      <tr><td></td><td><span class="todo">[Họ tên thành viên 2]</span></td><td><span class="todo">[MSSV]</span></td></tr>
+      <tr><td></td><td><span class="todo">[Họ tên thành viên 3]</span></td><td><span class="todo">[MSSV]</span></td></tr>
+    </tbody>
+  </table>
+  <div class="links">
+    <div><b>Mã nguồn</b> github.com/trinh-say-hi/DW_DSS</div>
+    <div><b>Dữ liệu</b> Brazilian E-Commerce Public Dataset by Olist (Kaggle); bản sao có hash trong thư mục <span class="mono">data/</span></div>
+    <div><b>Video thuyết trình</b> <span class="todo">[link video nếu nhóm thuyết trình qua video]</span></div>
+  </div>
+  <div class="place">Thành phố Hồ Chí Minh, tháng 11 năm 2026</div>
+</section>
+
+<!-- ============================ TOM TAT ============================ -->
+<section class="front">
+<h1 id="tomtat">Tóm tắt</h1>
+
+<p>Olist là nền tảng giúp các shop nhỏ ở Brazil bán hàng lên nhiều sàn thương mại điện tử. Doanh thu của nền tảng phụ thuộc vào người bán: dữ liệu cho thấy <b>20% seller lớn nhất tạo ra 82,5% GMV</b>, trong khi chỉ 3,12% khách hàng mua lại lần hai. Vì vậy, mất một seller lớn đáng lo hơn mất một khách hàng. Đề tài xây dựng một <b>kho dữ liệu</b> và một <b>hệ hỗ trợ quyết định</b> cho đội chăm sóc người bán (Seller Success). Mỗi tháng, hệ thống trả lời ba câu hỏi: nên liên hệ seller nào trước, làm gì với seller đó, và nếu ngân sách hoặc nhân sự thay đổi thì kế hoạch đổi ra sao.</p>
+
+<div class="stats">
+  <div class="stat"><b>1,55 triệu</b><span>dòng nguồn từ 9 file CSV Olist, kiểm tra bằng hash SHA-256</span></div>
+  <div class="stat"><b>26 đợt</b><span>nạp tăng dần theo tháng, 137.236 phiên bản đơn hàng</span></div>
+  <div class="stat"><b>6 fact · 8 dim</b><span>galaxy schema, SCD2 và mini-dimension, role-playing date</span></div>
+  <div class="stat"><b>286/286</b><span>phép đối soát giữa các lớp khớp, ngay trong lúc nạp</span></div>
+  <div class="stat"><b>7 màn hình</b><span>BI, OLAP đa chiều và DSS, có bảng kế hoạch kéo thả</span></div>
+  <div class="stat"><b>MILP</b><span>chọn hành động tối ưu dưới ràng buộc ngân sách và số suất nhân viên</span></div>
+  <div class="stat"><b>55,5% vs 25,9%</b><span>tỷ lệ gọi trúng seller thật sự sụt GMV: DSS so với chọn theo GMV</span></div>
+  <div class="stat"><b>297 kiểm thử</b><span>127 test hệ thống, 115 trường hợp biên, 55 test trình duyệt, tất cả đạt</span></div>
+</div>
+
+<p><b>Kho dữ liệu.</b> Kho được dựng trên DuckDB theo kiến trúc nhiều lớp: <span class="mono">raw</span> (Bronze), <span class="mono">stg</span> (Silver), <span class="mono">core</span> và <span class="mono">mart</span> (Gold). Mô hình đa chiều theo Kimball gồm 6 bảng fact thuộc ba kiểu (transaction, accumulating snapshot, periodic snapshot) dùng chung 8 dimension. File nguồn chỉ chứa trạng thái cuối cùng của đơn hàng, nên nhóm giả lập 26 đợt nạp theo tháng và che các mốc chưa xảy ra. Nhờ đó kho có lịch sử thật và mọi số liệu đều tính được "tại một ngày trong quá khứ" mà không nhìn thấy tương lai. Mỗi đợt nạp đi qua cổng chất lượng gồm 11 phép đối soát; lệch là đợt bị dừng.</p>
+
+<p><b>Hệ hỗ trợ quyết định.</b> DSS đọc dữ liệu từ kho và gồm ba lớp mô hình. Hồi quy logistic, huấn luyện cuốn theo thời gian, ước lượng xác suất seller sụt GMV. Bảng luật kết hợp rủi ro, giá trị và chất lượng vận hành để chọn kiểu can thiệp. Bài toán quy hoạch tuyến tính nguyên (MILP) chọn tập seller có lợi ích kỳ vọng cao nhất trong giới hạn ngân sách và số suất nhân viên. Người dùng có thể đổi tham số, kéo thả để sửa kế hoạch, và xem đường cong ngân sách.</p>
+
+<p><b>Kết quả.</b> Khi kiểm tra ngược trên 5 tháng chưa từng dùng để chọn tham số (03–07/2018), với cùng số seller được liên hệ, kế hoạch của DSS chọn trúng seller thật sự sụt GMV <b>55,5%</b>, gấp đôi mức <b>25,9%</b> khi chọn theo GMV lớn nhất. Đổi lại, kế hoạch bao phủ ít GMV mất hơn ở 4/5 tháng (19,3% so với 25,1%). Báo cáo trình bày rõ đánh đổi này. Phát hiện có giá trị nhất cho người quản lý đến từ kho dữ liệu: <b>72%</b> đơn giao trễ có seller vẫn bàn giao đúng hạn, nên phạt seller theo tỷ lệ trễ tổng sẽ phạt oan. Nhóm cũng nêu rõ điều hệ thống chưa chứng minh được: dữ liệu không có nhóm đối chứng nên chưa đo được hiệu quả thật của việc can thiệp.</p>
+</section>
+
+<!-- ============================ DOI CHIEU L.O. ============================ -->
+<section class="front">
+<h1 id="doichieu">Đối chiếu chuẩn đầu ra</h1>
+<p>Bảng dưới đối chiếu 11 chuẩn đầu ra trong Bảng 1 của đề bài với phần báo cáo và phần hệ thống thể hiện chuẩn đó. Cột cuối là bằng chứng có thể kiểm tra lại trong mã nguồn hoặc trên ứng dụng.</p>
+<p class="tcap"><b>Bảng 0.1.</b> Chuẩn đầu ra, nơi thể hiện và bằng chứng</p>
+<table>
+<thead><tr><th style="width:11%">Chuẩn</th><th style="width:25%">Nội dung</th><th style="width:16%">Mục báo cáo</th><th>Thể hiện trong hệ thống</th></tr></thead>
+<tbody>
+<tr><td><span class="lo dw">L.O.1.1</span></td><td>Khái niệm cơ bản về DW và DSS</td><td>2.1, 2.4</td><td>Bốn đặc trưng của Inmon được ánh xạ vào từng thành phần của kho (Bảng 2.1); phân biệt OLTP với OLAP trên chính dữ liệu Olist</td></tr>
+<tr><td><span class="lo dw">L.O.1.2</span></td><td>Vai trò của DW trong DSS</td><td>2.5, 7.1</td><td>DSS chỉ đọc từ <span class="mono">mart</span> và <span class="mono">core</span>; kho cung cấp feature đúng thời điểm, nhãn, KPI và nhật ký chất lượng</td></tr>
+<tr><td><span class="lo dw">L.O.1.3</span></td><td>Ví dụ thực tế về DW và DSS</td><td>1.1, 2.6</td><td>Bài toán lấy từ dữ liệu thật của Olist; đối chiếu với Amazon Account Health, Walmart Retail Link, UPS ORION</td></tr>
+<tr><td><span class="lo dw">L.O.2.1</span></td><td>Quy trình và nguyên lý thiết kế DW</td><td>2.2, 4.1–4.3</td><td>Bốn bước Kimball, bus matrix, kiến trúc 3 tầng và Medallion, cách tiếp cận lai giữa Inmon và Kimball</td></tr>
+<tr><td><span class="lo dw">L.O.2.2</span></td><td>Các vấn đề trong thiết kế DW</td><td>3.3, 4.5</td><td>19 bất thường dữ liệu có cách xử lý; 9 quyết định thiết kế khó (grain đơn nhiều seller, hai loại trễ, SCD2 so với mini-dimension...)</td></tr>
+<tr><td><span class="lo dw">L.O.2.3</span></td><td>Thiết kế và hiện thực hệ thống DW</td><td>4, 5, 6</td><td>DuckDB 45 bảng, quy trình ELT 26 đợt, cổng chất lượng, 8 truy vấn OLAP mẫu, màn OLAP drill-down, 126 test hệ thống</td></tr>
+<tr><td><span class="lo dss">L.O.3.1</span></td><td>Khái niệm, đặc tính của MSS và DSS</td><td>2.4, 7.1</td><td>Phân loại DSS (data-, model-, knowledge-driven); đặc tính hỗ trợ, không thay thế người quyết định</td></tr>
+<tr><td><span class="lo dss">L.O.3.2</span></td><td>Các giai đoạn ra quyết định</td><td>2.4, 7.2</td><td>Bốn pha của Simon ánh xạ vào 7 màn hình (Bảng 7.2)</td></tr>
+<tr><td><span class="lo dss">L.O.3.3</span></td><td>Mô hình hóa trong DSS</td><td>7.3–7.7</td><td>Mô hình thống kê, bảng luật, tối ưu MILP, what-if và phân tích độ nhạy; ví dụ một seller từ dữ liệu đến quyết định</td></tr>
+<tr><td><span class="lo dss">L.O.4.1</span></td><td>Nguyên tắc phân tích, thiết kế DSS</td><td>7.1, 7.8</td><td>Phát triển lặp: thử khả thi, xây dựng, đánh giá, sửa; quyết định thiết kế được kiểm chứng bằng số liệu</td></tr>
+<tr><td><span class="lo dss">L.O.4.2</span></td><td>Phân tích, thiết kế, hiện thực một DSS</td><td>7, 8</td><td>DSS chạy được, có kiểm tra ngược 5 tháng, so với 4 cách chọn đơn giản, phân tích độ nhạy 9 kịch bản</td></tr>
+</tbody>
+</table>
+
+<p class="tcap"><b>Bảng 0.2.</b> Mục tiêu bài tập lớn (đề, mục 1.1) và nơi đáp ứng</p>
+<table>
+<thead><tr><th style="width:42%">Mục tiêu</th><th>Đáp ứng</th></tr></thead>
+<tbody>
+<tr><td>1. Phân tích yêu cầu nghiệp vụ, xác định bài toán</td><td>Chương 1: người dùng, ba quyết định, KPI; nghiên cứu khả thi trước khi thiết kế</td></tr>
+<tr><td>2. Thiết kế kho dữ liệu đa chiều, gồm quy trình ETL</td><td>Chương 4 và 5: galaxy schema, quy trình ETL theo biến thể ELT</td></tr>
+<tr><td>3. Hiện thực backend (CSDL, ETL, OLAP) và frontend</td><td>Chương 5 và 6: DuckDB, SQL, OLAP; ứng dụng Streamlit 7 màn hình</td></tr>
+<tr><td>4. Thành phần DSS dựa trên kho đã xây dựng</td><td>Chương 7: dự báo, luật, tối ưu, what-if, bảng kế hoạch</td></tr>
+<tr><td>5. Đánh giá kết quả, hạn chế, hướng phát triển</td><td>Chương 8 và 9</td></tr>
+<tr><td>6. Trình bày kết quả</td><td>Slide và buổi thuyết trình; kịch bản demo ở Phụ lục B</td></tr>
+</tbody>
+</table>
+</section>
+
+<!-- ============================ MUC LUC ============================ -->
+<section class="front toc">
+<h1>Mục lục</h1>
+<ol>
+<li class="c"><a href="#tomtat"><span class="t">Tóm tắt</span><span class="d"></span></a></li>
+<li class="c"><a href="#doichieu"><span class="t">Đối chiếu chuẩn đầu ra</span><span class="d"></span></a></li>
+<li class="c"><a href="#c1"><span class="t">1. Giới thiệu và bài toán</span><span class="d"></span></a></li>
+<li class="s"><a href="#c1-1"><span class="t">1.1 Bối cảnh Olist</span><span class="d"></span></a></li>
+<li class="s"><a href="#c1-2"><span class="t">1.2 Người dùng và ba quyết định</span><span class="d"></span></a></li>
+<li class="s"><a href="#c1-3"><span class="t">1.3 Nghiên cứu khả thi trên dữ liệu thật</span><span class="d"></span></a></li>
+<li class="s"><a href="#c1-4"><span class="t">1.4 Phạm vi và đóng góp</span><span class="d"></span></a></li>
+<li class="c"><a href="#c2"><span class="t">2. Cơ sở lý thuyết</span><span class="d"></span></a></li>
+<li class="s"><a href="#c2-1"><span class="t">2.1 Kho dữ liệu</span><span class="d"></span></a></li>
+<li class="s"><a href="#c2-2"><span class="t">2.2 Kiến trúc và cách tiếp cận xây dựng kho</span><span class="d"></span></a></li>
+<li class="s"><a href="#c2-3"><span class="t">2.3 Mô hình đa chiều và OLAP</span><span class="d"></span></a></li>
+<li class="s"><a href="#c2-4"><span class="t">2.4 MSS, DSS và quá trình ra quyết định</span><span class="d"></span></a></li>
+<li class="s"><a href="#c2-5"><span class="t">2.5 Vai trò của kho dữ liệu trong DSS</span><span class="d"></span></a></li>
+<li class="s"><a href="#c2-6"><span class="t">2.6 Ví dụ thực tế</span><span class="d"></span></a></li>
+<li class="c"><a href="#c3"><span class="t">3. Dữ liệu nguồn và chất lượng dữ liệu</span><span class="d"></span></a></li>
+<li class="c"><a href="#c4"><span class="t">4. Thiết kế kho dữ liệu</span><span class="d"></span></a></li>
+<li class="s"><a href="#c4-1"><span class="t">4.1 Quy trình thiết kế bốn bước</span><span class="d"></span></a></li>
+<li class="s"><a href="#c4-2"><span class="t">4.2 Kiến trúc tổng thể</span><span class="d"></span></a></li>
+<li class="s"><a href="#c4-3"><span class="t">4.3 Galaxy schema và bus matrix</span><span class="d"></span></a></li>
+<li class="s"><a href="#c4-4"><span class="t">4.4 Lịch sử: SCD2 và mini-dimension</span><span class="d"></span></a></li>
+<li class="s"><a href="#c4-5"><span class="t">4.5 Các vấn đề thiết kế và cách giải quyết</span><span class="d"></span></a></li>
+<li class="c"><a href="#c5"><span class="t">5. Quy trình ETL theo biến thể ELT</span><span class="d"></span></a></li>
+<li class="c"><a href="#c6"><span class="t">6. OLAP và giao diện phân tích</span><span class="d"></span></a></li>
+<li class="c"><a href="#c7"><span class="t">7. Hệ hỗ trợ quyết định</span><span class="d"></span></a></li>
+<li class="s"><a href="#c7-1"><span class="t">7.1 Phân tích và định vị DSS</span><span class="d"></span></a></li>
+<li class="s"><a href="#c7-2"><span class="t">7.2 Các pha ra quyết định trên hệ thống</span><span class="d"></span></a></li>
+<li class="s"><a href="#c7-3"><span class="t">7.3 Mô hình dự báo</span><span class="d"></span></a></li>
+<li class="s"><a href="#c7-4"><span class="t">7.4 Bảng luật</span><span class="d"></span></a></li>
+<li class="s"><a href="#c7-5"><span class="t">7.5 Mô hình tối ưu</span><span class="d"></span></a></li>
+<li class="s"><a href="#c7-6"><span class="t">7.6 What-if và giao diện ra quyết định</span><span class="d"></span></a></li>
+<li class="s"><a href="#c7-7"><span class="t">7.7 Ví dụ xuyên suốt một seller</span><span class="d"></span></a></li>
+<li class="s"><a href="#c7-8"><span class="t">7.8 Quy trình phát triển DSS</span><span class="d"></span></a></li>
+<li class="c"><a href="#c8"><span class="t">8. Đánh giá và kiểm thử</span><span class="d"></span></a></li>
+<li class="c"><a href="#c9"><span class="t">9. Hạn chế và hướng phát triển</span><span class="d"></span></a></li>
+<li class="c"><a href="#c10"><span class="t">10. Kết luận</span><span class="d"></span></a></li>
+<li class="c"><a href="#pl"><span class="t">Phụ lục</span><span class="d"></span></a></li>
+<li class="c"><a href="#tltk"><span class="t">Tài liệu tham khảo</span><span class="d"></span></a></li>
+</ol>
+</section>
+
+<!-- ============================ CHUONG 1 ============================ -->
+<h1 id="c1"><span class="num">1.</span> Giới thiệu và bài toán</h1>
+<div class="chap-lo"><span class="lo dw">L.O.1.3</span> Mục tiêu 1 của đề: phân tích yêu cầu nghiệp vụ và xác định bài toán</div>
+
+<h2 id="c1-1">1.1 Bối cảnh Olist</h2>
+<p>Olist là một marketplace của Brazil. Nền tảng này không tự bán hàng, mà giúp các shop nhỏ đăng sản phẩm lên nhiều sàn lớn qua một tài khoản duy nhất, và lo phần thanh toán, vận chuyển, chăm sóc sau bán. Bộ dữ liệu công khai của Olist trên Kaggle chứa khoảng 100 nghìn đơn hàng thật đã ẩn danh, mua từ 09/2016 đến 10/2018, cùng thông tin người bán, sản phẩm, thanh toán, đánh giá và vị trí.</p>
+<p>Với một marketplace, người bán (seller) là nguồn cung: seller ngừng bán hoặc tụt doanh số thì GMV của sàn giảm theo. Trước khi chọn đối tượng cho hệ thống, nhóm đo trên dữ liệu thật và thấy hai điều:</p>
+<ul>
+<li><b>Doanh thu tập trung mạnh vào seller lớn.</b> Hệ số Gini của GMV theo seller là 0,79; 20% seller lớn nhất tạo ra 82,5% GMV.</li>
+<li><b>Khách hàng gần như không quay lại.</b> Chỉ 3,12% khách có từ hai đơn trở lên. Một hệ giữ chân khách hàng sẽ có rất ít dữ liệu hành vi lặp lại để học.</li>
+</ul>
+<p>Vì vậy nhóm chọn bài toán ở phía người bán: phát hiện sớm seller có giá trị đang sụt doanh số, và quyết định cách can thiệp. Đây cũng là loại hệ thống các sàn lớn đang vận hành thật, ví dụ bảng Account Health của Amazon theo dõi tỷ lệ giao trễ và tỷ lệ lỗi đơn của từng người bán (mục 2.6).</p>
+
+<h2 id="c1-2">1.2 Người dùng và ba quyết định</h2>
+<p><b>Người dùng</b> là trưởng nhóm Seller Success (đội chăm sóc người bán) của Olist. Đây là vai trò giả định cho đồ án, nhóm chưa phỏng vấn người dùng thật. Mỗi tháng, người này có một ngân sách và một số lượng nhân viên giới hạn, trong khi có khoảng 1.300–1.650 seller đang hoạt động. Hệ thống hỗ trợ ba quyết định:</p>
+<p class="tcap"><b>Bảng 1.1.</b> Ba quyết định mà hệ thống hỗ trợ</p>
+<table>
+<thead><tr><th style="width:5%">#</th><th style="width:28%">Quyết định</th><th style="width:30%">Vì sao khó nếu không có hệ thống</th><th>Hệ thống trả lời bằng</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Liên hệ seller nào trước?</td><td>Hơn 1.500 seller; seller lớn nhất chưa chắc là seller đang gặp rủi ro</td><td>Xác suất sụt GMV kết hợp giá trị seller; danh sách ưu tiên</td></tr>
+<tr><td>2</td><td>Làm gì với seller đó: gọi giữ chân, hỗ trợ vận hành, email tự động hay chưa xử lý?</td><td>Phải tách được lỗi do seller với lỗi do vận chuyển</td><td>Bảng luật dùng hai loại trễ tách biệt; lý do bằng chữ cho từng seller</td></tr>
+<tr><td>3</td><td>Ngân sách hoặc nhân sự thay đổi thì kế hoạch đổi thế nào? Có đáng chi thêm không?</td><td>Hai hành động có chi phí và công sức khác nhau</td><td>Tối ưu MILP, đường cong ngân sách, kéo thả để sửa kế hoạch</td></tr>
+</tbody>
+</table>
+<p>Đây là các quyết định <b>bán cấu trúc</b> theo cách gọi của Gorry và Scott Morton: có phần tính toán được (rủi ro, chi phí) nhưng vẫn cần phán đoán của người quản lý (hiệu quả can thiệp, ưu tiên chiến lược). Đây đúng là loại quyết định DSS được thiết kế để hỗ trợ [3].</p>
+
+<h2 id="c1-3">1.3 Nghiên cứu khả thi trên dữ liệu thật</h2>
+<p>Trước khi dựng kho, nhóm viết một script khảo sát nhanh bằng pandas (<span class="mono">scripts/feasibility.py</span>, kết quả lưu ở <span class="mono">evidence/feasibility.json</span>) để kiểm tra các giả thuyết của bài toán. Nhiều kết quả đã làm thay đổi thiết kế ban đầu:</p>
+<p class="tcap"><b>Bảng 1.2.</b> Kết quả khảo sát khả thi và thay đổi thiết kế kéo theo</p>
+<table>
+<thead><tr><th style="width:30%">Câu hỏi</th><th style="width:36%">Kết quả đo</th><th>Thay đổi trong thiết kế</th></tr></thead>
+<tbody>
+<tr><td>Seller không bán 45 ngày có phải đã rời bỏ?</td><td>39–50% số đó bán lại sau đó</td><td>Không gọi là "churn"; dùng hai nhãn "tạm ngừng" và "sụt GMV"</td></tr>
+<tr><td>Có bao nhiêu seller lớn ngừng hẳn mỗi tháng?</td><td>Chỉ 14–40 seller trong top 20%</td><td>Mục tiêu chính là "sụt GMV", có 78–133 seller lớn mỗi tháng</td></tr>
+<tr><td>Đơn giao trễ là lỗi của ai?</td><td>72% đơn trễ có seller bàn giao vận chuyển đúng hạn</td><td>Tách <span class="mono">seller_late</span> khỏi <span class="mono">customer_late</span>; thêm màn "Lỗi giao trễ"</td></tr>
+<tr><td>Có đơn hàng nhiều seller không?</td><td>1.278 đơn</td><td>Thêm fact grain đơn × seller</td></tr>
+<tr><td>Mô hình phức tạp có hơn không?</td><td>Random Forest không hơn Logistic Regression rõ rệt</td><td>Dùng Logistic Regression, dễ giải thích</td></tr>
+<tr><td>Chỉ số vận hành có giúp dự báo không?</td><td>AUC gần như không đổi khi bỏ chúng</td><td>Dùng chỉ số vận hành để chọn hành động, không để dự báo</td></tr>
+</tbody>
+</table>
+
+<h2 id="c1-4">1.4 Phạm vi và đóng góp</h2>
+<p><b>Phạm vi.</b> Hệ thống dùng bộ dữ liệu Olist công khai, giai đoạn phân tích chính từ 01/2017 đến 08/2018. Chi phí và hiệu quả của từng hành động can thiệp là giả định của nhóm, được ghi rõ trên giao diện và có phân tích độ nhạy. Hệ thống không chứng minh được hiệu quả can thiệp thật, vì dữ liệu không có nhóm đối chứng.</p>
+<p><b>Đóng góp chính của nhóm:</b></p>
+<ol>
+<li>Một kho dữ liệu đa chiều hoàn chỉnh với lịch sử thật nhờ giả lập 26 đợt nạp theo tháng, có SCD2, accumulating snapshot, cổng chất lượng và metadata đầy đủ.</li>
+<li>Một cách tách trách nhiệm giao trễ giữa seller và vận chuyển dựa trên hạn bàn giao có sẵn trong nguồn, cho ra phát hiện có thể dùng ngay trong quản lý.</li>
+<li>Một DSS kết hợp dự báo, luật và tối ưu, đánh giá ngược theo thời gian một cách nghiêm ngặt, có trình bày cả những tháng hệ thống thua cách chọn đơn giản.</li>
+<li>Một ứng dụng 7 màn hình đi theo đúng các pha ra quyết định, kèm bộ kiểm thử tự động gồm 297 kiểm tra.</li>
+</ol>
+
+<!-- ============================ CHUONG 2 ============================ -->
+<h1 id="c2"><span class="num">2.</span> Cơ sở lý thuyết</h1>
+<div class="chap-lo"><span class="lo dw">L.O.1.1</span><span class="lo dw">L.O.1.2</span><span class="lo dw">L.O.1.3</span><span class="lo dw">L.O.2.1</span><span class="lo dss">L.O.3.1</span><span class="lo dss">L.O.3.2</span> Chỉ trình bày phần lý thuyết được dùng trực tiếp trong hệ thống, kèm ánh xạ vào hệ thống</div>
+
+<h2 id="c2-1">2.1 Kho dữ liệu</h2>
+<p>Theo Inmon, kho dữ liệu là <i>một tập dữ liệu hướng chủ đề, tích hợp, thay đổi theo thời gian và ổn định, phục vụ quá trình ra quyết định của nhà quản lý</i> [1]. Bảng 2.1 cho thấy từng đặc trưng được hiện thực ở đâu trong hệ thống.</p>
+<p class="tcap"><b>Bảng 2.1.</b> Bốn đặc trưng của Inmon trong kho Seller Health</p>
+<table>
+<thead><tr><th style="width:18%">Đặc trưng</th><th style="width:34%">Ý nghĩa</th><th>Trong hệ thống</th></tr></thead>
+<tbody>
+<tr><td><b>Hướng chủ đề</b></td><td>Tổ chức theo chủ đề nghiệp vụ, không theo ứng dụng</td><td>Chủ đề "sức khỏe seller": bán hàng, giao hàng, đánh giá, thanh toán, seller theo tháng</td></tr>
+<tr><td><b>Tích hợp</b></td><td>Thống nhất tên, kiểu, đơn vị từ nhiều nguồn</td><td>9 file được chuẩn hóa ở <span class="mono">stg</span>: ép kiểu, dịch danh mục, chuẩn hóa tên thành phố, gom vị trí theo ZIP, suy ra vùng từ bang; dòng lỗi được cách ly</td></tr>
+<tr><td><b>Thay đổi theo thời gian</b></td><td>Lưu lịch sử, mọi dòng gắn với thời điểm</td><td>26 đợt nạp; <span class="mono">dim_date</span> với 5 vai trò; SCD2 trên <span class="mono">dim_seller</span>; snapshot theo as-of trong <span class="mono">mart</span></td></tr>
+<tr><td><b>Ổn định</b></td><td>Không sửa, không xóa dữ liệu đã nạp</td><td>Đợt đã nạp được đóng băng; thay đổi được ghi thành dòng hoặc phiên bản mới. Toàn bộ kho dựng lại được từ nguồn với kết quả giống hệt nhờ kiểm tra hash</td></tr>
+</tbody>
+</table>
+<p><b>OLTP và OLAP.</b> Hệ giao dịch (OLTP) của Olist ghi từng đơn, từng thanh toán và luôn giữ trạng thái hiện tại; file CSV công khai chính là ảnh chụp của hệ này. Kho dữ liệu phục vụ xử lý phân tích (OLAP): đọc nhiều, ghi theo lô, quét và gộp trên nhiều dòng, và giữ lịch sử. Sự khác biệt này giải thích vì sao nhóm phải giả lập các đợt nạp: CSV chỉ cho trạng thái cuối, còn kho cần biết trạng thái tại từng thời điểm.</p>
+
+<h2 id="c2-2">2.2 Kiến trúc và cách tiếp cận xây dựng kho</h2>
+<p><b>Kiến trúc ba tầng.</b> Tầng dưới gồm nguồn dữ liệu và vùng staging; tầng giữa là kho cùng các data mart và máy chủ OLAP; tầng trên là công cụ truy vấn, báo cáo, phân tích. Hệ thống ánh xạ lần lượt: CSV và schema <span class="mono">raw</span>, <span class="mono">stg</span>; schema <span class="mono">core</span>, <span class="mono">mart</span> với DuckDB làm máy ROLAP; ứng dụng Streamlit.</p>
+<p><b>Medallion.</b> Đây là cách chia lớp phổ biến trong các nền tảng dữ liệu hiện đại: Bronze giữ dữ liệu gốc, Silver đã làm sạch, Gold sẵn sàng cho người dùng. Trong hệ thống, <span class="mono">raw</span> là Bronze, <span class="mono">stg</span> là Silver, <span class="mono">core</span> và <span class="mono">mart</span> là Gold. Medallion chỉ quy định cách chia lớp; mô hình dữ liệu bên trong lớp Gold vẫn theo Kimball.</p>
+<p><b>Ba cách tiếp cận xây dựng.</b> Top-down (Inmon) xây kho tích hợp toàn doanh nghiệp trước rồi sinh các data mart. Bottom-up (Kimball) xây từng data mart theo quy trình nghiệp vụ, dùng các dimension dùng chung (conformed) để ghép lại. Cách lai kết hợp cả hai. Hệ thống theo <b>cách lai nghiêng về Kimball</b>: thiết kế bắt đầu từ câu hỏi của một bộ phận, dùng bus matrix và dimension dùng chung, nhưng có một lớp <span class="mono">core</span> tích hợp riêng mà các mart được sinh ra từ đó. Vì vậy các mart là <b>dependent data mart</b>.</p>
+
+<h2 id="c2-3">2.3 Mô hình đa chiều và OLAP</h2>
+<p><b>Fact và dimension.</b> Bảng fact chứa số đo của một quy trình nghiệp vụ; bảng dimension chứa ngữ cảnh: ai, ở đâu, khi nào, cái gì. <b>Grain</b> là định nghĩa một dòng của bảng fact đại diện cho cái gì, và là quyết định quan trọng nhất khi thiết kế [2]. Kimball phân biệt ba kiểu fact, và hệ thống dùng cả ba:</p>
+<ul>
+<li><b>Transaction fact:</b> mỗi dòng là một sự kiện, không đổi sau khi ghi. Ví dụ <span class="mono">fact_sales_item</span>, một dòng hàng.</li>
+<li><b>Accumulating snapshot:</b> mỗi dòng theo dõi một quy trình có nhiều mốc và được cập nhật dần. Ví dụ <span class="mono">fact_order</span>: mua, duyệt, giao vận chuyển, khách nhận.</li>
+<li><b>Periodic snapshot:</b> chụp trạng thái theo chu kỳ. Ví dụ <span class="mono">fact_seller_monthly</span>, một seller trong một tháng.</li>
+</ul>
+<p><b>Lược đồ.</b> Star schema gồm một fact và các dimension đã phi chuẩn hóa; snowflake tách dimension thành nhiều bảng chuẩn hóa; fact constellation (galaxy) gồm nhiều fact dùng chung dimension. Hệ thống là galaxy schema, và mỗi fact nhìn riêng là một star.</p>
+<p><b>Slowly Changing Dimension.</b> Type 1 ghi đè; Type 2 thêm dòng mới có khoảng hiệu lực, giữ được lịch sử; mini-dimension tách các thuộc tính đổi nhanh ra một dimension nhỏ để dimension chính không phình to. Hệ thống dùng Type 2 cho hạng ổn định của seller và mini-dimension cho hạng tháng (mục 4.4).</p>
+<p><b>OLAP.</b> Các phép cơ bản trên khối dữ liệu là roll-up (gộp lên cấp cao hơn), drill-down (đi xuống cấp chi tiết), slice (cố định một chiều), dice (lọc trên nhiều chiều) và pivot (xoay trục). Về kiến trúc máy chủ, ROLAP lưu khối trong bảng quan hệ và truy vấn bằng SQL, MOLAP lưu trong mảng đa chiều, HOLAP kết hợp hai cách. Hệ thống là <b>ROLAP</b>: mọi phép OLAP là câu SQL trên DuckDB, một số tổng hợp được tính sẵn bằng <span class="mono">GROUP BY CUBE</span>.</p>
+
+<h2 id="c2-4">2.4 MSS, DSS và quá trình ra quyết định</h2>
+<p><b>Hệ hỗ trợ quản lý (MSS)</b> là việc ứng dụng công nghệ thông tin để hỗ trợ công việc quản lý, đặc biệt là ra quyết định. Trong nhóm công nghệ đó có kho dữ liệu, OLAP, khai phá dữ liệu, các mô hình vận trù học và DSS [3]. <b>Hệ hỗ trợ quyết định (DSS)</b> là hệ thống tương tác giúp người ra quyết định dùng dữ liệu và mô hình để giải quyết các bài toán bán cấu trúc. DSS hỗ trợ chứ không thay thế người quyết định. Một DSS gồm bốn thành phần: quản lý dữ liệu, quản lý mô hình, giao diện người dùng, và tùy chọn thêm thành phần tri thức.</p>
+<p>Theo cách phân loại của Power, DSS có thể là data-driven (khai thác dữ liệu lớn), model-driven (dùng mô hình thống kê, tài chính, tối ưu), knowledge-driven (dùng luật, tri thức chuyên gia), communication-driven hoặc document-driven; một hệ kết hợp nhiều loại được gọi là hybrid DSS.</p>
+<p><b>Quá trình ra quyết định của Simon</b> gồm bốn pha: <i>Intelligence</i> (nhận ra vấn đề), <i>Design</i> (xây dựng mô hình và các phương án), <i>Choice</i> (đánh giá và chọn phương án), <i>Implementation</i> (thực hiện và theo dõi). Chương 7 trình bày cách từng màn hình của hệ thống phục vụ một pha.</p>
+
+<h2 id="c2-5">2.5 Vai trò của kho dữ liệu trong DSS</h2>
+<p>Kho dữ liệu là thành phần quản lý dữ liệu của DSS. Trong hệ thống này, kho giữ năm vai trò mà DSS không tự làm được:</p>
+<ol>
+<li><b>Nguồn dữ liệu đã tích hợp và làm sạch:</b> DSS không đọc CSV, chỉ đọc <span class="mono">mart</span> và <span class="mono">core</span>.</li>
+<li><b>Dữ liệu đúng thời điểm:</b> feature tại mỗi as-of được tính lúc chốt đợt, khi kho chưa có dữ liệu tương lai, nên mô hình không bị rò rỉ thông tin.</li>
+<li><b>Lịch sử để học và để kiểm chứng:</b> nhãn của mô hình và các phép kiểm tra ngược đều dựa vào lịch sử theo tháng của kho.</li>
+<li><b>Ngữ cảnh để giải thích:</b> các lý do bằng chữ trong khuyến nghị lấy từ fact giao hàng và review.</li>
+<li><b>Bằng chứng về độ tin cậy:</b> nhật ký nạp, cách ly và đối soát nằm trong schema <span class="mono">ops</span>, hiển thị ngay trên màn Kiểm chứng.</li>
+</ol>
+
+<h2 id="c2-6">2.6 Ví dụ thực tế</h2>
+<p>Các hệ thống dưới đây được nhắc nhiều trong tài liệu môn học [3], [5] và trong công bố của chính các doanh nghiệp. Nhóm dùng chúng để định vị hệ thống của mình.</p>
+<p class="tcap"><b>Bảng 2.2.</b> Một số DW và DSS thực tế, và điểm tương đồng với đề tài</p>
+<table>
+<thead><tr><th style="width:21%">Hệ thống</th><th style="width:43%">Làm gì</th><th>Điểm tương đồng với Seller Health</th></tr></thead>
+<tbody>
+<tr><td><b>Amazon Account Health</b></td><td>Bảng sức khỏe tài khoản người bán: tỷ lệ lỗi đơn, tỷ lệ giao trễ, tỷ lệ hủy; cảnh báo khi chỉ số vượt ngưỡng</td><td>Gần nhất với đề tài: theo dõi sức khỏe seller từ dữ liệu giao hàng và đánh giá</td></tr>
+<tr><td><b>Walmart Retail Link</b></td><td>Kho dữ liệu bán hàng chia sẻ với nhà cung cấp để quyết định bổ sung hàng</td><td>Kho dữ liệu phục vụ quyết định của đối tác cung ứng, không chỉ nội bộ</td></tr>
+<tr><td><b>UPS ORION</b></td><td>DSS dựa trên mô hình tối ưu tuyến giao hàng cho tài xế</td><td>DSS dựa trên mô hình tối ưu, có ràng buộc vận hành</td></tr>
+<tr><td><b>American Airlines</b> (quản trị doanh thu)</td><td>Mô hình dự báo nhu cầu kết hợp tối ưu để định giá và phân bổ ghế</td><td>Kết hợp dự báo và tối ưu dưới nguồn lực giới hạn</td></tr>
+</tbody>
+</table>
+<p>Khác biệt chính của đề tài là phạm vi nhỏ và dữ liệu lịch sử công khai. Tuy vậy, chuỗi xử lý từ kho dữ liệu, qua dự báo, đến tối ưu dưới ràng buộc vẫn giống các hệ thống trên.</p>
+
+<!-- ============================ CHUONG 3 ============================ -->
+<h1 id="c3"><span class="num">3.</span> Dữ liệu nguồn và chất lượng dữ liệu</h1>
+<div class="chap-lo"><span class="lo dw">L.O.2.2</span> Vấn đề dữ liệu là nguồn gốc của phần lớn quyết định thiết kế ở Chương 4</div>
+
+<h2>3.1 Nguồn dữ liệu</h2>
+<p>Nguồn là bộ <i>Brazilian E-Commerce Public Dataset by Olist</i> trên Kaggle, gồm 9 file CSV với tổng cộng khoảng 1,55 triệu dòng. Mỗi file được ghi hash SHA-256 và số dòng trong <span class="mono">data/manifest.json</span>. Khi dựng kho, nếu một file bị đổi, thiếu hoặc sai số dòng, quá trình dừng trước khi ghi vào kho.</p>
+<p class="tcap"><b>Bảng 3.1.</b> Chín file nguồn</p>
+<table>
+<thead><tr><th>File</th><th class="r">Số dòng</th><th>Grain</th><th>Ghi chú</th></tr></thead>
+<tbody>
+<tr><td>orders</td><td class="r">99.441</td><td>1 đơn</td><td>Trạng thái và 5 mốc thời gian, chỉ có giá trị cuối</td></tr>
+<tr><td>order_items</td><td class="r">112.650</td><td>1 sản phẩm trong 1 đơn</td><td>Giá, phí vận chuyển, seller, hạn bàn giao vận chuyển</td></tr>
+<tr><td>order_payments</td><td class="r">103.886</td><td>1 phần thanh toán</td><td>Loại thanh toán, số kỳ trả góp</td></tr>
+<tr><td>order_reviews</td><td class="r">99.224</td><td>1 review</td><td>Điểm, ngày gửi khảo sát, thời điểm khách trả lời</td></tr>
+<tr><td>customers</td><td class="r">99.441</td><td>1 mã khách theo đơn</td><td>96.096 khách thật theo <span class="mono">customer_unique_id</span></td></tr>
+<tr><td>sellers</td><td class="r">3.095</td><td>1 seller</td><td>ZIP, thành phố, bang</td></tr>
+<tr><td>products</td><td class="r">32.951</td><td>1 sản phẩm</td><td>Danh mục tiếng Bồ Đào Nha, kích thước</td></tr>
+<tr><td>geolocation</td><td class="r">1.000.163</td><td>1 tọa độ quan sát</td><td>19.015 ZIP</td></tr>
+<tr><td>category_translation</td><td class="r">71</td><td>1 danh mục</td><td>Bản dịch tiếng Anh</td></tr>
+</tbody>
+</table>
+<p><b>Giai đoạn dùng được</b> là từ 01/2017 đến 08/2018. Tháng 11/2016 không có đơn nào, và từ 09/2018 gần như chỉ còn đơn hủy. Vì nhãn cần quan sát 45 ngày sau, mốc as-of cuối cùng có nhãn là 01/07/2018.</p>
+<figure><img class="noframe" src="figures/gmv_late_monthly.svg" style="width:96%"></figure>
+<div class="cap"><b>Hình 3.1.</b> GMV theo tháng và tỷ lệ đơn trễ hẹn toàn sàn, lấy từ <span class="mono">mart.kpi_monthly</span>. Tỷ lệ trễ đạt đỉnh ở 03/2018 (17,5%) và 04/2018 (16,4%).</div>
+
+<h2>3.2 Làm sạch ở lớp Silver</h2>
+<p class="tcap"><b>Bảng 3.2.</b> Các vấn đề được sửa ở lớp Silver</p>
+<table>
+<thead><tr><th style="width:24%">Vấn đề</th><th style="width:34%">Bằng chứng</th><th>Cách xử lý</th></tr></thead>
+<tbody>
+<tr><td>Tên thành phố seller bẩn</td><td><span class="mono">04482255</span>, <span class="mono">sao paulo / sao paulo</span>, <span class="mono">sao pauo</span>, một địa chỉ email</td><td>Bỏ dấu, bỏ phần sau dấu phân cách, bỏ mã bang. Không hợp lệ thì lấy theo ZIP: 41 seller được sửa. Giữ tên gốc ở <span class="mono">city_raw</span></td></tr>
+<tr><td>Tên thành phố trong geolocation chưa thống nhất</td><td>8.011 tên khác nhau, còn 5.969 sau khi bỏ dấu</td><td>Bỏ dấu trước khi lấy tên xuất hiện nhiều nhất của mỗi ZIP</td></tr>
+<tr><td>Tọa độ nằm ngoài Brazil</td><td>42 dòng, làm sai trung vị của 8 ZIP</td><td>Đưa vào <span class="mono">ops.quarantine</span> với mã <span class="mono">GEO_OUTSIDE_BRAZIL</span></td></tr>
+<tr><td>Thiếu bản dịch danh mục</td><td>13 sản phẩm thuộc 2 danh mục</td><td>Bổ sung 2 bản dịch</td></tr>
+</tbody>
+</table>
+
+<h2>3.3 Các bất thường và cách xử lý</h2>
+<p>Nhóm ghi 19 quy tắc chất lượng vào bảng <span class="mono">ops.dq_issue</span>. Nguyên tắc chung: <b>không đoán dữ liệu</b>. Bất thường được giữ lại kèm cờ, hoặc được cách ly kèm mã lỗi, thay vì bị sửa hay điền giá trị giả. Bảng 3.3 liệt kê những bất thường ảnh hưởng tới thiết kế.</p>
+<p class="tcap"><b>Bảng 3.3.</b> Bất thường dữ liệu chính, cách xử lý và lý do</p>
+<table class="long">
+<thead><tr><th style="width:25%">Bất thường</th><th class="r" style="width:12%">Số lượng</th><th style="width:33%">Cách xử lý</th><th>Lý do</th></tr></thead>
+<tbody>
+<tr><td>Đơn có nhiều seller</td><td class="r">1.278 đơn</td><td>Tách <span class="mono">fact_order</span> và <span class="mono">fact_order_seller</span></td><td>Gán một seller cho cả đơn sẽ sai tiền và sai trách nhiệm</td></tr>
+<tr><td>Đơn không có dòng hàng</td><td class="r">775 đơn</td><td>Giữ trong <span class="mono">fact_order</span>; <span class="mono">seller_key = -1</span></td><td>Không làm mất đơn khỏi tổng</td></tr>
+<tr><td>Đơn có nhiều review</td><td class="r">547 đơn</td><td>Gộp về đơn ở <span class="mono">fact_order</span>, giữ từng review ở <span class="mono">fact_review</span></td><td>Tránh nhân dòng khi join</td></tr>
+<tr><td><span class="mono">review_id</span> dùng cho nhiều đơn</td><td class="r">789 mã</td><td>Khóa của <span class="mono">fact_review</span> là <span class="mono">(review_id, order_id)</span></td><td>Khóa đơn lẻ sẽ bị trùng</td></tr>
+<tr><td>Tiền thanh toán khác tiền hàng cộng phí</td><td class="r">303 đơn</td><td>Giữ nguyên; GMV lấy từ dòng hàng</td><td>Phần lớn do lãi trả góp</td></tr>
+<tr><td>Thứ tự thời gian vô lý</td><td class="r">189 đơn</td><td>Giữ, gắn cờ <span class="mono">has_chronology_issue</span></td><td>Không biết mốc nào sai</td></tr>
+<tr><td>Đã giao nhưng thiếu ngày giao</td><td class="r">8 đơn</td><td>Không điền giả</td><td>Không có căn cứ</td></tr>
+<tr><td>ZIP không có tọa độ</td><td class="r">279 đơn, 7 seller</td><td>Giữ dòng, tọa độ NULL</td><td>Không đoán vị trí</td></tr>
+<tr><td>Sản phẩm không có danh mục</td><td class="r">610</td><td>Ghi <span class="mono">Unknown</span></td><td>Không đoán</td></tr>
+<tr><td>Tọa độ trùng theo ZIP</td><td class="r">981.148 dòng</td><td>Lấy trung vị theo ZIP</td><td>Trung vị ít bị ảnh hưởng bởi tọa độ lỗi</td></tr>
+</tbody>
+</table>
+<div class="box">
+<h4>Phát hiện từ khảo sát dữ liệu: review thấp phần lớn do thời điểm khảo sát</h4>
+<p>Olist gửi khảo sát sau ngày hẹn giao, dù hàng đã tới hay chưa. Nhóm nạp review theo thời điểm khách trả lời và so với thời điểm nhận hàng. Kết quả: <b>70,2%</b> review của đơn trễ được trả lời khi khách <b>chưa nhận hàng</b>, với điểm trung bình 1,66; nhóm trả lời sau khi nhận được 3,72 điểm. So trong cùng seller và cùng tháng, đơn trễ thấp hơn 1,91 sao, nhưng nếu chỉ xét review sau khi nhận thì chỉ thấp hơn 0,54 sao. Vì vậy review là chỉ báo yếu về chất lượng seller khi đơn bị trễ do vận chuyển.</p>
+</div>
+
+<!-- ============================ CHUONG 4 ============================ -->
+<h1 id="c4"><span class="num">4.</span> Thiết kế kho dữ liệu</h1>
+<div class="chap-lo"><span class="lo dw">L.O.2.1</span><span class="lo dw">L.O.2.2</span><span class="lo dw">L.O.2.3</span> Mục tiêu 2 của đề: thiết kế kho dữ liệu theo mô hình đa chiều</div>
+
+<h2 id="c4-1">4.1 Quy trình thiết kế bốn bước</h2>
+<p>Nhóm thiết kế theo bốn bước của Kimball [2]. Mỗi bước được quyết định từ câu hỏi nghiệp vụ ở Chương 1 và các bất thường ở Chương 3.</p>
+<p class="tcap"><b>Bảng 4.1.</b> Bốn bước thiết kế áp dụng cho đề tài</p>
+<table>
+<thead><tr><th style="width:22%">Bước</th><th>Quyết định</th></tr></thead>
+<tbody>
+<tr><td>1. Chọn quy trình nghiệp vụ</td><td>Năm quy trình: bán hàng, hoàn tất đơn (giao hàng), đánh giá, thanh toán, và theo dõi seller theo tháng</td></tr>
+<tr><td>2. Khai báo grain</td><td>Dòng hàng; đơn; đơn × seller; review × đơn; phần thanh toán; seller × tháng. Grain đơn × seller là kết quả trực tiếp của 1.278 đơn nhiều seller</td></tr>
+<tr><td>3. Xác định dimension</td><td>Ngày (5 vai trò), khách hàng, vị trí (2 vai trò), trạng thái đơn, sản phẩm, seller (SCD2), tuyến, sức khỏe seller (mini-dimension)</td></tr>
+<tr><td>4. Xác định fact</td><td>Giá, phí, số lượng; các mốc và khoảng thời gian giao hàng; cờ trễ của seller và của khách; điểm review; tiền thanh toán; GMV và chỉ số theo tháng</td></tr>
+</tbody>
+</table>
+
+<h2 id="c4-2">4.2 Kiến trúc tổng thể</h2>
+<figure><img src="../docs/diagrams/01_kien_truc.svg" style="width:92%"></figure>
+<div class="cap"><b>Hình 4.1.</b> Kiến trúc hệ thống: nguồn CSV, các lớp của kho trong DuckDB, lớp DSS bằng Python và ứng dụng Streamlit chỉ đọc kho</div>
+<p class="tcap"><b>Bảng 4.2.</b> Các schema trong kho</p>
+<table>
+<thead><tr><th style="width:12%">Schema</th><th style="width:16%">Lớp</th><th class="r" style="width:10%">Số bảng</th><th>Nội dung</th></tr></thead>
+<tbody>
+<tr><td><span class="mono">src</span></td><td>Nguồn</td><td class="r">9 view</td><td>View đọc trực tiếp 9 file CSV</td></tr>
+<tr><td><span class="mono">raw</span></td><td>Bronze</td><td class="r">9</td><td>Dữ liệu gốc dạng chữ cùng các cột <span class="mono">dwh_</span>; <span class="mono">raw.orders</span> giữ nhiều phiên bản của một đơn</td></tr>
+<tr><td><span class="mono">stg</span></td><td>Silver</td><td class="r">5 + 5 view</td><td>Đã ép kiểu, làm sạch, gộp review theo đơn</td></tr>
+<tr><td><span class="mono">core</span></td><td>Gold</td><td class="r">14</td><td>8 dimension và 6 fact</td></tr>
+<tr><td><span class="mono">mart</span></td><td>Gold</td><td class="r">4</td><td>Feature của seller, KPI tính bằng CUBE, thống kê tuyến, hạng tháng</td></tr>
+<tr><td><span class="mono">dss</span></td><td>Kết quả DSS</td><td class="r">8</td><td>Nhãn, điểm, khuyến nghị, đánh giá, độ nhạy, tham số mặc định</td></tr>
+<tr><td><span class="mono">ops</span></td><td>Vận hành</td><td class="r">5</td><td>Nhật ký nạp, cách ly, bất thường dữ liệu, đối soát giữa các lớp, manifest nguồn</td></tr>
+</tbody>
+</table>
+<p><b>Công nghệ.</b> Kho dùng DuckDB 2.0: lưu trữ dạng cột phù hợp truy vấn phân tích, hỗ trợ <span class="mono">CUBE</span>, <span class="mono">ROLLUP</span>, <span class="mono">PIVOT</span> và hàm cửa sổ, và cả kho chỉ là một file nên dựng lại hoặc đóng gói Docker đều đơn giản. Biến đổi viết bằng SQL thuần chạy theo thứ tự, Python chỉ điều phối. Cái giá phải trả là DuckDB chỉ cho một tiến trình ghi tại một thời điểm và không có phân quyền người dùng; mục 9 nêu hướng tách lớp phục vụ sang PostgreSQL nếu triển khai cho nhiều người dùng.</p>
+
+<h2 id="c4-3">4.3 Galaxy schema và bus matrix</h2>
+<figure><img src="../docs/diagrams/03_galaxy_schema.svg" style="width:100%"></figure>
+<div class="cap"><b>Hình 4.2.</b> Galaxy schema: 6 fact dùng chung 8 dimension. Đường nối được sinh tự động từ các cột khóa ngoại thật trong kho.</div>
+<p class="tcap"><b>Bảng 4.3.</b> Bus matrix: fact nào dùng dimension nào</p>
+<table>
+<thead><tr><th>Fact</th><th>Ngày</th><th>Khách</th><th>Vị trí</th><th>Trạng thái</th><th>Sản phẩm</th><th>Seller</th><th>Tuyến</th><th>Sức khỏe</th></tr></thead>
+<tbody>
+<tr><td><span class="mono">fact_sales_item</span></td><td>✓ mua, hạn giao</td><td>✓</td><td>✓ khách, seller</td><td></td><td>✓</td><td>✓</td><td>✓</td><td></td></tr>
+<tr><td><span class="mono">fact_order</span></td><td>✓ 5 vai trò</td><td>✓</td><td>✓ khách</td><td>✓</td><td></td><td></td><td></td><td></td></tr>
+<tr><td><span class="mono">fact_order_seller</span></td><td>✓ 5 vai trò</td><td>✓</td><td>✓ khách, seller</td><td></td><td></td><td>✓</td><td>✓</td><td></td></tr>
+<tr><td><span class="mono">fact_review</span></td><td>✓ gửi, trả lời</td><td>✓</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><span class="mono">fact_payment</span></td><td>✓</td><td>✓</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><span class="mono">fact_seller_monthly</span></td><td>✓ tháng</td><td></td><td></td><td></td><td></td><td>✓</td><td></td><td>✓</td></tr>
+</tbody>
+</table>
+<p class="tcap"><b>Bảng 4.4.</b> Sáu bảng fact</p>
+<table>
+<thead><tr><th>Bảng</th><th>Kiểu</th><th>Grain</th><th class="r">Số dòng</th><th>Số đo chính</th></tr></thead>
+<tbody>
+<tr><td><span class="mono">fact_sales_item</span></td><td>Transaction</td><td>1 sản phẩm trong 1 đơn</td><td class="r">112.650</td><td><span class="mono">price</span>, <span class="mono">freight_value</span>, <span class="mono">qty</span>; nguồn chuẩn của GMV</td></tr>
+<tr><td><span class="mono">fact_order</span></td><td>Accumulating snapshot</td><td>1 đơn</td><td class="r">99.441</td><td>Các mốc; số ngày từng khâu; <span class="mono">customer_late</span>, <span class="mono">any_seller_late</span></td></tr>
+<tr><td><span class="mono">fact_order_seller</span></td><td>Accumulating snapshot</td><td>1 đơn × 1 seller</td><td class="r">100.785</td><td><span class="mono">seller_late</span>, hạn bàn giao, giá trị đơn của seller</td></tr>
+<tr><td><span class="mono">fact_review</span></td><td>Transaction</td><td>1 review × 1 đơn</td><td class="r">99.224</td><td><span class="mono">review_score</span>, giờ trả lời, cờ trả lời trước khi nhận</td></tr>
+<tr><td><span class="mono">fact_payment</span></td><td>Transaction</td><td>1 phần thanh toán</td><td class="r">103.886</td><td>Loại thanh toán, số kỳ, số tiền</td></tr>
+<tr><td><span class="mono">fact_seller_monthly</span></td><td>Periodic snapshot</td><td>1 seller × 1 tháng</td><td class="r">25.487</td><td>GMV, số đơn, tỷ lệ trễ, review, số ngày từng khâu</td></tr>
+</tbody>
+</table>
+<p class="tcap"><b>Bảng 4.5.</b> Tám dimension</p>
+<table>
+<thead><tr><th>Bảng</th><th class="r">Số dòng</th><th>Thuộc tính đáng chú ý</th></tr></thead>
+<tbody>
+<tr><td><span class="mono">dim_date</span></td><td class="r">1.827</td><td>Năm, quý, tháng, thứ; cờ ngày lễ Brazil, cờ Black Friday. Role-playing: ngày mua, duyệt, giao vận chuyển, nhận, hẹn</td></tr>
+<tr><td><span class="mono">dim_seller</span></td><td class="r">11.209</td><td>SCD Type 2: <span class="mono">health_tier</span>, <span class="mono">valid_from</span>, <span class="mono">valid_to</span>, <span class="mono">is_current</span></td></tr>
+<tr><td><span class="mono">dim_seller_health</span></td><td class="r">361</td><td>Mini-dimension: hạng tháng × nhóm số đơn × nhóm trễ × nhóm review</td></tr>
+<tr><td><span class="mono">dim_customer</span></td><td class="r">96.097</td><td>Theo <span class="mono">customer_unique_id</span>, tức khách thật</td></tr>
+<tr><td><span class="mono">dim_product</span></td><td class="r">32.952</td><td>Danh mục tiếng Anh, cân nặng, thể tích, nhóm kích thước</td></tr>
+<tr><td><span class="mono">dim_location</span></td><td class="r">19.178</td><td>Mọi ZIP; tọa độ trung vị, bang, vùng. Role-playing cho khách và seller</td></tr>
+<tr><td><span class="mono">dim_route</span></td><td class="r">622</td><td>Cặp bang seller → bang khách; khoảng cách xấp xỉ giữa tâm hai bang</td></tr>
+<tr><td><span class="mono">dim_order_status</span></td><td class="r">8</td><td>Trạng thái, thứ tự trong quy trình, cờ đã giao, cờ hủy</td></tr>
+</tbody>
+</table>
+<p>Mọi dimension đều có dòng <span class="mono">-1</span> (unknown member), nên fact không bao giờ có khóa ngoại mồ côi. Khóa thay thế (surrogate key) do kho sinh, tách khỏi khóa tự nhiên của nguồn; nhờ vậy một seller có thể có nhiều phiên bản trong SCD2.</p>
+
+<h2 id="c4-4">4.4 Lịch sử: SCD2 và mini-dimension</h2>
+<p>Hạng sức khỏe của seller (Vàng, Ổn định, Ít đơn, Theo dõi, Nguy cơ, Tạm ngừng) được tính lại mỗi tháng theo bảng luật. Đo trên dữ liệu, hạng tính hằng tháng đổi ở <b>49%</b> lượt chuyển tháng của seller có từ 6 đơn, vì xu hướng 30 ngày rất nhiễu. Đưa thẳng thuộc tính này vào SCD2 sẽ làm <span class="mono">dim_seller</span> phình to mà lịch sử không có nghĩa. Theo Kimball, nhóm tách làm hai:</p>
+<p class="tcap"><b>Bảng 4.6.</b> Hạng tháng và hạng ổn định</p>
+<table>
+<thead><tr><th></th><th>Hạng tháng</th><th>Hạng ổn định</th></tr></thead>
+<tbody>
+<tr><td>Nằm ở</td><td><span class="mono">dim_seller_health</span> qua <span class="mono">fact_seller_monthly</span></td><td><span class="mono">dim_seller</span> (SCD Type 2)</td></tr>
+<tr><td>Đổi khi</td><td>Mỗi tháng tính lại</td><td>Hạng tháng giữ nguyên 2 kỳ liên tiếp</td></tr>
+<tr><td>Mức đổi (01–07/2018)</td><td>49% lượt chuyển tháng</td><td>20% lượt chuyển tháng</td></tr>
+<tr><td>Dùng để</td><td>Phát hiện sớm</td><td>Báo cáo theo hạng tại thời điểm bán</td></tr>
+</tbody>
+</table>
+<p>Nhờ cách tách này, <span class="mono">dim_seller</span> giảm từ 5,75 xuống 3,62 dòng mỗi seller. Fact trỏ vào phiên bản có hiệu lực lúc mua, nên có thể trả lời câu hỏi như "GMV của seller trong thời gian họ ở hạng Vàng". Nhóm nói rõ trong báo cáo và trên giao diện: hạng do hệ thống tính ra, vì nguồn không có lịch sử thay đổi của seller; các thuộc tính địa chỉ chỉ có một bản và không được dựng lịch sử giả.</p>
+
+<h2 id="c4-5">4.5 Các vấn đề thiết kế và cách giải quyết</h2>
+<p>Bảng 4.7 tổng hợp các vấn đề thiết kế khó nhất, các phương án đã cân nhắc và lựa chọn cuối cùng.</p>
+<p class="tcap"><b>Bảng 4.7.</b> Vấn đề thiết kế, phương án và lựa chọn</p>
+<table class="long">
+<thead><tr><th style="width:20%">Vấn đề</th><th style="width:30%">Phương án đã cân nhắc</th><th>Lựa chọn và lý do</th></tr></thead>
+<tbody>
+<tr><td>Grain giao hàng khi đơn có nhiều seller</td><td>(a) Một fact grain đơn, gán một seller; (b) chỉ fact đơn × seller</td><td><b>Hai fact:</b> <span class="mono">fact_order</span> cho câu hỏi về đơn, <span class="mono">fact_order_seller</span> cho trách nhiệm từng seller. Phương án (a) sai trách nhiệm, (b) đếm dư khoảng 1% số đơn</td></tr>
+<tr><td>Ai gây ra giao trễ?</td><td>Suy từ số ngày tới vận chuyển so với trung bình</td><td><b>Dùng hạn bàn giao có sẵn</b> (<span class="mono">shipping_limit_date</span>): <span class="mono">seller_late</span> là lỗi khâu seller, <span class="mono">customer_late</span> là kết quả khách nhận</td></tr>
+<tr><td>CSV chỉ có trạng thái cuối</td><td>Nạp một lần</td><td><b>Giả lập 26 đợt</b>, che mốc tương lai; sinh được accumulating snapshot và lịch sử thật (Chương 5)</td></tr>
+<tr><td>Tỷ lệ trễ tháng gần nhất luôn thấp giả tạo</td><td>Tính theo tháng mua</td><td><b>Tính theo tháng đến hạn</b>; review theo tháng trả lời</td></tr>
+<tr><td>Thuộc tính đổi nhanh</td><td>SCD2 toàn bộ</td><td><b>SCD2 cộng mini-dimension</b> (mục 4.4)</td></tr>
+<tr><td>Review nhiều đơn, đơn nhiều review</td><td>Khóa <span class="mono">review_id</span></td><td><b>Khóa ghép</b> <span class="mono">(review_id, order_id)</span>; gộp riêng về grain đơn</td></tr>
+<tr><td>Vị trí khách và seller</td><td>Bảng địa lý đứng riêng, không fact nào nối</td><td><b>Một <span class="mono">dim_location</span> hai vai trò</b>, drill được tới thành phố và ZIP</td></tr>
+<tr><td>Đếm khác nhau ở mọi mức tổng</td><td>Cộng từ chi tiết lên</td><td><b>Tính sẵn bằng CUBE</b>; tỷ lệ lưu tử số và mẫu số riêng</td></tr>
+<tr><td>Star hay snowflake</td><td>Tách vùng, bang ra bảng riêng</td><td><b>Star</b>: dimension phi chuẩn hóa, ít join; dữ liệu nén cột nên phần dư thừa không đáng kể</td></tr>
+</tbody>
+</table>
+<p><b>Metadata.</b> Mỗi bảng và cột trong <span class="mono">core</span>, <span class="mono">mart</span>, <span class="mono">dss</span>, <span class="mono">ops</span> đều có mô tả (313/313 cột), được nạp vào kho từ <span class="mono">catalog.yml</span> và sinh tự động thành <span class="mono">docs/data_catalog.md</span>. Mọi KPI trên giao diện có định nghĩa, công thức, khoảng thời gian và nguồn trong <span class="mono">metrics.yml</span>; test hệ thống chặn việc giao diện dùng KPI chưa được định nghĩa. Quy tắc đặt tên nằm ở <span class="mono">docs/naming_conventions.md</span>.</p>
+
+<!-- ============================ CHUONG 5 ============================ -->
+<h1 id="c5"><span class="num">5.</span> Quy trình ETL theo biến thể ELT</h1>
+<div class="chap-lo"><span class="lo dw">L.O.2.3</span> Mục tiêu 2 và 3 của đề: quy trình ETL và hiện thực backend</div>
+
+<h2>5.1 ETL hay ELT</h2>
+<p>Đề bài dùng từ ETL theo nghĩa chung cho quy trình đưa dữ liệu vào kho. Nhóm hiện thực quy trình này theo biến thể <b>ELT</b>: dữ liệu được trích xuất và nạp nguyên văn vào lớp <span class="mono">raw</span>, sau đó mới biến đổi ngay trong kho bằng SQL.</p>
+<p class="tcap"><b>Bảng 5.1.</b> Ba bước của ELT trong hệ thống</p>
+<table>
+<thead><tr><th style="width:14%">Bước</th><th>Trong hệ thống</th><th style="width:30%">File</th></tr></thead>
+<tbody>
+<tr><td>Extract</td><td>Đọc 9 CSV thành view <span class="mono">src.*</span>, kiểm tra hash</td><td><span class="mono">src/etl/build.py</span></td></tr>
+<tr><td>Load</td><td>Chép nguyên văn dạng chữ vào <span class="mono">raw.*</span>, thêm cột <span class="mono">dwh_batch</span> và các cột kỹ thuật</td><td><span class="mono">10_batch_raw.sql</span></td></tr>
+<tr><td>Transform</td><td><span class="mono">raw → stg → core → mart</span>, toàn bộ bằng SQL trong DuckDB</td><td><span class="mono">01_staging.sql</span>, <span class="mono">02_dimensions.sql</span>, <span class="mono">11_batch_core.sql</span>, <span class="mono">12_batch_close.sql</span></td></tr>
+</tbody>
+</table>
+<p><b>Vì sao chọn ELT.</b> Dữ liệu vừa phải nên DuckDB xử lý tốt mà không cần công cụ riêng như Pentaho. Lớp <span class="mono">raw</span> được giữ lại, nên khi đổi một định nghĩa (ví dụ ngưỡng của hạng) chỉ cần chạy lại phần biến đổi. SQL cũng dễ truy vết và kiểm thử.</p>
+
+<h2>5.2 Giả lập 26 đợt nạp theo tháng</h2>
+<p>CSV chỉ chứa trạng thái cuối cùng của mỗi đơn, trong khi kho phải thay đổi theo thời gian và DSS phải tái hiện được cảnh "đứng ở ngày X, chưa biết tương lai". Vì vậy, với mỗi tháng từ 09/2016 đến 10/2018, nhóm gọi <i>c</i> là ngày đầu tháng kế tiếp (ngày chốt) và chạy năm bước:</p>
+<p class="tcap"><b>Bảng 5.2.</b> Các bước của một đợt nạp</p>
+<table>
+<thead><tr><th style="width:22%">Bước</th><th style="width:20%">File</th><th>Việc làm</th></tr></thead>
+<tbody>
+<tr><td>0. Kiểm tra nguồn (một lần)</td><td><span class="mono">build.py</span></td><td>So hash và số dòng với manifest; sai là dừng</td></tr>
+<tr><td>1. Nạp raw</td><td><span class="mono">10_batch_raw.sql</span></td><td>Che các mốc từ <i>c</i> trở đi; chỉ thêm phiên bản mới của đơn khi trạng thái đổi; nạp dòng hàng, thanh toán của đơn mua trong tháng; nạp review khách trả lời trong tháng; cách ly dòng lỗi</td></tr>
+<tr><td>2. Cập nhật core</td><td><span class="mono">11_batch_core.sql</span></td><td>Thêm vào transaction fact; tính lại các accumulating snapshot cho đơn có thay đổi</td></tr>
+<tr><td>3. Chốt tháng</td><td><span class="mono">12_batch_close.sql</span></td><td>Tính feature seller, KPI (CUBE), thống kê tuyến từ trạng thái kho tại lúc đó; ghi hạng tháng; cập nhật SCD2</td></tr>
+<tr><td>4. Cổng chất lượng</td><td><span class="mono">13_batch_checks.sql</span></td><td>11 phép đối soát số dòng và số tiền giữa các lớp, lũy kế tới đợt; lệch thì dừng</td></tr>
+<tr><td>5. Ghi log</td><td><span class="mono">build.py</span></td><td>Watermark, số dòng nạp, số dòng cách ly, số seller đổi hạng, thời gian chạy vào <span class="mono">ops.etl_log</span></td></tr>
+</tbody>
+</table>
+<p>Kết quả: 99.441 đơn sinh ra <b>137.236 phiên bản</b> trong <span class="mono">raw.orders</span> (62.220 đơn có 1 phiên bản, 36.647 đơn có 2, 574 đơn có 3). Toàn bộ 26 đợt cộng đợt khởi tạo nạp 1.588.717 dòng trong khoảng 55 giây; đợt lâu nhất mất 3,7 giây. Test hệ thống xác nhận trạng thái cuối cùng trong kho trùng hoàn toàn với file gốc.</p>
+<p class="tcap"><b>Bảng 5.3.</b> Ví dụ thật: đơn <span class="mono">4530ebf3…</span> qua các đợt nạp</p>
+<table>
+<thead><tr><th>Đợt</th><th>Trạng thái</th><th>Duyệt</th><th>Giao vận chuyển</th><th>Khách nhận</th><th>Hẹn giao</th></tr></thead>
+<tbody>
+<tr><td>2018-06</td><td>approved</td><td>21/06</td><td>chưa biết</td><td>chưa biết</td><td>24/07</td></tr>
+<tr><td>2018-07</td><td>shipped</td><td>21/06</td><td>02/07</td><td>chưa biết</td><td>24/07</td></tr>
+<tr><td>2018-09</td><td>delivered</td><td>21/06</td><td>02/07</td><td>05/09</td><td>24/07</td></tr>
+</tbody>
+</table>
+<p>Dòng tương ứng trong <span class="mono">fact_order</span> được cập nhật qua từng đợt, đúng nghĩa accumulating snapshot. Đơn này là ví dụ của cả hai lỗi cùng lúc: seller bàn giao trễ (10,9 ngày) và vận chuyển mất thêm 65,1 ngày, khách nhận trễ 43 ngày. Tại as-of 01/07/2018, hệ thống chỉ biết đơn ở trạng thái <span class="mono">approved</span>, đúng như một người đứng ở ngày đó.</p>
+
+<h2>5.3 Nạp tăng dần, chạy lại và xử lý lỗi</h2>
+<ul>
+<li><b>Nạp tăng dần:</b> đợt đã có trong <span class="mono">ops.etl_log</span> với trạng thái <span class="mono">ok</span> được bỏ qua.</li>
+<li><b>Idempotent:</b> ép chạy lại một đợt thì dữ liệu của đợt đó bị xóa rồi nạp lại, không tạo dòng trùng. Có test cho cả hai điều này.</li>
+<li><b>Khi một đợt lỗi:</b> hệ thống dừng, ghi <span class="mono">status = failed</span> kèm nội dung lỗi, watermark không tiến, lần chạy sau sẽ chạy lại đợt đó. Test cố ý xóa một dòng ở Gold để kiểm tra cổng chất lượng dừng đúng.</li>
+<li><b>Hạn chế đã biết:</b> không có rollback tự động. Nhóm đã thử bọc mỗi đợt trong một giao dịch, nhưng DuckDB 2.0 bị lỗi khi <span class="mono">COMMIT</span> giao dịch lớn, nên chọn cách dừng đợt và chạy lại an toàn.</li>
+</ul>
+
+<h2>5.4 Cổng chất lượng và lineage</h2>
+<p>Mỗi đợt chạy 11 phép đối soát giữa các lớp: số đơn, số dòng hàng, tiền hàng, số dòng thanh toán, tiền thanh toán, số review, GMV tháng và GMV 90 ngày. Qua 26 đợt có <b>286/286</b> phép khớp. Tổng giá dòng hàng trong kho bằng đúng 13.591.643,70 BRL của nguồn, và tiền trong <span class="mono">fact_order</span>, <span class="mono">fact_order_seller</span> bằng tiền trong dòng hàng, chứng tỏ đơn nhiều seller không bị nhân đôi.</p>
+<figure><img src="../docs/diagrams/02_lineage.svg" style="width:100%"></figure>
+<div class="cap"><b>Hình 5.1.</b> Lineage theo bảng: từ file nguồn qua các lớp tới mart và DSS</div>
+
+<!-- ============================ CHUONG 6 ============================ -->
+<h1 id="c6"><span class="num">6.</span> OLAP và giao diện phân tích</h1>
+<div class="chap-lo"><span class="lo dw">L.O.2.3</span> Mục tiêu 3 của đề: backend OLAP và frontend</div>
+
+<h2>6.1 Các phép OLAP trên kho</h2>
+<p>Kho là ROLAP: các phép OLAP được viết thành SQL trên lớp <span class="mono">core</span>. File <span class="mono">src/sql/olap_examples.sql</span> chứa 8 truy vấn mẫu, mỗi câu trả lời một câu hỏi nghiệp vụ và đều được test hệ thống chạy để bảo đảm có kết quả.</p>
+<p class="tcap"><b>Bảng 6.1.</b> Tám truy vấn OLAP mẫu</p>
+<table>
+<thead><tr><th style="width:16%">Phép</th><th style="width:44%">Câu hỏi</th><th>Kỹ thuật</th></tr></thead>
+<tbody>
+<tr><td>Roll-up</td><td>GMV từ tháng lên quý, lên năm, kèm dòng tổng</td><td><span class="mono">GROUP BY ROLLUP</span> trên phân cấp của <span class="mono">dim_date</span></td></tr>
+<tr><td>Drill-down</td><td>Sudeste → bang SP → từng seller</td><td>Phân cấp vùng → bang → seller; dùng phiên bản SCD2 tại lúc mua</td></tr>
+<tr><td>Slice</td><td>Chỉ danh mục housewares: GMV và review theo tháng</td><td>Cố định một chiều</td></tr>
+<tr><td>Dice</td><td>Khách ở SP, quý 4/2017, đơn trễ, theo tuyến</td><td>Lọc trên ba chiều</td></tr>
+<tr><td>Pivot</td><td>GMV theo tháng × hạng sức khỏe lúc bán</td><td>Lệnh <span class="mono">PIVOT</span></td></tr>
+<tr><td>Cube</td><td>Tổng theo vùng của một tháng, lấy từ mart</td><td><span class="mono">GROUP BY CUBE (region, category_en)</span></td></tr>
+<tr><td>Point-in-time</td><td>Phân bố hạng seller tại 15/01/2018</td><td>Lọc SCD2 theo <span class="mono">valid_from</span>, <span class="mono">valid_to</span></td></tr>
+<tr><td>Role-playing</td><td>Đơn Black Friday 2017: ngày mua và ngày giao</td><td>Một <span class="mono">dim_date</span> cho hai vai trò</td></tr>
+</tbody>
+</table>
+<p>Ví dụ câu tính sẵn khối KPI trong lúc chốt mỗi đợt. Số đơn và số seller là đếm khác nhau, không cộng dồn được từ chi tiết lên, nên CUBE tính lại cho từng tổ hợp. Tỷ lệ trễ được lưu dưới dạng tử số và mẫu số để không mắc lỗi lấy trung bình của các tỷ lệ:</p>
+<pre><code>INSERT INTO mart.kpi_monthly
+SELECT CAST(getvariable('m0') AS DATE), region, category_en,
+       GROUPING(region) = 1, GROUPING(category_en) = 1,
+       coalesce(sum(price) FILTER (WHERE in_sale), 0),
+       count(DISTINCT order_id)  FILTER (WHERE in_sale),
+       count(DISTINCT seller_id) FILTER (WHERE in_sale),
+       count(DISTINCT order_id)  FILTER (WHERE in_due),
+       count(DISTINCT order_id)  FILTER (WHERE in_due AND is_late),
+       avg(review_score)         FILTER (WHERE in_rev)
+FROM e WHERE in_sale OR in_due OR in_rev
+GROUP BY CUBE (region, category_en);</code></pre>
+
+<h2>6.2 Màn hình phân tích đa chiều</h2>
+<p>Màn <b>Đa chiều (OLAP)</b> đưa cả năm phép OLAP lên giao diện, không cần viết SQL. Người dùng chọn một trong bốn phân cấp: seller theo địa lý (vùng → bang → thành phố → seller), danh mục → seller, thời gian (năm → quý → tháng), khách theo địa lý (vùng → bang). Bấm vào một cột để đi sâu xuống (drill-down); bấm vào đường dẫn ở trên để quay lên (roll-up). Thanh khoảng thời gian là slice theo thời gian; nút Dice lọc theo danh mục, vùng seller, vùng khách; ô "Chia theo" xoay sang chiều thứ hai thành bảng nhiệt (pivot). Mỗi thao tác sinh một câu SQL trên lớp <span class="mono">core</span>, hiển thị ngay trên màn hình, kèm dòng tổng do <span class="mono">GROUP BY ROLLUP</span> sinh ra.</p>
+<p>Mọi số trên màn này tính tại mốc as-of: chỉ dùng đơn mua trước as-of; trễ chỉ tính đơn đã tới ngày hẹn; review chỉ tính review đã có. Seller được lấy theo phiên bản SCD2 lúc bán. Với các độ đo dạng tỷ lệ, thành viên có dưới 30 đơn bị loại để tránh nhiễu. Nhóm đối chiếu với câu SQL viết độc lập: GMV, số đơn, số seller khớp tuyệt đối.</p>
+<figure><img src="../evidence/screenshots/11_da_chieu_drill_pivot.png" style="width:93%"></figure>
+<div class="cap"><b>Hình 6.1.</b> Drill-down từ toàn sàn xuống vùng Sudeste (79% GMV của 12 tháng), pivot theo hạng sức khỏe tại lúc bán</div>
+<figure><img src="../evidence/screenshots/12_da_chieu_tre_theo_danh_muc.png" style="width:93%"></figure>
+<div class="cap"><b>Hình 6.2.</b> Tỷ lệ trễ hẹn theo danh mục, pivot theo đơn cùng bang hay khác bang</div>
+<div class="box">
+<h4>Phát hiện nhờ OLAP: đơn khác bang trễ gấp đôi</h4>
+<p>Trong 12 tháng trước 01/07/2018, đơn giao <b>khác bang</b> trễ hẹn <b>12,3%</b> (41.437 đơn đến hạn), trong khi đơn <b>cùng bang</b> chỉ trễ <b>5,6%</b> (23.802 đơn). Chênh lệch này lặp lại ở hầu hết danh mục. Kết hợp với kết quả ở màn Lỗi giao trễ, điều này củng cố kết luận rằng phần lớn giao trễ nằm ở khâu vận chuyển liên bang, không phải ở seller.</p>
+</div>
+
+<h2>6.3 Các màn hình BI</h2>
+<p>Ứng dụng có 7 màn hình, nằm trong một sidebar bên trái thu gọn được. Mỗi màn vừa khung 1440 × 800 điểm ảnh, không phải cuộn; ở cửa sổ khác cỡ, bố cục tự dàn theo chiều rộng thật và chữ co nhẹ theo bề ngang. KPI được gom thành nhóm có nhãn, mỗi thẻ và mỗi biểu đồ nằm trong một ô riêng. Sidebar chứa thanh trượt "Hôm nay là ngày (as-of)" để tua thời gian, mọi màn hình chỉ thấy dữ liệu trước ngày đó, cùng mục tiêu của màn hình đang xem; góc phải trên có nút toàn màn hình. Tiêu đề biểu đồ nêu kết luận và được sinh tự động từ số liệu, nên tự đổi theo khi đổi as-of. Mỗi KPI có biểu tượng chú thích hiện định nghĩa, công thức và nguồn lấy từ <span class="mono">metrics.yml</span>.</p>
+<figure><img src="../evidence/screenshots/1_tong_quan.png" style="width:93%"></figure>
+<div class="cap"><b>Hình 6.3.</b> Màn Tổng quan tại as-of 01/07/2018: GMV tháng 06/2018 giảm 13,1%, tỷ lệ trễ tăng 2,4 điểm %, 70 seller mới vào hạng Nguy cơ</div>
+<figure><img src="../evidence/screenshots/2_loi_giao_tre.png" style="width:93%"></figure>
+<div class="cap"><b>Hình 6.4.</b> Màn Lỗi giao trễ: 81,1% đơn trễ có seller bàn giao đúng hạn; đơn trễ mất thêm 23,8 ngày ở vận chuyển và 1,9 ngày ở seller</div>
+<figure><img src="../evidence/screenshots/3_chi_tiet_seller.png" style="width:93%"></figure>
+<div class="cap"><b>Hình 6.5.</b> Màn Chi tiết seller: xác suất sụt GMV, lý do khuyến nghị, số ngày từng khâu, lịch sử hạng SCD2</div>
+
+<!-- ============================ CHUONG 7 ============================ -->
+<h1 id="c7"><span class="num">7.</span> Hệ hỗ trợ quyết định</h1>
+<div class="chap-lo"><span class="lo dss">L.O.3.1</span><span class="lo dss">L.O.3.2</span><span class="lo dss">L.O.3.3</span><span class="lo dss">L.O.4.1</span><span class="lo dss">L.O.4.2</span> Mục tiêu 4 của đề: thành phần DSS dựa trên kho dữ liệu</div>
+
+<h2 id="c7-1">7.1 Phân tích và định vị DSS</h2>
+<p>Theo cách phân loại ở mục 2.4, Seller Health là một <b>hybrid DSS</b>: <b>model-driven</b> (mô hình dự báo và tối ưu) kết hợp <b>knowledge-driven</b> (bảng luật), trên nền <b>data-driven</b> (kho dữ liệu và các màn BI). Bảng 7.1 ánh xạ các thành phần của một DSS vào hệ thống.</p>
+<p class="tcap"><b>Bảng 7.1.</b> Thành phần DSS trong hệ thống</p>
+<table>
+<thead><tr><th style="width:22%">Thành phần</th><th>Hiện thực</th><th style="width:26%">Mã nguồn</th></tr></thead>
+<tbody>
+<tr><td>Quản lý dữ liệu</td><td>Kho DuckDB: <span class="mono">core</span>, <span class="mono">mart</span>; kết quả DSS ghi vào schema <span class="mono">dss</span></td><td><span class="mono">src/sql/</span>, <span class="mono">src/etl/</span></td></tr>
+<tr><td>Quản lý mô hình</td><td>Hồi quy logistic huấn luyện cuốn; bảng luật; MILP; đánh giá và độ nhạy</td><td><span class="mono">src/dss/run.py</span>, <span class="mono">rules.py</span>, <span class="mono">optimize.py</span></td></tr>
+<tr><td>Tri thức</td><td>Ngưỡng và luật nghiệp vụ, lý do bằng chữ, định nghĩa KPI</td><td><span class="mono">rules.py</span>, <span class="mono">metrics.yml</span></td></tr>
+<tr><td>Giao diện</td><td>Streamlit 7 màn hình, bảng kế hoạch kéo thả tự viết bằng SortableJS</td><td><span class="mono">src/app/</span></td></tr>
+</tbody>
+</table>
+<p><b>Đặc tính của DSS được giữ đúng:</b> hệ thống đề xuất chứ không tự quyết định. Người dùng đổi tham số, kéo thẻ để sửa kế hoạch; hệ thống tính lại chi phí và cảnh báo khi vượt ràng buộc. Mọi giả định không có trong dữ liệu (chi phí, hiệu quả can thiệp) được tách vào một nút "Giả định" và ghi rõ trên giao diện.</p>
+
+<h2 id="c7-2">7.2 Các pha ra quyết định trên hệ thống</h2>
+<p class="tcap"><b>Bảng 7.2.</b> Bốn pha của Simon và màn hình tương ứng</p>
+<table>
+<thead><tr><th style="width:17%">Pha</th><th>Hệ thống làm gì</th><th style="width:30%">Màn hình</th></tr></thead>
+<tbody>
+<tr><td>Intelligence</td><td>Phát hiện bất thường, tách nguyên nhân trễ, khoanh vùng theo nhiều chiều</td><td>Tổng quan, Lỗi giao trễ, Chi tiết seller, Đa chiều (OLAP)</td></tr>
+<tr><td>Design</td><td>Ước lượng rủi ro, giá trị, vận hành; sinh các phương án hành động cho từng seller</td><td>Bảng kế hoạch, Chi tiết seller</td></tr>
+<tr><td>Choice</td><td>Luật và tối ưu đề xuất; người dùng sửa bằng kéo thả; so sánh mức ngân sách; what-if lời hẹn giao</td><td>Bảng kế hoạch, What-if tuyến</td></tr>
+<tr><td>Implementation</td><td>Xuất kế hoạch ra CSV; theo dõi kết quả các tháng đã biết</td><td>Bảng kế hoạch, Kiểm chứng</td></tr>
+</tbody>
+</table>
+
+<h2 id="c7-3">7.3 Mô hình dự báo</h2>
+<p><b>Feature tại mỗi as-of.</b> Quần thể là seller có ít nhất một đơn hợp lệ trong 90 ngày trước as-of. Các feature gồm GMV và số đơn 90 và 30 ngày, xu hướng <span class="mono">trend = gmv_30 / (gmv_90 / 3) − 1</span>, số ngày từ đơn gần nhất, thâm niên, số danh mục, tỷ lệ bàn giao trễ, tỷ lệ khách nhận trễ, review trung bình và số ngày tới vận chuyển. Tất cả được tính lúc chốt đợt trong <span class="mono">mart.seller_features</span>.</p>
+<p><b>Nhãn.</b> Nhãn quan sát 45 ngày sau as-of, được tính sau khi nạp xong và để riêng trong <span class="mono">dss.labels</span>:</p>
+<pre><code>gmv_next45 = Σ price trong [c, c + 45 ngày)
+decline    = gmv_next45 &lt; 0,5 × (gmv_90 / 2)      -- sụt GMV, tỷ lệ gốc 44–51%
+dormant    = gmv_next45 = 0                         -- tạm ngừng, tỷ lệ gốc 31–33%
+loss       = max(gmv_90 / 2 − gmv_next45, 0)        -- GMV mất</code></pre>
+<p><b>Thuật toán và cách huấn luyện.</b> Hồi quy logistic có chuẩn hóa, một mô hình cho mỗi nhãn: <i>p</i> = 1 / (1 + e<sup>−(b<sub>0</sub> + Σ b<sub>k</sub>z<sub>k</sub>)</sup>). Mô hình được <b>huấn luyện cuốn theo thời gian</b>: tại as-of <i>t</i>, chỉ học từ các as-of ≤ <i>t</i> − 45 ngày, vì nhãn của các mốc gần hơn chưa quan sát xong. Ví dụ mốc 01/07/2018 học 14.835 dòng, mốc train mới nhất là 01/05/2018. Một test tự động kiểm tra khoảng cách này.</p>
+<p class="tcap"><b>Bảng 7.3.</b> Hệ số lớn nhất tại as-of 01/07/2018 (feature đã chuẩn hóa)</p>
+<table>
+<thead><tr><th>Feature</th><th class="r">Sụt GMV</th><th class="r">Tạm ngừng</th><th>Diễn giải</th></tr></thead>
+<tbody>
+<tr><td><span class="mono">orders_30</span></td><td class="r">−1,30</td><td class="r">−3,37</td><td>Tháng gần đây nhiều đơn thì rủi ro thấp</td></tr>
+<tr><td><span class="mono">orders_90</span></td><td class="r">+0,80</td><td class="r">−0,74</td><td>Khác dấu: seller bán nhiều ít khả năng dừng hẳn, nhưng dễ tụt so với mức cao của chính họ</td></tr>
+<tr><td><span class="mono">recency</span></td><td class="r">+0,56</td><td class="r">+0,59</td><td>Lâu không có đơn thì rủi ro cao</td></tr>
+<tr><td><span class="mono">seller_late_rate</span></td><td class="r">+0,16</td><td class="r">+0,20</td><td>Có đóng góp nhưng nhỏ</td></tr>
+</tbody>
+</table>
+
+<p><b>Giải thích từng dự báo.</b> Vì hồi quy logistic là tổng tuyến tính, log-odds của một seller bằng hệ số chặn cộng tổng các tích hệ số × giá trị chuẩn hóa. Hệ thống lưu từng số hạng này vào bảng <span class="mono">dss.explain</span> và vẽ 6 yếu tố đóng góp lớn nhất ở màn Chi tiết seller. Test hệ thống kiểm tra cộng các đóng góp rồi đổi ra xác suất thì khớp <span class="mono">p_decline</span> với sai lệch lớn nhất 2,2·10<sup>−16</sup>, nên đây là phân rã chính xác chứ không phải ước lượng. Với seller ở mục 7.7, yếu tố đẩy rủi ro lên mạnh nhất là số đơn 90 ngày cao (349 đơn): nhãn sụt GMV đo so với chính mức bán cũ, nên seller đang bán nhiều mà tháng gần đây giảm mạnh càng dễ bị xếp vào nhóm sụt.</p>
+
+<h2 id="c7-4">7.4 Bảng luật</h2>
+<p>Ba cờ được tính trước, tất cả chỉnh được trên giao diện: <b>rủi ro cao</b> khi <span class="mono">p_decline ≥ 0,30</span>; <b>giá trị cao</b> khi thuộc top 20% GMV 90 ngày tại as-of; <b>vận hành kém</b> khi tỷ lệ bàn giao trễ ≥ 15% trên ít nhất 5 sản phẩm đã qua hạn. Ngưỡng 0,30 được chọn trên giai đoạn 09/2017–02/2018, tách khỏi giai đoạn đánh giá.</p>
+<p class="tcap"><b>Bảng 7.4.</b> Bảng luật phân khúc</p>
+<table>
+<thead><tr><th>Rủi ro</th><th>Giá trị</th><th>Vận hành</th><th>Phân khúc</th><th>Hướng xử lý</th></tr></thead>
+<tbody>
+<tr><td>Cao</td><td>Cao</td><td>Ổn</td><td><b>Giữ chân ngay</b></td><td>Ứng viên gọi điện</td></tr>
+<tr><td>Cao</td><td>Cao</td><td>Kém</td><td><b>Hỗ trợ vận hành</b></td><td>Ứng viên hỗ trợ vận hành</td></tr>
+<tr><td>Cao</td><td>Thấp</td><td>Bất kỳ</td><td>Email tự động</td><td>Email, không tốn ngân sách</td></tr>
+<tr><td>Thấp</td><td>Bất kỳ</td><td>Kém</td><td>Cảnh báo vận hành</td><td>Email cảnh báo</td></tr>
+<tr><td>Thấp</td><td>Cao</td><td>Ổn</td><td>Seller vàng</td><td>Không can thiệp</td></tr>
+<tr><td>Thấp</td><td>Thấp</td><td>Ổn</td><td>Theo dõi</td><td>Không can thiệp</td></tr>
+</tbody>
+</table>
+<p>Hệ thống sinh <b>lý do bằng chữ</b> từ số thật cho từng seller, và nói rõ khi lỗi có thể nằm ở vận chuyển, ví dụ: "17/30 đơn trễ có seller đúng hạn, nên xem lại tuyến thay vì phạt seller".</p>
+
+<h2 id="c7-5">7.5 Mô hình tối ưu</h2>
+<p>Các seller rủi ro cao và giá trị cao là ứng viên cho hai hành động tốn nguồn lực: gọi điện giữ chân và hỗ trợ vận hành. Hai hành động có chi phí và số suất nhân viên khác nhau, nên bài toán không thể giải bằng cách lấy top N mà là một bài toán cái túi nhiều ràng buộc:</p>
+<pre><code>Tối đa    Σ_i Σ_a  p_decline_i × value45_i × hiệu_quả(a, vận_hành_i) × x_ia
+Ràng buộc Σ_i Σ_a  chi_phí_a × x_ia ≤ ngân sách                (mặc định 2.000 BRL)
+          Σ_i Σ_a  suất_a    × x_ia ≤ số suất nhân viên        (mặc định 40)
+          Σ_a x_ia ≤ 1   với mỗi seller i
+          x_ia ∈ {0, 1},  a ∈ {Gọi điện, Hỗ trợ vận hành},  value45_i = gmv_90_i / 2</code></pre>
+<p>Bài toán được giải chính xác bằng quy hoạch tuyến tính nguyên qua <span class="mono">scipy.optimize.milp</span> (bộ giải HiGHS) và giải lại mỗi khi người dùng đổi tham số. Một test so bộ giải với đáp án tính tay trên 4 seller.</p>
+<p class="tcap"><b>Bảng 7.5.</b> Tham số mặc định (giả định của nhóm, không có trong dữ liệu)</p>
+<table>
+<thead><tr><th></th><th class="r">Gọi điện</th><th class="r">Hỗ trợ vận hành</th><th class="r">Email</th></tr></thead>
+<tbody>
+<tr><td>Chi phí (BRL)</td><td class="r">50</td><td class="r">150</td><td class="r">0</td></tr>
+<tr><td>Suất nhân viên</td><td class="r">1</td><td class="r">2</td><td class="r">0</td></tr>
+<tr><td>Hiệu quả nếu vận hành kém</td><td class="r">8%</td><td class="r">30%</td><td class="r">3%</td></tr>
+<tr><td>Hiệu quả nếu vận hành ổn</td><td class="r">20%</td><td class="r">5%</td><td class="r">3%</td></tr>
+</tbody>
+</table>
+<p>Các con số này thể hiện một logic chứ không phải dự đoán: seller lỗi vận hành thì gọi điện ít tác dụng hơn hỗ trợ, seller vận hành ổn thì ngược lại. Mục 8.5 phân tích kế hoạch thay đổi thế nào khi các giả định này thay đổi.</p>
+
+<h2 id="c7-6">7.6 What-if và giao diện ra quyết định</h2>
+<p><b>Bảng kế hoạch</b> là màn hình chính của DSS. Hàng trên có bốn thanh trượt: ngân sách, số suất, ngưỡng rủi ro, mức giá trị cao; nút "Giả định" chứa chi phí và hiệu quả. Bên dưới là bảng Kanban bốn cột (Gọi ngay, Hỗ trợ vận hành, Email tự động, Chưa xử lý). Người dùng kéo thẻ giữa các cột; các số tổng hợp (tiền đã dùng, suất đã dùng, GMV rủi ro trong kế hoạch, giá trị giữ được theo giả định) cập nhật ngay, và hệ thống báo đỏ khi vượt ràng buộc. Đường cong ngân sách giải lại bài toán với từng mức từ 0 đến 8.000 BRL.</p>
+<p><b>Lưu và so sánh kịch bản.</b> Nút "Kịch bản" mở một hộp thoại lưu phương án đang có, gồm tham số, giả định và cả thao tác kéo tay, rồi đặt các phương án cạnh nhau: số seller được gọi và hỗ trợ, tiền dùng, GMV rủi ro trong kế hoạch, giá trị giữ được theo giả định, giá trị giữ được trên mỗi 1.000 BRL, và mức trùng danh sách với phương án hiện tại. Kịch bản được lưu trong một file riêng cạnh kho, vì kho chỉ mở ở chế độ đọc.</p>
+<figure><img src="../evidence/screenshots/4_bang_ke_hoach.png" style="width:93%"></figure>
+<div class="cap"><b>Hình 7.1.</b> Bảng kế hoạch tại 01/07/2018: dùng hết 2.000 BRL, 36/40 suất, 28 seller được gọi và 4 seller được hỗ trợ; chi quá 2.500 BRL gần như không có thêm lợi ích</div>
+<div class="two">
+<figure><img src="../evidence/screenshots/8_bang_sau_khi_keo.png"></figure>
+<figure><img src="../evidence/screenshots/9_bang_vuot_rang_buoc.png"></figure>
+</div>
+<div class="cap"><b>Hình 7.2.</b> Trái: sau khi kéo một seller khỏi cột Gọi ngay, chi phí giảm từ 2.000 xuống 1.950 BRL. Phải: kéo thêm khiến vượt ràng buộc, hệ thống cảnh báo</div>
+<p><b>What-if tuyến</b> trả lời câu hỏi: nếu hứa ngày giao dài thêm N ngày cho một tuyến thì tỷ lệ trễ còn bao nhiêu, và cần hứa thêm bao nhiêu ngày để đạt mục tiêu. Phép tính dùng đơn đã giao mua từ 180 đến 60 ngày trước as-of. Giới hạn được ghi ngay trên màn hình: giả định thời gian giao không đổi, và không đo được việc hẹn dài hơn làm mất bao nhiêu đơn.</p>
+<figure><img src="../evidence/screenshots/5_whatif_tuyen.png" style="width:93%"></figure>
+<div class="cap"><b>Hình 7.3.</b> What-if tuyến: tuyến SP→RJ cần hứa thêm 23 ngày mới đạt mức trễ 5%, nên chỉ đổi lời hẹn là không đủ</div>
+
+<h2 id="c7-7">7.7 Ví dụ xuyên suốt một seller</h2>
+<p>Seller <span class="mono">7d13fca1…</span> ở Ribeirão Preto (SP) đứng đầu kế hoạch tại as-of 01/07/2018. Ví dụ này cho thấy dữ liệu đi từ kho tới quyết định như thế nào.</p>
+<p class="tcap"><b>Bảng 7.6.</b> Dữ liệu theo tháng của seller, lấy từ <span class="mono">fact_seller_monthly</span></p>
+<table>
+<thead><tr><th>Tháng</th><th class="r">Số đơn</th><th class="r">GMV (BRL)</th><th class="r">Bàn giao trễ</th><th class="r">Review</th><th class="r">Ngày tới VC</th><th class="r">Ngày vận chuyển</th></tr></thead>
+<tbody>
+<tr><td>02/2018</td><td class="r">26</td><td class="r">6.064</td><td class="r">36,4%</td><td class="r">5,00</td><td class="r">3,5</td><td class="r">3,9</td></tr>
+<tr><td>03/2018</td><td class="r">102</td><td class="r">27.727</td><td class="r">16,8%</td><td class="r">3,68</td><td class="r">3,7</td><td class="r">13,4</td></tr>
+<tr><td>04/2018</td><td class="r">103</td><td class="r">22.241</td><td class="r">11,4%</td><td class="r">3,49</td><td class="r">4,1</td><td class="r">17,6</td></tr>
+<tr><td>05/2018</td><td class="r">206</td><td class="r">31.565</td><td class="r">17,6%</td><td class="r">4,25</td><td class="r">3,9</td><td class="r">9,6</td></tr>
+<tr class="hl"><td>06/2018</td><td class="r">42</td><td class="r">9.526</td><td class="r">26,5%</td><td class="r">3,41</td><td class="r">4,8</td><td class="r">17,7</td></tr>
+</tbody>
+</table>
+<ol>
+<li><b>Kho:</b> 349 đơn và 62.232 BRL trong 90 ngày, nhưng 30 ngày gần nhất chỉ còn 9.526 BRL (xu hướng −54%).</li>
+<li><b>SCD2:</b> hạng ổn định đổi từ <i>Chưa hoạt động</i> sang <i>Nguy cơ</i> (01/03/2018) rồi <i>Theo dõi</i> (01/05/2018).</li>
+<li><b>Mô hình:</b> <span class="mono">p_decline</span> 97%, <span class="mono">p_dormant</span> gần 0%: seller chưa dừng bán nhưng đang tụt mạnh.</li>
+<li><b>Luật:</b> rủi ro cao, giá trị cao, bàn giao trễ 18,2% trên 351 sản phẩm, nên thuộc phân khúc <b>Hỗ trợ vận hành</b>.</li>
+<li><b>Tối ưu:</b> value45 = 31.116 BRL; GMV rủi ro = 0,966 × 31.116 ≈ 30.067 BRL; hỗ trợ giữ được khoảng 9.020 BRL theo giả định, tốn 150 BRL và 2 suất.</li>
+<li><b>Người dùng thấy:</b> thẻ trong cột Hỗ trợ vận hành với lý do "Khả năng sụt GMV 97%; GMV 30 ngày thấp hơn 54% so với trung bình 90 ngày; 18% sản phẩm giao cho vận chuyển trễ hạn, đây là khâu của seller."</li>
+<li><b>Thực tế sau đó:</b> GMV 45 ngày tới là 13.807 BRL, thấp hơn nhiều mức 31.116 BRL, tức dự báo trúng. Đây chỉ là một ví dụ, không phải bằng chứng cho toàn hệ thống.</li>
+</ol>
+<p>Điểm đáng chú ý: luật hạng chỉ xếp seller này ở <i>Theo dõi</i> vì họ vẫn có đơn gần đây, nhưng mô hình đã đưa họ lên đầu nhờ số đơn giảm mạnh. Đây là ví dụ cho thấy mô hình bổ sung cho luật.</p>
+<p class="tcap"><b>Bảng 7.7.</b> Toàn bộ kế hoạch tháng đó (as-of 01/07/2018, 1.658 seller đang hoạt động)</p>
+<table>
+<thead><tr><th>Hành động</th><th>Phân khúc</th><th class="r">Số seller</th><th class="r">Chi phí (BRL)</th><th class="r">GMV rủi ro (BRL)</th></tr></thead>
+<tbody>
+<tr><td>Gọi ngay</td><td>Giữ chân ngay</td><td class="r">28</td><td class="r">1.400</td><td class="r">88.979</td></tr>
+<tr><td>Hỗ trợ vận hành</td><td>Hỗ trợ vận hành</td><td class="r">4</td><td class="r">600</td><td class="r">48.876</td></tr>
+<tr><td>Email</td><td>Email tự động</td><td class="r">1.212</td><td class="r">0</td><td class="r">133.861</td></tr>
+<tr><td>Email</td><td>Cảnh báo vận hành</td><td class="r">21</td><td class="r">0</td><td class="r">6.960</td></tr>
+<tr><td>Chưa xử lý</td><td>Giữ chân ngay, hết ngân sách</td><td class="r">124</td><td class="r">0</td><td class="r">79.990</td></tr>
+<tr><td>Chưa xử lý</td><td>Hỗ trợ vận hành, hết ngân sách</td><td class="r">31</td><td class="r">0</td><td class="r">25.819</td></tr>
+<tr><td>Chưa xử lý</td><td>Seller vàng</td><td class="r">131</td><td class="r">0</td><td class="r">82.625</td></tr>
+<tr><td>Chưa xử lý</td><td>Theo dõi</td><td class="r">107</td><td class="r">0</td><td class="r">12.349</td></tr>
+</tbody>
+</table>
+<p>Có 155 seller rủi ro cao, giá trị cao bị để lại do hết ngân sách. Đây chính là chỗ cần đến quyết định của người dùng: chấp nhận, xin thêm ngân sách (đường cong cho thấy lợi ích tăng thêm rất ít sau 2.500 BRL), hoặc kéo thả để đổi ưu tiên.</p>
+
+<h2 id="c7-8">7.8 Quy trình phát triển DSS</h2>
+<p>Nhóm phát triển DSS theo cách lặp và tiến hóa mà tài liệu môn học khuyến nghị cho DSS [3]: làm nhanh một bản thử, đo trên dữ liệu thật, rồi sửa thiết kế theo kết quả đo, thay vì chốt toàn bộ yêu cầu từ đầu.</p>
+<ol>
+<li><b>Thử khả thi</b> bằng pandas trên CSV (Bảng 1.2): đổi nhãn từ "churn" sang "sụt GMV", tách hai loại trễ, chọn Logistic Regression.</li>
+<li><b>Xây kho và DSS</b>, kiểm tra không rò rỉ dữ liệu bằng test tự động.</li>
+<li><b>Đánh giá và sửa:</b> phân tích độ nhạy cho thấy ban đầu tăng ngân sách mà danh sách không đổi, tức bộ tối ưu không có tác dụng; nhóm chọn lại ngưỡng và ngân sách trên một giai đoạn riêng. So với một phân tích công khai khác, nhóm phát hiện review đang được nạp theo ngày gửi khảo sát, làm lọt thông tin tương lai, nên đổi sang nạp theo thời điểm khách trả lời.</li>
+<li><b>Hoàn thiện giao diện</b> theo kiểm thử trình duyệt thật: thay thư viện kéo thả bị lỗi bằng component tự viết, ép mọi màn hình vừa một khung hình, thêm màn OLAP đa chiều.</li>
+</ol>
+<p>Danh sách đầy đủ các lỗi đã tìm thấy và cách sửa nằm ở mục 8.6.</p>
+
+<!-- ============================ CHUONG 8 ============================ -->
+<h1 id="c8"><span class="num">8.</span> Đánh giá và kiểm thử</h1>
+<div class="chap-lo"><span class="lo dss">L.O.4.2</span> Mục tiêu 5 của đề: đánh giá kết quả</div>
+
+<h2>8.1 Phương pháp</h2>
+<ul>
+<li><b>Theo thời gian, không chia ngẫu nhiên:</b> đánh giá trên 5 mốc as-of từ 03/2018 đến 07/2018. Tại mỗi mốc, hệ thống chỉ dùng dữ liệu trước mốc đó, rồi so với những gì thật sự xảy ra trong 45 ngày sau.</li>
+<li><b>Tách giai đoạn chọn tham số:</b> ngưỡng rủi ro và ngân sách được chọn trên 09/2017–02/2018 (<span class="mono">evidence/threshold_selection.json</span>); các tháng đánh giá không tham gia.</li>
+<li><b>So trên kết quả thật:</b> hai chỉ số dưới đây không phụ thuộc giả định hiệu quả can thiệp. <i>Gọi trúng</i> là tỷ lệ seller được chọn thật sự sụt GMV; <i>bao phủ GMV mất</i> là phần GMV mất toàn sàn nằm ở các seller được chọn.</li>
+</ul>
+
+<h2>8.2 Kế hoạch DSS so với chọn theo GMV</h2>
+<div class="two">
+<figure><img class="noframe" src="figures/eval_hit.svg"></figure>
+<figure><img class="noframe" src="figures/eval_loss.svg"></figure>
+</div>
+<div class="cap"><b>Hình 8.1.</b> Cùng số seller mỗi tháng: DSS gọi trúng cao hơn ở cả 5 tháng, nhưng bao phủ ít GMV mất hơn ở 4/5 tháng</div>
+<p class="tcap"><b>Bảng 8.1.</b> Kết quả theo tháng</p>
+<table>
+<thead><tr><th>Tháng</th><th class="r">Số seller</th><th class="r">Gọi trúng: DSS</th><th class="r">Gọi trúng: GMV</th><th class="r">Bao phủ: DSS</th><th class="r">Bao phủ: GMV</th></tr></thead>
+<tbody>
+<tr><td>03/2018</td><td class="r">24</td><td class="r">50,0%</td><td class="r">20,8%</td><td class="r">19,5%</td><td class="r">23,7%</td></tr>
+<tr><td>04/2018</td><td class="r">28</td><td class="r">64,3%</td><td class="r">21,4%</td><td class="r">17,0%</td><td class="r">16,1%</td></tr>
+<tr><td>05/2018</td><td class="r">32</td><td class="r">62,5%</td><td class="r">31,3%</td><td class="r">19,1%</td><td class="r">24,4%</td></tr>
+<tr><td>06/2018</td><td class="r">36</td><td class="r">44,4%</td><td class="r">27,8%</td><td class="r">15,7%</td><td class="r">30,1%</td></tr>
+<tr><td>07/2018</td><td class="r">32</td><td class="r">56,3%</td><td class="r">28,1%</td><td class="r">25,5%</td><td class="r">31,0%</td></tr>
+<tr class="hl"><td>Trung bình</td><td></td><td class="r">55,5%</td><td class="r">25,9%</td><td class="r">19,3%</td><td class="r">25,1%</td></tr>
+</tbody>
+</table>
+<p><b>Diễn giải.</b> DSS gọi trúng khoảng gấp đôi, nhưng bao phủ ít tiền hơn ở 4/5 tháng, vì seller rất lớn có xác suất sụt thấp mà số tiền sụt vẫn lớn. Chọn theo GMV bao phủ nhiều tiền hơn, nhưng khoảng 3/4 cuộc gọi đến seller không sụt. Người dùng điều chỉnh đánh đổi này bằng ngưỡng rủi ro. Một phần "GMV mất" của seller lớn chỉ là biến động tự nhiên, nên chỉ số này có lợi thế sẵn cho cách chọn theo GMV.</p>
+
+<h2>8.3 So với các cách chọn đơn giản</h2>
+<div>
+<div>
+<p class="tcap"><b>Bảng 8.2.</b> Năm cách chọn 50 seller (trung bình 5 tháng)</p>
+<table>
+<thead><tr><th>Cách chọn</th><th class="r">Gọi trúng</th><th class="r">Bao phủ</th></tr></thead>
+<tbody>
+<tr><td>Theo số ngày không bán</td><td class="r">78,8%</td><td class="r">0,9%</td></tr>
+<tr><td>Luật đơn giản</td><td class="r">66,0%</td><td class="r">8,6%</td></tr>
+<tr class="hl"><td>DSS (rủi ro × giá trị)</td><td class="r">47,2%</td><td class="r">31,1%</td></tr>
+<tr><td>Chọn ngẫu nhiên</td><td class="r">46,8%</td><td class="r">3,4%</td></tr>
+<tr><td>Theo GMV</td><td class="r">29,2%</td><td class="r">33,5%</td></tr>
+</tbody>
+</table>
+</div>
+<figure><img class="noframe" src="figures/strategies.svg" style="width:82%"></figure>
+</div>
+<div class="cap"><b>Hình 8.2.</b> Các cách chọn chỉ tối ưu một chỉ số: theo số ngày không bán trúng nhiều nhưng toàn seller nhỏ đã gần dừng; theo GMV nhiều tiền nhưng ít trúng. DSS là cách duy nhất cân bằng cả hai.</div>
+
+<h2>8.4 Chất lượng mô hình</h2>
+<p class="tcap"><b>Bảng 8.3.</b> AUC trên 5 mốc đánh giá 03–07/2018</p>
+<table>
+<thead><tr><th>Mục tiêu</th><th class="r">AUC mô hình</th><th class="r">AUC khi bỏ chỉ số vận hành</th><th class="r">AUC chỉ dùng số ngày không bán</th></tr></thead>
+<tbody>
+<tr><td>Tạm ngừng</td><td class="r">0,80–0,84</td><td class="r">0,80–0,84</td><td class="r">0,77–0,80</td></tr>
+<tr><td>Sụt GMV</td><td class="r">0,67–0,73</td><td class="r">0,67–0,73</td><td class="r">0,66–0,73</td></tr>
+</tbody>
+</table>
+<div class="box warn">
+<h4>Kết luận thẳng thắn về mô hình</h4>
+<p>Mô hình chỉ nhỉnh hơn cách đơn giản, và chỉ số vận hành gần như không giúp dự báo. Nhóm vì vậy không dùng độ chính xác của mô hình làm luận điểm chính. Giá trị của DSS nằm ở phần quyết định: kết hợp rủi ro với giá trị, chọn đúng hành động cho đúng nguyên nhân, và cho thấy tác động của ràng buộc ngân sách.</p>
+</div>
+
+<h2>8.5 Phân tích độ nhạy theo giả định</h2>
+<div class="two">
+<figure><img class="noframe" src="figures/sensitivity.svg"></figure>
+<div>
+<p>Hình 8.3 cho biết danh sách được chọn trùng bao nhiêu với danh sách gốc (chỉ số Jaccard) khi đổi từng giả định. Danh sách khá vững khi hiệu quả giả định đổi vừa phải (trùng 65–88%), nhưng đổi mạnh khi cắt ngân sách hoặc nhân sự. Gấp đôi ngân sách lên 4.000 BRL chỉ tăng khoảng 5% giá trị, vì lúc đó giới hạn lại nằm ở số suất; còn tăng số suất lên 80 mà giữ 2.000 BRL thì không đổi gì. Hai ràng buộc phải được nới cùng nhau. Đây là loại kết luận chỉ có được nhờ mô hình tối ưu.</p>
+</div>
+</div>
+<div class="cap"><b>Hình 8.3.</b> Mức trùng với danh sách gốc khi đổi từng giả định, trung bình 5 tháng</div>
+
+<h2>8.6 Kiểm thử</h2>
+<p class="tcap"><b>Bảng 8.4.</b> Ba bộ kiểm thử tự động</p>
+<table>
+<thead><tr><th style="width:24%">Bộ test</th><th>Phạm vi</th><th class="r">Kết quả</th></tr></thead>
+<tbody>
+<tr><td><span class="mono">tests/test_system.py</span></td><td>Nguồn, Bronze, Silver, Gold, đối soát, chống rò rỉ, OLAP, tối ưu, tài liệu, cổng chất lượng</td><td class="r">127/127</td></tr>
+<tr><td><span class="mono">tests/test_edges.py</span></td><td>7 màn hình × 13 mốc as-of, bộ lọc hiếm, đo thời gian xử lý</td><td class="r">115/115</td></tr>
+<tr><td><span class="mono">tests/test_ui.py</span></td><td>Trình duyệt Edge thật: kéo thả bằng chuột, bấm thẻ, xuất CSV, số trên giao diện khớp SQL, không cuộn ở 1440 × 800</td><td class="r">55/55</td></tr>
+</tbody>
+</table>
+<p class="tcap"><b>Bảng 8.5.</b> Một số kiểm tra đáng chú ý</p>
+<table>
+<thead><tr><th style="width:44%">Kiểm tra</th><th>Chứng minh điều gì</th></tr></thead>
+<tbody>
+<tr><td>Tổng giá dòng hàng trong kho = 13.591.643,70 BRL</td><td>Không mất, không nhân tiền</td></tr>
+<tr><td>Tính lại feature từ CSV bằng pandas, đối chiếu từng seller</td><td>Kho đúng, kiểm tra bằng một con đường độc lập</td></tr>
+<tr><td>Không đợt nào thấy mốc sau ngày chốt</td><td>Không rò rỉ khi nạp</td></tr>
+<tr><td>Train cách test ít nhất 45 ngày</td><td>Không rò rỉ nhãn</td></tr>
+<tr><td>Xóa một dòng ở Gold rồi chạy đợt</td><td>Cổng chất lượng dừng đợt, ghi <span class="mono">failed</span>, watermark không tiến</td></tr>
+<tr><td>Sửa hash trong manifest</td><td>Bị chặn trước khi đụng vào kho</td></tr>
+<tr><td>Tối ưu trên bài tính tay 4 seller</td><td>Bộ giải cho đúng đáp án</td></tr>
+<tr><td>Kéo 1 seller khỏi cột Gọi: chi phí 2.000 → 1.950</td><td>Giao diện tính đúng</td></tr>
+<tr><td>Dựng lại trên môi trường sạch và trong Docker</td><td>Chạy lại được từ đầu; 126 test đạt ngay trong bước build Docker</td></tr>
+</tbody>
+</table>
+<p class="tcap"><b>Bảng 8.6.</b> Lỗi đã tìm thấy trong quá trình làm và cách sửa</p>
+<table>
+<thead><tr><th style="width:34%">Lỗi</th><th style="width:22%">Phát hiện nhờ</th><th>Cách sửa</th></tr></thead>
+<tbody>
+<tr><td>Tăng ngân sách mà danh sách không đổi: bộ tối ưu vô nghĩa</td><td>Phân tích độ nhạy</td><td>Chọn lại ngưỡng và ngân sách trên giai đoạn riêng</td></tr>
+<tr><td>Review nạp theo ngày gửi khảo sát, lọt thông tin tương lai</td><td>So với một phân tích công khai khác</td><td>Nạp theo thời điểm khách trả lời</td></tr>
+<tr><td>Hạng seller đổi quá nhiều</td><td>Đọc nhật ký nạp</td><td>Thêm hạng Ít đơn; tách mini-dimension và hạng ổn định</td></tr>
+<tr><td>Thư viện kéo thả lỗi khi cột có thanh cuộn</td><td>Test trình duyệt</td><td>Tự viết component bằng SortableJS</td></tr>
+<tr><td>Giao dịch lớn làm DuckDB lỗi khi <span class="mono">COMMIT</span></td><td>Chạy thử</td><td>Bỏ giao dịch; dừng đợt và chạy lại an toàn</td></tr>
+<tr><td>Tên <span class="mono">sp</span> lọt vào danh sách thành phố hợp lệ</td><td>Test Silver</td><td>Loại tên 2 ký tự</td></tr>
+<tr><td>Bộ tối ưu lỗi khi không có seller nào được chọn</td><td>Test bài tính tay</td><td>Sửa kiểu dữ liệu</td></tr>
+<tr><td>Thiếu thư viện trong <span class="mono">requirements.txt</span></td><td>Dựng lại trên môi trường sạch</td><td>Bổ sung; thêm bước kiểm tra mở app</td></tr>
+</tbody>
+</table>
+
+<!-- ============================ CHUONG 9 ============================ -->
+<h1 id="c9"><span class="num">9.</span> Hạn chế và hướng phát triển</h1>
+<div class="chap-lo">Mục tiêu 5 của đề: phân tích hạn chế và đề xuất hướng phát triển</div>
+<h2>9.1 Hạn chế</h2>
+<p class="tcap"><b>Bảng 9.1.</b> Hạn chế và ảnh hưởng</p>
+<table>
+<thead><tr><th style="width:42%">Hạn chế</th><th>Ảnh hưởng</th></tr></thead>
+<tbody>
+<tr><td>Không có dữ liệu hiệu quả can thiệp, không có nhóm đối chứng</td><td>Không kết luận được DSS giữ được bao nhiêu tiền; "gọi trúng" chỉ nghĩa là seller có sụt thật</td></tr>
+<tr><td>Chi phí và hiệu quả là giả định</td><td>Danh sách và giá trị giữ được phụ thuộc giả định; đã có phân tích độ nhạy</td></tr>
+<tr><td>Nạp theo tháng là giả lập từ file cuối cùng</td><td>Không có độ trễ dữ liệu thật; đơn hủy hiện trạng thái hủy ngay từ tháng mua (rò rỉ nhỏ còn sót)</td></tr>
+<tr><td>Mô hình chỉ nhỉnh hơn cách đơn giản; xác suất chưa hiệu chỉnh</td><td>Nên dùng để xếp thứ tự, không đọc như tỷ lệ chính xác</td></tr>
+<tr><td>Hạng ổn định vẫn đổi ở 20% lượt chuyển tháng</td><td>Chưa đủ để làm cơ sở hành động một mình</td></tr>
+<tr><td>DuckDB: một tiến trình ghi, không phân quyền, không rollback đợt lớn</td><td>Phù hợp đồ án và một nhóm người dùng; chưa phù hợp triển khai nhiều người dùng</td></tr>
+<tr><td>Một nguồn dữ liệu; bộ Marketing Funnel chưa tích hợp</td><td>Chưa thể hiện tích hợp nhiều nguồn khác nhau</td></tr>
+<tr><td>Người dùng là giả định; dữ liệu 2016–2018</td><td>Chưa kiểm chứng với đội Seller Success thật; không đại diện hiện tại</td></tr>
+</tbody>
+</table>
+<h2>9.2 Hướng phát triển</h2>
+<ol>
+<li><b>Thử nghiệm A/B</b> để đo hiệu quả can thiệp thật. Đây là bước quan trọng nhất, vì nó thay được các giả định ở Bảng 7.5.</li>
+<li>Hiệu chỉnh xác suất, và tách ngưỡng email khỏi ngưỡng chọn ứng viên.</li>
+<li>Lưu kế hoạch đã duyệt và lý do người dùng sửa, để đánh giá và học lại về sau.</li>
+<li>Tách lớp phục vụ sang PostgreSQL để có phân quyền và ghi ngược quyết định từ nhiều người dùng; giữ DuckDB cho phần biến đổi.</li>
+<li>Tích hợp bộ Marketing Funnel cho giai đoạn seller mới gia nhập; nạp gần thời gian thực bằng CDC nếu có nguồn thật.</li>
+</ol>
+
+<!-- ============================ CHUONG 10 ============================ -->
+<h1 id="c10"><span class="num">10.</span> Kết luận</h1>
+<p>Nhóm đã xây dựng một hệ thống hoàn chỉnh từ dữ liệu thô đến quyết định: kho dữ liệu đa chiều có lịch sử thật, quy trình ELT 26 đợt có cổng chất lượng, giao diện phân tích OLAP, và một DSS kết hợp dự báo, luật và tối ưu. Mọi phần đều chạy lại được bằng một lệnh hoặc bằng Docker, và được kiểm tra bởi 297 kiểm thử tự động.</p>
+<p>Về chuyên môn kho dữ liệu, bài học lớn nhất là grain và thời điểm. Hai quyết định có ảnh hưởng nhất của dự án là tách grain đơn × seller và giả lập nạp theo tháng với các mốc tương lai bị che. Chúng không đến từ lý thuyết mà từ việc đo dữ liệu trước khi thiết kế. Về DSS, bài học là phải đánh giá trung thực: mô hình chỉ nhỉnh hơn cách đơn giản, và hệ thống thua cách chọn theo GMV ở chỉ số bao phủ tiền. Nhưng chính kho dữ liệu đã cho ra phát hiện có giá trị nhất: phần lớn giao trễ là do vận chuyển, nên quyết định đúng thường là sửa tuyến hoặc lời hẹn chứ không phải phạt seller.</p>
+<p>Hệ thống đáp ứng đủ năm mục tiêu kỹ thuật của đề và thể hiện cả 11 chuẩn đầu ra của học phần, như đã đối chiếu ở đầu báo cáo.</p>
+
+<!-- ============================ PHU LUC ============================ -->
+<h1 id="pl">Phụ lục</h1>
+<h2>A. Phân công công việc</h2>
+<p class="tcap"><b>Bảng A.1.</b> Vai trò và mức đóng góp</p>
+<table>
+<thead><tr><th style="width:24%">Thành viên</th><th style="width:20%">Vai trò</th><th>Phần việc</th><th class="r" style="width:12%">Đóng góp</th></tr></thead>
+<tbody>
+<tr><td>Nguyễn Khánh Trinh</td><td><span class="todo">[vai trò]</span></td><td><span class="todo">[phần việc]</span></td><td class="r"><span class="todo">[%]</span></td></tr>
+<tr><td><span class="todo">[Thành viên 2]</span></td><td><span class="todo">[vai trò]</span></td><td><span class="todo">[phần việc]</span></td><td class="r"><span class="todo">[%]</span></td></tr>
+<tr><td><span class="todo">[Thành viên 3]</span></td><td><span class="todo">[vai trò]</span></td><td><span class="todo">[phần việc]</span></td><td class="r"><span class="todo">[%]</span></td></tr>
+</tbody>
+</table>
+<p class="small muted">Gợi ý chia vai trò theo mã nguồn: thiết kế kho và ELT (<span class="mono">src/sql</span>, <span class="mono">src/etl</span>); DSS và đánh giá (<span class="mono">src/dss</span>); giao diện và BI (<span class="mono">src/app</span>).</p>
+
+<h2>B. Cách chạy và kịch bản demo</h2>
+<pre><code># Cách 1: Docker (khuyến nghị) – dựng kho, DSS và chạy 126 test ngay khi build
+git clone https://github.com/trinh-say-hi/DW_DSS.git
+cd DW_DSS
+docker compose up --build          # mở http://localhost:8501
+
+# Cách 2: Windows, chạy trực tiếp
+powershell -ExecutionPolicy Bypass -File .\setup.ps1     # cài thư viện, dựng kho và DSS, chạy test
+powershell -ExecutionPolicy Bypass -File .\run_app.ps1   # mở http://localhost:8501</code></pre>
+<p><b>Kịch bản demo 3 phút</b> tại as-of 01/07/2018: (1) Tổng quan: GMV giảm 13%, trễ tăng, 70 seller mới vào Nguy cơ; (2) Lỗi giao trễ: 81% đơn trễ là do vận chuyển; (3) Đa chiều: drill xuống Sudeste, SP, thấy đơn khác bang trễ gấp đôi; (4) Chi tiết seller: seller ưu tiên số 1 cần hỗ trợ vận hành; (5) Bảng kế hoạch: 28 gọi, 4 hỗ trợ, kéo ngân sách lên 4.000 để thấy lợi ích gần như không tăng; (6) What-if tuyến; (7) Kiểm chứng: gọi trúng gấp đôi, kèm giới hạn.</p>
+
+<h2>C. Bản đồ mã nguồn</h2>
+<table>
+<thead><tr><th style="width:34%">Đường dẫn</th><th>Vai trò</th></tr></thead>
+<tbody>
+<tr><td><span class="mono">run_all.py</span></td><td>Chạy toàn bộ: kho → DSS → catalog → test</td></tr>
+<tr><td><span class="mono">src/etl/build.py</span></td><td>Kiểm tra nguồn, điều phối ELT theo đợt, watermark, cổng chất lượng, ghi log</td></tr>
+<tr><td><span class="mono">src/sql/00–02_*.sql</span></td><td>Schema, Silver, dimension</td></tr>
+<tr><td><span class="mono">src/sql/10–13_batch_*.sql</span></td><td>Một đợt nạp: Bronze, Gold, chốt tháng, đối soát</td></tr>
+<tr><td><span class="mono">src/sql/olap_examples.sql</span></td><td>8 truy vấn OLAP mẫu</td></tr>
+<tr><td><span class="mono">src/dss/run.py</span>, <span class="mono">rules.py</span>, <span class="mono">optimize.py</span></td><td>Nhãn, mô hình, đánh giá, độ nhạy; bảng luật và lý do; MILP và đường cong ngân sách</td></tr>
+<tr><td><span class="mono">src/app/</span></td><td>Ứng dụng 7 màn hình; <span class="mono">screens_olap.py</span> là màn đa chiều</td></tr>
+<tr><td><span class="mono">catalog.yml</span>, <span class="mono">metrics.yml</span></td><td>Mô tả bảng, cột và định nghĩa KPI</td></tr>
+<tr><td><span class="mono">tests/</span>, <span class="mono">evidence/</span></td><td>Ba bộ kiểm thử và kết quả, ảnh chụp giao diện</td></tr>
+<tr><td><span class="mono">docs/</span></td><td>Tài liệu thiết kế chi tiết, data catalog, quy tắc đặt tên, sơ đồ</td></tr>
+</tbody>
+</table>
+<p class="small muted">Quy mô mã nguồn: khoảng 760 dòng SQL và 2.750 dòng Python (kể cả kiểm thử và script).</p>
+
+<!-- ============================ TLTK ============================ -->
+<h1 id="tltk">Tài liệu tham khảo</h1>
+<ol class="small">
+<li>W. H. Inmon, <i>Building the Data Warehouse</i>, 4th ed. Wiley, 2005.</li>
+<li>R. Kimball, M. Ross, <i>The Data Warehouse Toolkit</i>, 3rd ed. Wiley, 2013.</li>
+<li>E. Turban, J. E. Aronson, T.-P. Liang, <i>Decision Support Systems and Intelligent Systems</i>, 7th ed. Prentice-Hall, 2005.</li>
+<li>R. Elmasri, S. B. Navathe, <i>Fundamentals of Database Systems</i>, 7th ed. Addison-Wesley, 2016.</li>
+<li>R. Sharda, D. Delen, E. Turban, <i>Analytics, Data Science, &amp; Artificial Intelligence: Systems for Decision Support</i>, 7th ed. Pearson, 2020.</li>
+<li>J. Han, M. Kamber, J. Pei, <i>Data Mining: Concepts and Techniques</i>, 3rd ed. Morgan Kaufmann, 2012.</li>
+<li>F. Burstein, C. W. Holsapple, <i>Handbook on Decision Support Systems</i>. Springer, 2008.</li>
+<li>D. J. Power, <i>Decision Support Systems: Concepts and Resources for Managers</i>. Quorum Books, 2002.</li>
+<li>H. A. Simon, <i>The New Science of Management Decision</i>. Harper &amp; Row, 1960.</li>
+<li>Olist, <i>Brazilian E-Commerce Public Dataset by Olist</i>, Kaggle. https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce</li>
+<li>DuckDB Foundation, <i>DuckDB Documentation</i>. https://duckdb.org/docs</li>
+<li>Huangfu Q., Hall J. A. J., "Parallelizing the dual revised simplex method", <i>Mathematical Programming Computation</i>, 2018 (bộ giải HiGHS dùng trong SciPy).</li>
+</ol>
+
+</body>
+</html>

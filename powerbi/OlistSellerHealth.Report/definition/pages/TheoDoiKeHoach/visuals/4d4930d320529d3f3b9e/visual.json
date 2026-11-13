@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "4d4930d320529d3f3b9e",
+  "position": {
+    "x": 270,
+    "y": 92,
+    "z": 5000,
+    "height": 94,
+    "width": 238,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ke_hoach_da_chot"
+                    }
+                  },
+                  "Property": "GMV rủi ro trong kế hoạch (áp dụng)"
+                }
+              },
+              "queryRef": "ke_hoach_da_chot.GMV rủi ro trong kế hoạch (áp dụng)",
+              "nativeQueryRef": "GMV rủi ro trong kế hoạch (áp dụng)",
+              "displayName": "GMV rủi ro trong kế hoạch"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

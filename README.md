@@ -16,7 +16,7 @@ cd DW_DSS
 docker compose up --build
 ```
 
-Lần đầu mất khoảng 10–15 phút: tải Python, cài thư viện, dựng kho từ 9 CSV, chạy DSS và 126 test. Test hỏng thì build dừng. Khi thấy dòng `You can now view your Streamlit app`, mở http://localhost:8501.
+Lần đầu mất khoảng 10–15 phút: tải Python, cài thư viện, dựng kho từ 9 CSV, chạy DSS và 133 test. Test hỏng thì build dừng. Khi thấy dòng `You can now view your Streamlit app`, mở http://localhost:8501.
 
 Những lần sau chỉ cần `docker compose up`. Tắt bằng `Ctrl+C`. Nếu cổng 8501 đã bị dùng, đổi dòng `"8501:8501"` trong `docker-compose.yml` thành `"8502:8501"` rồi mở http://localhost:8502.
 
@@ -30,9 +30,75 @@ Cần Windows, Python 3.13 và dữ liệu trong `data/olist/raw` (xem [data/REA
 .\run_app.ps1    # mở app tại http://localhost:8501
 ```
 
-Dựng lại mất khoảng 2 phút. Hãy tắt app trước khi dựng lại, vì app đang giữ file database.
+Dựng lại mất khoảng 2 phút và **không cần tắt app**: kho mới được dựng thành một bản phát hành riêng, qua hết kiểm tra mới được đưa vào dùng (xem mục Pipeline).
 
-Venv và database nằm ở `%LOCALAPPDATA%\seller_health`, ngoài OneDrive, để việc đồng bộ không khóa file. Đặt biến `OLIST_DB` nếu muốn đổi vị trí database.
+Venv và database nằm ở `%LOCALAPPDATA%\seller_health`, ngoài OneDrive, để việc đồng bộ không khóa file. Đặt `OLIST_HOME` để đổi thư mục, hoặc `OLIST_DB` để dùng cố định một file (khi đó dựng thẳng vào file đó như trước, không qua bước phát hành).
+
+## Pipeline và điều phối (Dagster)
+
+```powershell
+.\run_pipeline.ps1                          # giao diện Dagster tại http://localhost:3000
+.\run_pipeline.ps1 -Job dung_lai_toan_bo    # chạy toàn bộ, không mở giao diện
+.\run_pipeline.ps1 -Job chay_lai_dss        # giữ kho, chỉ tính lại DSS, test rồi phát hành
+.\run_pipeline.ps1 -Job xuat_power_bi      # chỉ xuất lại Parquet cho Power BI
+python -m src.pipeline.release status       # bản đang dùng, bản trước
+python -m src.pipeline.release rollback     # quay về bản trước
+```
+
+| Asset | Nhóm | Bọc bước | Kiểm tra (asset check) |
+|---|---|---|---|
+| `nguon_csv` | kho | đối chiếu SHA-256 với `data/manifest.json` | — |
+| `kho_du_lieu` | kho | `src.etl.build`: Bronze → Silver → Gold, 26 đợt | `doi_soat_cac_lop` (**chặn**): đủ 26 đợt `ok`, mọi đối soát khớp; `bat_thuong_du_lieu` (cảnh báo) |
+| `dss_khuyen_nghi` | dss | `src.dss.run`: logistic, luật, MILP, đánh giá ngược | — |
+| `danh_muc_du_lieu` | dss | `src.etl.catalog`: mô tả cột, `docs/data_catalog.md` | `kiem_thu_he_thong` (**chặn**): `tests.test_system` |
+| `kho_phat_hanh` | phat_hanh | trỏ `current.json` sang bản mới | — |
+| `xuat_parquet` | phat_hanh | `src.pipeline.powerbi_export`: bảng Gold ra Parquet cho Power BI | — |
+
+Các asset chỉ bọc các bước sẵn có, không viết lại logic, nên số liệu giống hệt `run_all.py`. Mỗi lần chạy dựng vào `releases/olist_run_<id>.duckdb`; check **chặn** không đạt thì các asset sau bị bỏ qua và app vẫn dùng bản cũ. App đọc `current.json` ở mỗi lần tải trang nên tự sang bản mới. Thư mục chỉ giữ bản đang dùng và bản trước. Lịch làm mới hằng ngày lúc 2 giờ sáng có sẵn nhưng mặc định tắt, bật trong giao diện Dagster.
+
+Vì sao không ghi đè lên file cũ: app giữ file kho ở chế độ chỉ đọc, và DuckDB khóa file nên tiến trình khác không mở để ghi được. Ngoài ra, một đợt lỗi giữa chừng sẽ làm hỏng kho đang dùng.
+
+## Hai giao diện, một kho
+
+Cả hai giao diện đọc cùng một bản kho đã phát hành và cùng tên chỉ số trong `metrics.yml`. Không có giao diện nào gửi dữ liệu thẳng cho giao diện kia. Chúng chia nhau theo các pha ra quyết định (Simon):
+
+| Pha | Câu hỏi | Công cụ | Người dùng |
+|---|---|---|---|
+| Nhận biết | Có vấn đề không, ở đâu? | Power BI: KPI tháng, OLAP drill-down, Giao hàng | Quản lý, quản lý vùng (RLS) |
+| Thiết kế | Seller nào cần xử lý, vì sao? | Streamlit: Cần chú ý, Chi tiết seller, What-if tuyến | Trưởng nhóm Seller Success |
+| Lựa chọn | Làm gì với ai trong ngân sách? | Streamlit: Bảng kế hoạch (MILP, kéo thả), Kiểm chứng | Trưởng nhóm Seller Success |
+| Theo dõi | Kế hoạch đang xử lý bao nhiêu GMV rủi ro, ở vùng nào? | Power BI: Theo dõi kế hoạch | Quản lý, quản lý vùng (RLS) |
+
+Power BI không thay được Streamlit: nó không giải được MILP, không ghi lại quyết định và không chạy trong Docker. Streamlit không thay được Power BI: nó không có OLAP server (VertiPaq) và không có phân quyền theo dòng. Hai giao diện dùng chung tông hồng trắng.
+
+## Lớp Power BI (OLAP server, RLS)
+
+Mô hình Tabular nạp vào VertiPaq, có quan hệ star, measure DAX, hierarchy để drill và phân quyền theo dòng (RLS). Báo cáo có 4 trang, đều khóa khoảng 01/2017 – 08/2018 (trừ trang kế hoạch), lọc theo cây Năm → Tháng và ghi rõ "Kỳ đang xem": **KPI tháng** (số chốt sổ), **Doanh số dồn ở đâu?** (cây phân rã vùng → bang → danh mục → hạng, tán xạ danh mục GMV × trễ), **Giao hàng** (trễ do seller hay do vận chuyển), **Kế hoạch** (mở sẵn mốc vừa chốt trên app, bấm một mốc trên đường để xem mốc khác; kế hoạch theo vùng, seller theo hạng, danh sách seller trong kế hoạch).
+
+```powershell
+.\run_pipeline.ps1 -Job xuat_power_bi      # chỉ xuất lại Parquet từ bản đang dùng
+python -m src.pipeline.powerbi_export      # như trên, không qua Dagster
+```
+
+Sau đó mở `powerbi/OlistSellerHealth.pbip` bằng Power BI Desktop rồi bấm **Refresh**. Asset `xuat_parquet` chạy sau `kho_phat_hanh`, nên job `dung_lai_toan_bo` và `chay_lai_dss` cũng tự xuất lại. Parquet nằm ở `%LOCALAPPDATA%\seller_health\powerbi\`, kèm `manifest.json` ghi bản phát hành và số dòng. Máy khác thì đổi tham số `ThuMucParquet` (Transform data > Edit parameters).
+
+| Thành phần | Nội dung |
+|---|---|
+| Bảng | 7 dimension (`dim_date`, `dim_region`, `dim_seller` SCD2, `dim_product`, `dim_location`, `dim_route`, `dim_seller_health`), 3 fact (`fact_sales_item`, `fact_order_seller`, `fact_seller_monthly`), bảng tổng hợp `kpi_monthly` và `dss_recommendation` |
+| Quan hệ | 19 quan hệ một-nhiều, lọc một chiều. `dim_date` nhiều vai: ngày mua đang hoạt động; ngày hẹn và ngày nhận là quan hệ không hoạt động, measure bật bằng `USERELATIONSHIP` |
+| Hierarchy | Lịch (năm → quý → tháng → ngày), Địa lý seller và Địa lý khách (vùng → bang → thành phố), Sản phẩm (danh mục → sản phẩm) |
+| Measure | 32 measure dịch từ `metrics.yml`, chia thư mục: KPI tháng (chốt sổ), OLAP bán hàng, Giao hàng và review, Sức khỏe seller, DSS |
+| RLS | Role **Quản lý vùng Sudeste**: `dim_region[region] = "Sudeste"`, lan qua `dim_seller` tới mọi fact theo seller và qua `kpi_monthly` |
+| What-if | Bảng tham số **Hiệu quả can thiệp** vẫn có trong mô hình nhưng không đặt lên báo cáo: what-if nằm ở Streamlit |
+
+Hai nhóm KPI có chủ ý tách nhau:
+
+- **KPI tháng (chốt sổ)** đọc `mart.kpi_monthly`, là số biết được tại lúc chốt từng tháng. Nếu tính lại từ fact cuối cùng thì review lệch nhẹ, vì điểm review còn đổi sau ngày chốt. Khi có lọc vùng, danh mục, hoặc khi RLS ẩn dòng tổng, measure tự chuyển từ dòng tổng của CUBE sang cộng các dòng chi tiết. Review TB và Seller có bán không cộng được qua nhiều tháng, nên chỉ hiện khi lát cắt đúng một dòng.
+- **OLAP** tính trên fact theo trạng thái cuối của kho (as-of = ngày chốt đợt cuối), cùng định nghĩa với màn OLAP của Streamlit.
+
+MOLAP, ROLAP và HOLAP trên mô hình này: chế độ Import hiện tại là MOLAP (dữ liệu nén cột trong VertiPaq). Đổi partition sang DirectQuery thì thành ROLAP, truy vấn đẩy xuống nguồn. Chế độ Dual hoặc bảng aggregation Import đặt trên fact DirectQuery là HOLAP. `kpi_monthly` chính là một bảng aggregation dựng sẵn bằng CUBE ở kho.
+
+Đối chiếu với DuckDB (chạy DAX qua Power BI Modeling MCP trên Desktop): mỗi tháng của GMV, số đơn, seller có bán, đơn đến hạn, đơn trễ, tỷ lệ trễ và review trung bình đều khớp `mart.kpi_monthly`. Các measure OLAP khớp truy vấn của màn OLAP. Cả hai được kiểm cho toàn sàn và dưới role Sudeste.
 
 ## Kiến trúc
 
@@ -72,18 +138,47 @@ CSV chỉ có trạng thái cuối của đơn. Vì vậy mỗi đợt che đi c
 
 Tài liệu: [thiết kế và báo cáo](docs/thiet-ke-he-thong.md) · [data catalog](docs/data_catalog.md) · [quy tắc đặt tên](docs/naming_conventions.md) · [yêu cầu](docs/requirements.md) · [định nghĩa KPI](metrics.yml) · [truy vấn OLAP](src/sql/olap_examples.sql).
 
-## Sáu màn hình
+### Khép vòng: kế hoạch đã chốt từ app sang Power BI
 
-Mỗi màn hình vừa khung 1440 × 800, không phải cuộn.
+1. Trưởng nhóm chỉnh kế hoạch ở màn **Bảng kế hoạch** rồi bấm **Chốt kế hoạch**. App ghi kế hoạch đang có, kể cả thao tác kéo tay, ra `%LOCALAPPDATA%\seller_health\powerbi\ke_hoach_da_chot.parquet` (`src/app/decisions.py`). Mỗi mốc giữ một bản; chốt lại thì thay.
+2. Power BI đọc file này thành bảng `ke_hoach_da_chot`, nối với `dim_seller` và `dim_date`, nên RLS theo vùng vẫn áp dụng.
+3. Các measure "(áp dụng)" dùng bản đã chốt nếu mốc đó đã chốt, còn không thì dùng đề xuất mặc định của MILP. Thẻ **Nguồn kế hoạch** ghi rõ đang xem bản nào.
+4. Power BI cập nhật khi bấm **Làm mới** (vài giây). Đây không phải thời gian thực: mô hình chạy chế độ Import. Muốn tự động thì đưa lên Power BI Service và đặt lịch làm mới; muốn thời gian thực thật thì phải chuyển kế hoạch sang một cơ sở dữ liệu cho phép DirectQuery.
+
+Đã kiểm: chốt một kế hoạch 27 seller, 1.850 BRL ở mốc 01/09/2018 thì Power BI hiện "Đã chốt trên app", đúng 27 seller, 1.850 BRL, GMV rủi ro 83.869,93; mốc chưa chốt vẫn hiện đề xuất mặc định; dưới role Sudeste chỉ thấy 17 seller của vùng, khớp DuckDB.
+
+### Luật xếp hạng seller
+
+Mỗi mốc as-of, mỗi seller có bán trong 90 ngày được xét **lần lượt từ trên xuống**, dừng ở luật đầu tiên đúng (`src/sql/12_batch_close.sql`):
+
+| Thứ tự | Hạng | Điều kiện | Ý nghĩa |
+|---|---|---|---|
+| 1 | **Tạm ngừng** | quá 45 ngày không có đơn | Đã ngừng bán, gọi giữ chân ít tác dụng |
+| 2 | **Ít đơn** | dưới 6 đơn trong 90 ngày | Quá ít dữ liệu để đánh giá |
+| 3 | **Nguy cơ** | (xu hướng < −50% **và** quá 21 ngày không bán) **hoặc** (giao vận chuyển trễ ≥ 30% **và** có ít nhất 5 đơn đã tới hạn bàn giao) | Đang sụt mạnh hoặc vận hành rất kém |
+| 4 | **Theo dõi** | xu hướng < −40% **hoặc** giao vận chuyển trễ ≥ 15% (có ít nhất 5 đơn) **hoặc** review trung bình < 3,5 | Có dấu hiệu xấu nhưng chưa nặng |
+| 5 | **Vàng** | GMV 90 ngày thuộc top 20% seller đang bán | Seller lớn, khỏe |
+| 6 | **Ổn định** | còn lại | Bình thường |
+
+Xu hướng = GMV 30 ngày ÷ (GMV 90 ngày ÷ 3) − 1, tức là tháng gần nhất so với trung bình 3 tháng. Seller chưa bán lần nào là **Chưa hoạt động**.
+
+Có hai loại hạng. **Hạng tháng** tính lại mỗi mốc theo bảng trên (`mart.seller_features`, `dim_seller_health`). **Hạng ổn định** nằm trong `dim_seller` (SCD2) và chỉ đổi khi hạng tháng giữ nguyên 2 kỳ liên tiếp, để tránh một tháng xấu ngẫu nhiên làm seller đổi hạng.
+
+Hạng là **luật để mô tả**; kế hoạch gọi ai do **mô hình và bộ tối ưu** quyết. Vì vậy một seller có thể ở hạng Nguy cơ mà không được gọi (khả năng sụt dưới ngưỡng, ngoài top 20% GMV, hoặc hết ngân sách). Màn Cần chú ý ghi rõ lý do ở cột Xử lý.
+
+## Năm màn hình Streamlit, hai luồng quyết định
+
+Mỗi màn hình vừa khung 1440 × 800, không phải cuộn. Cửa sổ khác cỡ thì bố cục tự dàn theo chiều rộng thật và chữ co nhẹ theo bề ngang, nên biểu đồ luôn lấp kín ô; cửa sổ thấp hơn 800 thì cuộn dọc. Danh sách màn hình nằm ở sidebar bên trái, mặc định thu gọn, bấm » ở góc trên để mở.
 
 | Màn hình | Câu hỏi được trả lời | Quyết định rút ra |
 |---|---|---|
-| Tổng quan | Tháng này có gì bất thường? GMV nào đang rủi ro? | Tập trung vào đâu |
-| Lỗi giao trễ | Trễ do seller hay do vận chuyển? | Hỗ trợ seller hay sửa tuyến |
-| Chi tiết seller | Seller này sụt ở đâu, vì sao? | Can thiệp kiểu gì |
-| Bảng kế hoạch | Với ngân sách này thì làm gì với ai? (kéo thả) | Danh sách hành động, xuất CSV |
-| What-if tuyến | Hứa thêm N ngày thì tỷ lệ trễ còn bao nhiêu? | Có đổi lời hẹn không |
-| Kiểm chứng | Các tháng trước danh sách trúng bao nhiêu? | Có nên tin hệ thống không |
+| 1 · Cần chú ý tháng này | Seller nào vừa rơi vào Nguy cơ, vì sao chưa được xử lý? | Mở hồ sơ seller nào trước (bấm dòng) |
+| 2 · Chi tiết seller | Seller này sụt ở đâu, lỗi ở khâu seller hay vận chuyển? | Hỗ trợ seller hay chuyển sang luồng giao nhận |
+| 3 · Bảng kế hoạch | Với ngân sách và số suất này thì làm gì với ai? (kéo thả, kịch bản, khoảng P10–P90) | Danh sách hành động, xuất CSV |
+| 4 · Kiểm chứng | Các tháng trước danh sách trúng bao nhiêu, kế hoạch đổi bao nhiêu khi giả định đổi? | Có nên tin hệ thống không |
+| What-if hẹn giao (luồng giao nhận) | Hứa thêm N ngày trên tuyến thì tỷ lệ trễ còn bao nhiêu? | Có đổi lời hẹn không (Quản lý vận hành) |
+
+Màn Tổng quan, Lỗi giao trễ và Đa chiều (OLAP) cũ vẫn còn trong `src/app/` nhưng không còn trên menu: phần theo dõi KPI, OLAP và giao hàng đã chuyển sang Power BI.
 
 ## Thành phần DSS
 
@@ -94,6 +189,7 @@ Mỗi màn hình vừa khung 1440 × 800, không phải cuộn.
 | Bảng luật và lý do bằng chữ | Luật theo rủi ro, giá trị, vận hành | `src/dss/rules.py` |
 | Tối ưu kế hoạch | MILP: mỗi seller tối đa 1 hành động, giới hạn ngân sách và số suất | `src/dss/optimize.py` |
 | What-if | Tính lại kế hoạch, tính lại tỷ lệ trễ trên đơn lịch sử | `src/app/screens_dss.py` |
+| Mô phỏng Monte Carlo | Seller sụt hay không theo khả năng sụt, hiệu quả rút quanh giả định ± độ bất định; ra khoảng P10–P90 của GMV giữ được | `src/dss/simulate.py` |
 
 Ngưỡng rủi ro và ngân sách mặc định được chọn trên 09/2017–02/2018 (`scripts/tune_threshold.py`). Các tháng 03–07/2018 chỉ dùng để báo cáo kết quả.
 
@@ -123,17 +219,22 @@ Hệ thống gọi trúng nhiều hơn, nhưng bao phủ ít tiền hơn ở 4/5
 python -m tests.test_system   # nguồn, các lớp, đối soát, chống rò rỉ, tối ưu, cổng chất lượng
 python -m tests.test_edges    # mọi màn hình trên mọi mốc as-of
 python -m tests.test_ui       # trình duyệt thật: cần chạy app ở cổng 8599 và cài requirements-dev.txt
+python -m tests.test_release  # bản phát hành: phát hành khi app đang mở, dọn dẹp, quay lui
 ```
 
 Kết quả được ghi vào `evidence/`, kèm ảnh chụp giao diện trong `evidence/screenshots/`.
+
+Tên chỉ số, hành động, hạng và chiều dùng chung cho app, Power BI, CSV và báo cáo: [docs/tu-dien-ten.md](docs/tu-dien-ten.md).
 
 ## Cấu trúc thư mục
 
 ```
 src/etl/      điều phối các đợt nạp, kiểm tra nguồn, sinh data catalog
+src/pipeline/ Dagster (asset, asset check, job, lịch) và quản lý bản phát hành kho
 src/sql/      schema, staging, dimension, từng đợt, đối soát, truy vấn OLAP
 src/dss/      điểm số, luật, tối ưu
 src/app/      giao diện Streamlit, component kéo thả tự viết
+powerbi/      Power BI Project (PBIP): mô hình TMDL, 3 trang báo cáo PBIR
 tests/        kiểm thử
 scripts/      manifest, sơ đồ, thử khả thi, chọn ngưỡng, dữ liệu mẫu
 evidence/     số liệu và hình cho báo cáo
@@ -142,3 +243,14 @@ docs/         thiết kế, data catalog, quy tắc đặt tên, yêu cầu, sơ
 catalog.yml   mô tả bảng và cột
 metrics.yml   định nghĩa KPI
 ```
+
+## Báo cáo
+
+Báo cáo PDF nằm ở `report/BaoCao_SellerHealth_CO4031.pdf`, nội dung ở `report/bao_cao.html`. Mọi biểu đồ được vẽ lại từ kho và từ `evidence/`, không gõ tay số liệu. Sau khi sửa nội dung hoặc dựng lại kho:
+
+```powershell
+python report/make_figures.py   # vẽ lại biểu đồ SVG từ kho
+python report/build_pdf.py      # xuất PDF bằng Edge và Paged.js (cần playwright trong requirements-dev.txt)
+```
+
+Ô tô vàng trên bìa và ở Phụ lục A là thông tin nhóm cần điền: số nhóm, MSSV, thành viên, link video, phân công.

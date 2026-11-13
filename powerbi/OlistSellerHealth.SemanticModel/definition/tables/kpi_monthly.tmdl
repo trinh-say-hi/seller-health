@@ -1,0 +1,201 @@
+/// KPI chốt sổ từng tháng (mart.kpi_monthly, CUBE vùng × danh mục). Dòng is_all_* là dòng tổng của CUBE.
+table kpi_monthly
+	lineageTag: c2577930-4102-5295-8a4d-a369a570eece
+
+	/// gmv: Tổng tiền hàng của các đơn không bị hủy mua trong tháng, chưa gồm phí vận chuyển. Số chốt sổ từ mart.kpi_monthly.
+	measure 'GMV tháng' =
+			VAR coTongVung = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_region] = TRUE () ) )
+			VAR coTongDanhMuc = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_category] = TRUE () ) )
+			RETURN
+			    CALCULATE ( SUM ( kpi_monthly[gmv] ), kpi_monthly[is_all_region] = coTongVung, kpi_monthly[is_all_category] = coTongDanhMuc )
+		formatString: #,0.00
+		displayFolder: KPI tháng (chốt sổ)
+		lineageTag: 41bee45b-d5bd-5fd9-8a73-72a6c263b297
+
+	/// orders: Số đơn không bị hủy mua trong tháng. Chọn nhiều vùng hoặc danh mục thì đơn thuộc nhiều nhóm được đếm ở mỗi nhóm.
+	measure 'Số đơn tháng' =
+			VAR coTongVung = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_region] = TRUE () ) )
+			VAR coTongDanhMuc = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_category] = TRUE () ) )
+			RETURN
+			    CALCULATE ( SUM ( kpi_monthly[n_orders] ), kpi_monthly[is_all_region] = coTongVung, kpi_monthly[is_all_category] = coTongDanhMuc )
+		formatString: #,0
+		displayFolder: KPI tháng (chốt sổ)
+		lineageTag: b8c2376f-a91a-5cbf-ab2b-d5411a41ecae
+
+	/// active_sellers_month: Số seller có ít nhất một đơn không bị hủy trong tháng. Không cộng qua nhiều tháng.
+	measure 'Seller có bán tháng' =
+			VAR coTongVung = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_region] = TRUE () ) )
+			VAR coTongDanhMuc = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_category] = TRUE () ) )
+			RETURN
+			    IF (
+			        DISTINCTCOUNT ( kpi_monthly[month] ) = 1,
+			        CALCULATE ( SUM ( kpi_monthly[n_sellers] ), kpi_monthly[is_all_region] = coTongVung, kpi_monthly[is_all_category] = coTongDanhMuc )
+			    )
+		formatString: #,0
+		displayFolder: KPI tháng (chốt sổ)
+		lineageTag: 328247b3-0f34-5cc5-805c-9ae9f6890d33
+
+	/// Số đơn có ngày hẹn trong tháng.
+	measure 'Đơn đến hạn tháng' =
+			VAR coTongVung = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_region] = TRUE () ) )
+			VAR coTongDanhMuc = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_category] = TRUE () ) )
+			RETURN
+			    CALCULATE ( SUM ( kpi_monthly[n_due_orders] ), kpi_monthly[is_all_region] = coTongVung, kpi_monthly[is_all_category] = coTongDanhMuc )
+		formatString: #,0
+		displayFolder: KPI tháng (chốt sổ)
+		lineageTag: 64641bf3-9046-5e61-873e-61c9032b2668
+
+	/// Số đơn đến hạn trong tháng mà chưa giao hoặc giao sau ngày hẹn, biết tại lúc chốt tháng.
+	measure 'Đơn trễ tháng' =
+			VAR coTongVung = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_region] = TRUE () ) )
+			VAR coTongDanhMuc = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_category] = TRUE () ) )
+			RETURN
+			    CALCULATE ( SUM ( kpi_monthly[n_late_orders] ), kpi_monthly[is_all_region] = coTongVung, kpi_monthly[is_all_category] = coTongDanhMuc )
+		formatString: #,0
+		displayFolder: KPI tháng (chốt sổ)
+		lineageTag: 07ce8819-c170-5270-9a95-480482111bee
+
+	/// late_rate_month: Số đơn trễ / số đơn đến hạn, theo tháng hẹn. Khác tỷ lệ theo tháng mua ở nhóm OLAP.
+	measure 'Tỷ lệ trễ hẹn tháng' = DIVIDE ( [Đơn trễ tháng], [Đơn đến hạn tháng] )
+		formatString: 0.00%
+		displayFolder: KPI tháng (chốt sổ)
+		lineageTag: 54907a33-189b-5e24-a939-b4016a9a95ad
+
+	/// avg_review_month: Điểm trung bình review trả lời trong tháng. Kho không lưu số review nên chỉ hiện khi lát cắt là đúng một dòng (một tháng, một vùng, một danh mục).
+	measure 'Review TB tháng' =
+			VAR coTongVung = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_region] = TRUE () ) )
+			VAR coTongDanhMuc = NOT ISEMPTY ( CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_category] = TRUE () ) )
+			VAR dong = CALCULATETABLE ( kpi_monthly, kpi_monthly[is_all_region] = coTongVung, kpi_monthly[is_all_category] = coTongDanhMuc )
+			RETURN
+			    IF ( COUNTROWS ( dong ) = 1, MAXX ( dong, kpi_monthly[avg_review] ) )
+		formatString: 0.000
+		displayFolder: KPI tháng (chốt sổ)
+		lineageTag: 9a5d1ad0-2cb2-54b6-bdf3-cc9cc31c5db0
+
+	/// Ngày đầu tháng dạng YYYYMMDD, trỏ tới dim_date.
+	column month_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7a4322aa-0614-560a-b370-df2349d096de
+		summarizeBy: none
+		sourceColumn: month_key
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Ngày đầu tháng.
+	column month
+		dataType: dateTime
+		isHidden
+		formatString: dd/MM/yyyy
+		lineageTag: 89ada903-ea0f-5299-99c9-deee12b5d077
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Vùng của Brazil.
+	column region
+		dataType: string
+		lineageTag: 50b33ae8-c072-5f17-a3a6-9bbf1c3a7852
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Danh mục sản phẩm tiếng Anh.
+	column category_en
+		dataType: string
+		lineageTag: 939e488f-4e14-55a8-9a5e-7b91d6d6a676
+		summarizeBy: none
+		sourceColumn: category_en
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Dòng tổng mọi vùng của CUBE.
+	column is_all_region
+		dataType: boolean
+		lineageTag: 28656fdc-50cf-514e-8dce-a7157497e1b2
+		summarizeBy: none
+		sourceColumn: is_all_region
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Dòng tổng mọi danh mục của CUBE.
+	column is_all_category
+		dataType: boolean
+		lineageTag: ba55d7d2-cdf6-583e-b002-f30b735e257b
+		summarizeBy: none
+		sourceColumn: is_all_category
+
+		annotation SummarizationSetBy = Automatic
+
+	/// GMV, BRL.
+	column gmv
+		dataType: decimal
+		formatString: #,0.00
+		lineageTag: c4238218-518a-58e3-b21f-21fdb9c5c357
+		summarizeBy: none
+		sourceColumn: gmv
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số đơn.
+	column n_orders
+		dataType: int64
+		formatString: 0
+		lineageTag: 572b33b5-bcff-573f-83e8-a78611ad3a52
+		summarizeBy: none
+		sourceColumn: n_orders
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số seller có bán.
+	column n_sellers
+		dataType: int64
+		formatString: 0
+		lineageTag: 66a00787-51a0-5efc-aeb6-f1fddcb43ce1
+		summarizeBy: none
+		sourceColumn: n_sellers
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số đơn đến hạn trong tháng.
+	column n_due_orders
+		dataType: int64
+		formatString: 0
+		lineageTag: 3bdda003-deed-5770-a923-3b8cf79fced1
+		summarizeBy: none
+		sourceColumn: n_due_orders
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Số đơn trễ trong các đơn đến hạn.
+	column n_late_orders
+		dataType: int64
+		formatString: 0
+		lineageTag: fb23b090-931c-5ebf-8846-1c733f4a62c7
+		summarizeBy: none
+		sourceColumn: n_late_orders
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Review trung bình, trả lời trong tháng.
+	column avg_review
+		dataType: double
+		lineageTag: dfd0fbca-13df-5cff-b86a-43fee21eb954
+		summarizeBy: none
+		sourceColumn: avg_review
+
+		annotation SummarizationSetBy = Automatic
+
+	partition kpi_monthly = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "kpi_monthly.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

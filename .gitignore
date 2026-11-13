@@ -16,3 +16,7 @@ credentials.json
 
 # Lakehouse generated parquets
 data/lake/
+
+# File tam khi xuat bao cao
+report/_print.html
+report/_review.html

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "f2d96139286a518941ac",
+  "position": {
+    "x": 1020,
+    "y": 92,
+    "z": 8000,
+    "height": 94,
+    "width": 238,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ke_hoach_da_chot"
+                    }
+                  },
+                  "Property": "Tiền đã dùng (áp dụng)"
+                }
+              },
+              "queryRef": "ke_hoach_da_chot.Tiền đã dùng (áp dụng)",
+              "nativeQueryRef": "Tiền đã dùng (áp dụng)",
+              "displayName": "Tiền đã dùng (BRL)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

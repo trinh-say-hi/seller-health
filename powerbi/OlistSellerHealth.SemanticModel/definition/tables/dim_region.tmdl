@@ -1,0 +1,23 @@
+/// Vùng của Brazil. Lọc dim_seller và kpi_monthly; RLS theo vùng đặt trên bảng này.
+table dim_region
+	lineageTag: 4e6dadb5-0aff-5c9e-96f7-0110870758e2
+
+	/// Vùng của Brazil.
+	column region
+		dataType: string
+		lineageTag: 11b0e0c6-78e5-54db-8012-39b3e1c7aa3e
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_region = m
+		mode: import
+		source =
+				let
+				    Nguon = Parquet.Document ( File.Contents ( ThuMucParquet & "dim_region.parquet" ) )
+				in
+				    Nguon
+
+	annotation PBI_ResultType = Table
+

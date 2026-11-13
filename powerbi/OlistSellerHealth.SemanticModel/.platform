@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "OlistSellerHealth"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "937ff16e-a57c-5eb4-a2e2-14e79318d017"
+  }
+}

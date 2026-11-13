@@ -1,692 +1,457 @@
 [
  {
   "as_of": "01/09/2017",
-  "screen": "Tổng quan",
+  "screen": "Cần chú ý",
   "ok": true,
-  "seconds": 0.15,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.29,
+  "seconds": 0.42,
   "error": []
  },
  {
   "as_of": "01/09/2017",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.14,
+  "seconds": 1.08,
   "error": []
  },
  {
   "as_of": "01/09/2017",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 6.21,
+  "error": []
+ },
+ {
+  "as_of": "01/09/2017",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.42,
+  "error": []
+ },
+ {
+  "as_of": "01/09/2017",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.68,
+  "error": []
+ },
+ {
+  "as_of": "01/10/2017",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.42,
+  "error": []
+ },
+ {
+  "as_of": "01/10/2017",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 1.15,
+  "error": []
+ },
+ {
+  "as_of": "01/10/2017",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 1.16,
+  "error": []
+ },
+ {
+  "as_of": "01/10/2017",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.33,
+  "error": []
+ },
+ {
+  "as_of": "01/10/2017",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 1.23,
+  "error": []
+ },
+ {
+  "as_of": "01/11/2017",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.56,
+  "error": []
+ },
+ {
+  "as_of": "01/11/2017",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.73,
+  "error": []
+ },
+ {
+  "as_of": "01/11/2017",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 1.04,
+  "error": []
+ },
+ {
+  "as_of": "01/11/2017",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.28,
+  "error": []
+ },
+ {
+  "as_of": "01/11/2017",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.53,
+  "error": []
+ },
+ {
+  "as_of": "01/12/2017",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.33,
+  "error": []
+ },
+ {
+  "as_of": "01/12/2017",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.61,
+  "error": []
+ },
+ {
+  "as_of": "01/12/2017",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 1.1,
+  "error": []
+ },
+ {
+  "as_of": "01/12/2017",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.21,
+  "error": []
+ },
+ {
+  "as_of": "01/12/2017",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.41,
+  "error": []
+ },
+ {
+  "as_of": "01/01/2018",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.55,
+  "error": []
+ },
+ {
+  "as_of": "01/01/2018",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.76,
+  "error": []
+ },
+ {
+  "as_of": "01/01/2018",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 2.77,
+  "error": []
+ },
+ {
+  "as_of": "01/01/2018",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.25,
+  "error": []
+ },
+ {
+  "as_of": "01/01/2018",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.37,
+  "error": []
+ },
+ {
+  "as_of": "01/02/2018",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.29,
+  "error": []
+ },
+ {
+  "as_of": "01/02/2018",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.93,
+  "error": []
+ },
+ {
+  "as_of": "01/02/2018",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 0.62,
+  "error": []
+ },
+ {
+  "as_of": "01/02/2018",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.17,
+  "error": []
+ },
+ {
+  "as_of": "01/02/2018",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.38,
+  "error": []
+ },
+ {
+  "as_of": "01/03/2018",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.29,
+  "error": []
+ },
+ {
+  "as_of": "01/03/2018",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.36,
+  "error": []
+ },
+ {
+  "as_of": "01/03/2018",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 0.73,
+  "error": []
+ },
+ {
+  "as_of": "01/03/2018",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.16,
+  "error": []
+ },
+ {
+  "as_of": "01/03/2018",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.32,
+  "error": []
+ },
+ {
+  "as_of": "01/04/2018",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.22,
+  "error": []
+ },
+ {
+  "as_of": "01/04/2018",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.3,
+  "error": []
+ },
+ {
+  "as_of": "01/04/2018",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 0.76,
+  "error": []
+ },
+ {
+  "as_of": "01/04/2018",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.31,
+  "error": []
+ },
+ {
+  "as_of": "01/04/2018",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.65,
+  "error": []
+ },
+ {
+  "as_of": "01/05/2018",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.42,
+  "error": []
+ },
+ {
+  "as_of": "01/05/2018",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.57,
+  "error": []
+ },
+ {
+  "as_of": "01/05/2018",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 0.98,
+  "error": []
+ },
+ {
+  "as_of": "01/05/2018",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.25,
+  "error": []
+ },
+ {
+  "as_of": "01/05/2018",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.43,
+  "error": []
+ },
+ {
+  "as_of": "01/06/2018",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.39,
+  "error": []
+ },
+ {
+  "as_of": "01/06/2018",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.5,
+  "error": []
+ },
+ {
+  "as_of": "01/06/2018",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 0.79,
+  "error": []
+ },
+ {
+  "as_of": "01/06/2018",
+  "screen": "What-if tuyến",
+  "ok": true,
+  "seconds": 0.22,
+  "error": []
+ },
+ {
+  "as_of": "01/06/2018",
+  "screen": "Kiểm chứng",
+  "ok": true,
+  "seconds": 0.4,
+  "error": []
+ },
+ {
+  "as_of": "01/07/2018",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.26,
+  "error": []
+ },
+ {
+  "as_of": "01/07/2018",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.44,
+  "error": []
+ },
+ {
+  "as_of": "01/07/2018",
   "screen": "Bảng kế hoạch",
   "ok": true,
   "seconds": 0.91,
   "error": []
  },
  {
-  "as_of": "01/09/2017",
+  "as_of": "01/07/2018",
   "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.07,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.11,
-  "error": []
- },
- {
-  "as_of": "01/10/2017",
-  "screen": "Tổng quan",
-  "ok": true,
-  "seconds": 0.12,
-  "error": []
- },
- {
-  "as_of": "01/10/2017",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.14,
-  "error": []
- },
- {
-  "as_of": "01/10/2017",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.09,
-  "error": []
- },
- {
-  "as_of": "01/10/2017",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.11,
-  "error": []
- },
- {
-  "as_of": "01/10/2017",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.05,
-  "error": []
- },
- {
-  "as_of": "01/10/2017",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.11,
-  "error": []
- },
- {
-  "as_of": "01/11/2017",
-  "screen": "Tổng quan",
-  "ok": true,
-  "seconds": 0.13,
-  "error": []
- },
- {
-  "as_of": "01/11/2017",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.15,
-  "error": []
- },
- {
-  "as_of": "01/11/2017",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.08,
-  "error": []
- },
- {
-  "as_of": "01/11/2017",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.12,
-  "error": []
- },
- {
-  "as_of": "01/11/2017",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.04,
-  "error": []
- },
- {
-  "as_of": "01/11/2017",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.09,
-  "error": []
- },
- {
-  "as_of": "01/12/2017",
-  "screen": "Tổng quan",
-  "ok": true,
-  "seconds": 0.12,
-  "error": []
- },
- {
-  "as_of": "01/12/2017",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.2,
-  "error": []
- },
- {
-  "as_of": "01/12/2017",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.09,
-  "error": []
- },
- {
-  "as_of": "01/12/2017",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.15,
-  "error": []
- },
- {
-  "as_of": "01/12/2017",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.05,
-  "error": []
- },
- {
-  "as_of": "01/12/2017",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.09,
-  "error": []
- },
- {
-  "as_of": "01/01/2018",
-  "screen": "Tổng quan",
-  "ok": true,
-  "seconds": 0.15,
-  "error": []
- },
- {
-  "as_of": "01/01/2018",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.19,
-  "error": []
- },
- {
-  "as_of": "01/01/2018",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.13,
-  "error": []
- },
- {
-  "as_of": "01/01/2018",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.6,
-  "error": []
- },
- {
-  "as_of": "01/01/2018",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.06,
-  "error": []
- },
- {
-  "as_of": "01/01/2018",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.09,
-  "error": []
- },
- {
-  "as_of": "01/02/2018",
-  "screen": "Tổng quan",
-  "ok": true,
-  "seconds": 0.13,
-  "error": []
- },
- {
-  "as_of": "01/02/2018",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.15,
-  "error": []
- },
- {
-  "as_of": "01/02/2018",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.11,
-  "error": []
- },
- {
-  "as_of": "01/02/2018",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.12,
-  "error": []
- },
- {
-  "as_of": "01/02/2018",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.04,
-  "error": []
- },
- {
-  "as_of": "01/02/2018",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.11,
-  "error": []
- },
- {
-  "as_of": "01/03/2018",
-  "screen": "Tổng quan",
-  "ok": true,
-  "seconds": 0.12,
-  "error": []
- },
- {
-  "as_of": "01/03/2018",
-  "screen": "Lỗi giao trễ",
   "ok": true,
   "seconds": 0.22,
   "error": []
  },
  {
-  "as_of": "01/03/2018",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.1,
-  "error": []
- },
- {
-  "as_of": "01/03/2018",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.13,
-  "error": []
- },
- {
-  "as_of": "01/03/2018",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.07,
-  "error": []
- },
- {
-  "as_of": "01/03/2018",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.1,
-  "error": []
- },
- {
-  "as_of": "01/04/2018",
-  "screen": "Tổng quan",
-  "ok": true,
-  "seconds": 0.13,
-  "error": []
- },
- {
-  "as_of": "01/04/2018",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.17,
-  "error": []
- },
- {
-  "as_of": "01/04/2018",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.09,
-  "error": []
- },
- {
-  "as_of": "01/04/2018",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.16,
-  "error": []
- },
- {
-  "as_of": "01/04/2018",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.06,
-  "error": []
- },
- {
-  "as_of": "01/04/2018",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.09,
-  "error": []
- },
- {
-  "as_of": "01/05/2018",
-  "screen": "Tổng quan",
-  "ok": true,
-  "seconds": 0.13,
-  "error": []
- },
- {
-  "as_of": "01/05/2018",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.16,
-  "error": []
- },
- {
-  "as_of": "01/05/2018",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.08,
-  "error": []
- },
- {
-  "as_of": "01/05/2018",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.12,
-  "error": []
- },
- {
-  "as_of": "01/05/2018",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.04,
-  "error": []
- },
- {
-  "as_of": "01/05/2018",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.09,
-  "error": []
- },
- {
-  "as_of": "01/06/2018",
-  "screen": "Tổng quan",
-  "ok": true,
-  "seconds": 0.12,
-  "error": []
- },
- {
-  "as_of": "01/06/2018",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.17,
-  "error": []
- },
- {
-  "as_of": "01/06/2018",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.1,
-  "error": []
- },
- {
-  "as_of": "01/06/2018",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.12,
-  "error": []
- },
- {
-  "as_of": "01/06/2018",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.07,
-  "error": []
- },
- {
-  "as_of": "01/06/2018",
-  "screen": "Kiểm chứng",
-  "ok": true,
-  "seconds": 0.11,
-  "error": []
- },
- {
-  "as_of": "01/07/2018",
-  "screen": "Tổng quan",
-  "ok": true,
-  "seconds": 0.13,
-  "error": []
- },
- {
-  "as_of": "01/07/2018",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.14,
-  "error": []
- },
- {
-  "as_of": "01/07/2018",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.1,
-  "error": []
- },
- {
-  "as_of": "01/07/2018",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.13,
-  "error": []
- },
- {
-  "as_of": "01/07/2018",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.05,
-  "error": []
- },
- {
   "as_of": "01/07/2018",
   "screen": "Kiểm chứng",
   "ok": true,
-  "seconds": 0.1,
+  "seconds": 0.5,
   "error": []
  },
  {
   "as_of": "01/08/2018",
-  "screen": "Tổng quan",
+  "screen": "Cần chú ý",
   "ok": true,
-  "seconds": 0.13,
-  "error": []
- },
- {
-  "as_of": "01/08/2018",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.15,
+  "seconds": 0.41,
   "error": []
  },
  {
   "as_of": "01/08/2018",
   "screen": "Chi tiết seller",
   "ok": true,
-  "seconds": 0.11,
+  "seconds": 0.47,
   "error": []
  },
  {
   "as_of": "01/08/2018",
   "screen": "Bảng kế hoạch",
   "ok": true,
-  "seconds": 0.12,
+  "seconds": 0.82,
   "error": []
  },
  {
   "as_of": "01/08/2018",
   "screen": "What-if tuyến",
   "ok": true,
-  "seconds": 0.04,
+  "seconds": 0.22,
   "error": []
  },
  {
   "as_of": "01/08/2018",
   "screen": "Kiểm chứng",
   "ok": true,
-  "seconds": 0.09,
+  "seconds": 0.39,
   "error": []
  },
  {
   "as_of": "01/09/2018",
-  "screen": "Tổng quan",
+  "screen": "Cần chú ý",
+  "ok": true,
+  "seconds": 0.24,
+  "error": []
+ },
+ {
+  "as_of": "01/09/2018",
+  "screen": "Chi tiết seller",
+  "ok": true,
+  "seconds": 0.37,
+  "error": []
+ },
+ {
+  "as_of": "01/09/2018",
+  "screen": "Bảng kế hoạch",
+  "ok": true,
+  "seconds": 0.53,
+  "error": []
+ },
+ {
+  "as_of": "01/09/2018",
+  "screen": "What-if tuyến",
   "ok": true,
   "seconds": 0.14,
   "error": []
  },
  {
   "as_of": "01/09/2018",
-  "screen": "Lỗi giao trễ",
-  "ok": true,
-  "seconds": 0.17,
-  "error": []
- },
- {
-  "as_of": "01/09/2018",
-  "screen": "Chi tiết seller",
-  "ok": true,
-  "seconds": 0.15,
-  "error": []
- },
- {
-  "as_of": "01/09/2018",
-  "screen": "Bảng kế hoạch",
-  "ok": true,
-  "seconds": 0.12,
-  "error": []
- },
- {
-  "as_of": "01/09/2018",
-  "screen": "What-if tuyến",
-  "ok": true,
-  "seconds": 0.05,
-  "error": []
- },
- {
-  "as_of": "01/09/2018",
   "screen": "Kiểm chứng",
   "ok": true,
-  "seconds": 0.1,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Tất cả/home_comfort_2",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Tất cả/cds_dvds_musicals",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Tất cả/fashion_childrens_clothes",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Tất cả/security_and_services",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Centro-Oeste/home_comfort_2",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Centro-Oeste/cds_dvds_musicals",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Centro-Oeste/fashion_childrens_clothes",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Centro-Oeste/security_and_services",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Nordeste/home_comfort_2",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Nordeste/cds_dvds_musicals",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Nordeste/fashion_childrens_clothes",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Nordeste/security_and_services",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Norte/home_comfort_2",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Norte/cds_dvds_musicals",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Norte/fashion_childrens_clothes",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Norte/security_and_services",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Sudeste/home_comfort_2",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Sudeste/cds_dvds_musicals",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Sudeste/fashion_childrens_clothes",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Sudeste/security_and_services",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Sul/home_comfort_2",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Sul/cds_dvds_musicals",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Sul/fashion_childrens_clothes",
-  "ok": true,
-  "error": []
- },
- {
-  "as_of": "01/09/2017",
-  "screen": "Tổng quan: Sul/security_and_services",
-  "ok": true,
+  "seconds": 0.32,
   "error": []
  }
 ]

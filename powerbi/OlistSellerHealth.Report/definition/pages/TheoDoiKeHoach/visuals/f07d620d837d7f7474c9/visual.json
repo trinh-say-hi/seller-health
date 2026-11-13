@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "f07d620d837d7f7474c9",
+  "position": {
+    "x": 770,
+    "y": 92,
+    "z": 7000,
+    "height": 94,
+    "width": 238,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ke_hoach_da_chot"
+                    }
+                  },
+                  "Property": "Seller trong kế hoạch (áp dụng)"
+                }
+              },
+              "queryRef": "ke_hoach_da_chot.Seller trong kế hoạch (áp dụng)",
+              "nativeQueryRef": "Seller trong kế hoạch (áp dụng)",
+              "displayName": "Seller trong kế hoạch"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

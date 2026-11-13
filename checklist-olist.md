@@ -102,3 +102,105 @@ Chi tiết các chương nằm trong `ke-hoach-bao-cao.md`.
 - [ ] Nếu làm video: 10–15 phút, mọi thành viên xuất hiện, link trên bìa, đã thử mở khi không đăng nhập
 - [ ] Không có credentials hay file lớn trong repo
 - [ ] Đã mở thử ZIP và nộp LMS trước 23:59 ngày 15/11/2026
+
+## 10. Power BI và Streamlit: việc còn treo (ghi 13/11/2026)
+
+Người dùng, phân quyền, luồng insight → hành động và kết quả quét từng thẻ Streamlit: [docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md](docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md).
+
+Nhánh `power-bi` (local, chưa push). Sửa file report thì phải đóng Power BI Desktop trước, vì Desktop lưu đè lên.
+
+**Phần thời gian trên Power BI (đã chốt cách làm, chưa sửa):**
+- [ ] Ô lọc thời gian đổi từ chỉ Năm sang cây Năm → Tháng (dropdown) ở trang KPI, OLAP, Giao hàng, Theo dõi kế hoạch
+- [ ] Khóa khoảng 01/2017 – 08/2018 cho trang KPI, OLAP, Giao hàng (2016 quá ít đơn, 09–10/2018 dữ liệu đã hết nên GMV rơi về 0). Trang Theo dõi kế hoạch giữ nguyên vì as-of cuối là 01/09/2018
+- [ ] Thêm ô "Kỳ đang xem" cạnh tiêu đề trang (không lọc: 01/2017 – 08/2018; bấm cột 2018-06: 06/2018)
+- [ ] Đổi tên thẻ trang KPI: "GMV (chốt sổ)", "Số đơn (chốt sổ)", "Tỷ lệ trễ hẹn (chốt sổ)", "Đơn trễ (chốt sổ)"; bỏ chữ "tháng" gây hiểu nhầm
+- [ ] Trục biểu đồ "Seller có bán theo tháng" đang hiện chữ "nghìn" mà mất số: tắt đơn vị hiển thị
+
+**Lỗi thấy ở trang OLAP drill-down:**
+- [ ] Ma trận địa lý đang mở thẳng ở cấp Thành phố (mất ngữ cảnh vùng, bang); phải mặc định ở cấp Vùng, bấm + mới xuống Bang, Thành phố
+- [ ] Có một thanh cuộn xám ở giữa phần tiêu đề: ô tiêu đề thấp quá so với 2 dòng chữ, cần tăng chiều cao hoặc bỏ thanh cuộn
+
+**Trình bày lại trang OLAP (đã chốt hướng, chưa làm):**
+- [ ] Đổi tên trang thành "Doanh số dồn ở đâu?"; dòng phụ ghi "Số mới nhất của kho" (trang KPI ghi "Số chốt sổ từng tháng")
+- [ ] Thay ma trận địa lý dài bằng cây phân rã (Decomposition Tree): GMV tách theo Vùng → Bang → Danh mục → Hạng, chỉ mở nhánh được bấm
+- [ ] Thay bảng 71 danh mục bằng biểu đồ tán xạ: trục ngang GMV, trục dọc tỷ lệ trễ, cỡ chấm là số đơn, 2 đường kẻ trung bình chia 4 góc; góc phải trên là danh mục lớn mà hay trễ
+- [ ] Nếu vẫn cần bảng: chỉ Top 10 kèm dòng "Khác", tô hồng đậm ô trễ trên 10%
+- [ ] Giữ 4 thẻ số và bộ lọc; bộ lọc thời gian theo cây Năm → Tháng như các trang khác
+
+**Ghi rõ khác biệt giữa trang KPI và OLAP (dòng phụ dưới tiêu đề):**
+- [ ] KPI: "Số chốt sổ cuối mỗi tháng. Trễ hẹn xếp theo tháng hẹn giao, review theo tháng khách trả lời"
+- [ ] OLAP: "Số mới nhất của kho. Trễ hẹn xếp theo tháng mua"
+- [ ] Ghi chú trong báo cáo: với dữ liệu Olist chỉ review lệch giữa hai cách, vì 547 đơn có 2–3 review và 88 đơn có review sau đến ở tháng khác; điểm của đơn là trung bình các review nên đổi sau ngày chốt
+
+**Lỗi và trình bày trang Giao hàng:**
+- [ ] Dòng phụ bị cắt chữ và quá kỹ thuật ("dim_date đóng vai ngày nhận"): đổi thành "Xếp theo tháng khách nhận hàng"; tăng chiều cao ô tiêu đề, bỏ thanh cuộn xám
+- [ ] Biểu đồ đường: đầu 2016 (seller trễ 87%) và cuối 09–10/2018 (trễ 100%) là tháng quá ít đơn, làm méo trục; áp khoảng 01/2017 – 08/2018
+- [ ] Biểu đồ theo bang: đang xếp theo chữ cái, phải xếp từ cao xuống thấp; thêm số đơn đã giao vào tooltip để thấy bang ít đơn (AP, RR) không đáng tin; đặt nhãn % ở cuối thanh
+- [ ] Thêm một dòng kết luận cạnh thẻ "Đơn trễ, seller đúng hạn": phần lớn trễ nằm ở khâu vận chuyển, xem What-if tuyến ở Streamlit
+
+**Lỗi và trình bày trang Theo dõi kế hoạch:**
+- [ ] Bộ lọc Năm vô nghĩa ở trang này: đổi thành chọn một mốc as-of (chọn đơn, mặc định mốc cuối 01/09/2018)
+- [ ] Thẻ: gộp "Seller trong kế hoạch: 28 (22 gọi, 6 hỗ trợ)"; thêm thẻ "% GMV rủi ro được xử lý" (90k/444k ≈ 20%); "Tiền đã dùng" ghi đơn vị BRL và "/ 2.000"
+- [ ] Bảng seller: đổi tên cột sang tiếng Việt (Seller, Vùng, Bang, Hành động, Khả năng sụt, GMV rủi ro), seller_id rút còn 8 ký tự như Streamlit, xếp theo GMV rủi ro giảm dần
+- [ ] Đường: thêm dòng phụ "Rủi ro tăng gấp 2,5 lần (175k → 444k) nhưng ngân sách cố định nên phần được xử lý giữ quanh 50–140k"
+- [ ] Dòng phụ bị cắt chữ, thanh cuộn xám ở tiêu đề (giống các trang khác)
+- [ ] Cân nhắc: tên trang nói "theo dõi" nhưng mới chỉ hiện đề xuất. Có thể thêm phần "kết quả sau 45 ngày" (seller trong kế hoạch có thật sự sụt không) từ dss.eval_lists cho các mốc 03–07/2018, nhưng tránh trùng màn Kiểm chứng của Streamlit; hoặc đổi tên trang thành "Kế hoạch đề xuất"
+
+**Chờ xem lại:**
+- [ ] Xem 5 màn Streamlit (http://localhost:8502), ghi lỗi
+- [ ] Gom mọi lỗi lại sửa một lần, chạy lại test_edges, test_system, đối chiếu DAX với DuckDB
+
+**Để sau nếu còn thời gian:**
+- [ ] Monte Carlo cho hiệu quả can thiệp
+- [ ] Khép vòng: kế hoạch đã chốt ở Streamlit ghi ra Parquet để trang Theo dõi kế hoạch đọc
+- [ ] Tham số `ThuMucParquet` đang ghi cứng đường dẫn máy này; ghi hướng dẫn đổi cho người chấm
+- [ ] Push `dagster-dieu-phoi` và `power-bi`, mở PR vào `main`
+
+## 11. Sprint sửa theo phân tích người dùng (bắt đầu 13/11/2026)
+
+Căn cứ: [docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md](docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md). Nguyên tắc: Streamlit cho người ra quyết định (Trưởng nhóm Seller Success, Quản lý giao nhận), Power BI cho người xem và theo dõi (Ban điều hành, Quản lý vùng). Thứ gì là theo dõi, thống kê thì để Power BI; thứ gì cần mô hình, tối ưu, giả định thì để Streamlit.
+
+**Sprint 1: Streamlit**
+- [x] S1.1 Menu chia hai luồng: "Giữ chân seller" (Cần chú ý, Chi tiết seller, Bảng kế hoạch, Kiểm chứng) và "Giao nhận" (What-if tuyến). OLAP không đưa lại (thuộc Power BI)
+- [x] S1.2 Cần chú ý: bỏ thẻ GMV, Tỷ lệ trễ, Tiền đề xuất; một dòng bối cảnh; thống nhất "GMV rủi ro" (toàn bộ seller) và "phần vượt ngưỡng"; bảng sắp theo GMV rủi ro, thêm cột "Vì sao chưa xử lý", bấm dòng mở Chi tiết seller; biểu đồ phân bố hạng chuyển sang Power BI
+- [x] S1.3 Chi tiết seller: một thẻ Hạng; bỏ Khả năng tạm ngừng, Điểm vận hành; câu dẫn sang What-if tuyến khi lỗi ở vận chuyển; 3 lý do bằng chữ; SCD2, mini-dimension, log-odds vào mục mở rộng; nhận seller từ màn trước
+- [x] S1.4 Bảng kế hoạch: giải thích ngưỡng; nhãn "giả định"; tổng GMV rủi ro cùng định nghĩa; cột Kanban "trên bảng / tổng"; giải thích đường ngân sách; khoảng P10–P90 cho Giữ được (Monte Carlo)
+- [x] S1.5 What-if tuyến: tiêu đề phụ nêu bằng chứng lỗi vận chuyển
+- [x] S1.6 Kiểm chứng: AUC và chất lượng kho vào mục mở rộng
+
+**Sprint 2: Mô hình**
+- [x] S2.1 Monte Carlo trên hiệu quả can thiệp (`src/dss/simulate.py`), test
+
+**Sprint 3: Power BI** (Desktop phải đóng)
+- [x] S3.1 Thời gian: cây Năm → Tháng, khóa 01/2017–08/2018, ô "Kỳ đang xem"
+- [x] S3.2 Trang KPI: tên thẻ "(chốt sổ)", trục seller, dòng phụ
+- [x] S3.3 Trang OLAP: tên "Doanh số dồn ở đâu?", cây phân rã, tán xạ danh mục
+- [x] S3.4 Trang Giao hàng: dòng phụ, xếp bang giảm dần, nhãn, tooltip số đơn
+- [x] S3.5 Trang Kế hoạch đề xuất: đổi tên, chọn mốc bằng cách bấm đường, thẻ gộp, bảng cột tiếng Việt, phân bố hạng (chuyển từ Streamlit)
+- [x] S3.6 Đối chiếu lại DAX với DuckDB
+
+**Sprint 4: Kiểm thử và tài liệu**
+- [x] S4.1 test_edges, test_system, test_release, chụp 5 màn
+- [x] S4.2 README
+- [x] S4.3 Ghi chú viết báo cáo: [docs/ghi-chu-bao-cao.md](docs/ghi-chu-bao-cao.md)
+
+**Còn lại sau sprint:** xem tận mắt 4 trang Power BI (visual cây phân rã, tán xạ, bộ lọc thời gian chưa được nhìn trên Desktop); viết báo cáo theo [docs/ghi-chu-bao-cao.md](docs/ghi-chu-bao-cao.md); slide, video.
+
+## 12. Sprint khép vòng và bàn giao (13/11/2026)
+
+**Sprint 5: Khép vòng kế hoạch DSS → Power BI**
+- [x] S5.1 Nút "Chốt kế hoạch" ở Bảng kế hoạch: ghi kế hoạch đang có (kể cả kéo tay) ra `powerbi/ke_hoach_da_chot.parquet`, thay bản cũ của cùng mốc
+- [x] S5.2 Export tạo file rỗng đúng cấu trúc nếu chưa có, để Power BI refresh không lỗi
+- [x] S5.3 Power BI: bảng `ke_hoach_da_chot`, quan hệ tới `dim_seller`, `dim_date`; measure "(áp dụng)" lấy kế hoạch đã chốt nếu có, không thì đề xuất mặc định; thẻ "Nguồn kế hoạch"
+- [x] S5.4 Test ghi/đọc kế hoạch đã chốt
+
+**Sprint 6: Sửa trình bày**
+- [x] S6.1 Tán xạ: chỉ top 20 danh mục theo GMV, hiện tên
+- [x] S6.2 Cả 4 trang: ô tiêu đề cao hơn, dòng phụ ngắn, thẻ "Kỳ đang xem"/"Mốc kế hoạch" và ô lọc không bị cắt
+- [x] S6.3 Trang Kế hoạch: thẻ seller không bị cắt chữ, bảng bỏ dòng Tổng, biểu đồ hạng bỏ đơn vị "nghìn"
+- [x] S6.4 Streamlit Chi tiết seller: dòng phụ giải thích từng biểu đồ
+
+**Sprint 7: Bàn giao**
+- [x] S7.1 Test: test_system, test_edges, test_release; đối chiếu DAX
+- [x] S7.2 README, ghi chú báo cáo (khép vòng, luật xếp hạng)
+- [x] S7.3 Tắt app, đóng Power BI, merge vào `main`, push
