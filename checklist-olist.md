@@ -125,8 +125,19 @@ Nhánh `power-bi` (local, chưa push). Sửa file report thì phải đóng Powe
 - [ ] Nếu vẫn cần bảng: chỉ Top 10 kèm dòng "Khác", tô hồng đậm ô trễ trên 10%
 - [ ] Giữ 4 thẻ số và bộ lọc; bộ lọc thời gian theo cây Năm → Tháng như các trang khác
 
+**Ghi rõ khác biệt giữa trang KPI và OLAP (dòng phụ dưới tiêu đề):**
+- [ ] KPI: "Số chốt sổ cuối mỗi tháng. Trễ hẹn xếp theo tháng hẹn giao, review theo tháng khách trả lời"
+- [ ] OLAP: "Số mới nhất của kho. Trễ hẹn xếp theo tháng mua"
+- [ ] Ghi chú trong báo cáo: với dữ liệu Olist chỉ review lệch giữa hai cách, vì 547 đơn có 2–3 review và 88 đơn có review sau đến ở tháng khác; điểm của đơn là trung bình các review nên đổi sau ngày chốt
+
+**Lỗi và trình bày trang Giao hàng:**
+- [ ] Dòng phụ bị cắt chữ và quá kỹ thuật ("dim_date đóng vai ngày nhận"): đổi thành "Xếp theo tháng khách nhận hàng"; tăng chiều cao ô tiêu đề, bỏ thanh cuộn xám
+- [ ] Biểu đồ đường: đầu 2016 (seller trễ 87%) và cuối 09–10/2018 (trễ 100%) là tháng quá ít đơn, làm méo trục; áp khoảng 01/2017 – 08/2018
+- [ ] Biểu đồ theo bang: đang xếp theo chữ cái, phải xếp từ cao xuống thấp; thêm số đơn đã giao vào tooltip để thấy bang ít đơn (AP, RR) không đáng tin; đặt nhãn % ở cuối thanh
+- [ ] Thêm một dòng kết luận cạnh thẻ "Đơn trễ, seller đúng hạn": phần lớn trễ nằm ở khâu vận chuyển, xem What-if tuyến ở Streamlit
+
 **Chờ xem lại:**
-- [ ] Xem trang Giao hàng, Theo dõi kế hoạch trên Power BI, ghi lỗi
+- [ ] Xem trang Theo dõi kế hoạch trên Power BI, ghi lỗi
 - [ ] Xem 5 màn Streamlit (http://localhost:8502), ghi lỗi
 - [ ] Gom mọi lỗi lại sửa một lần, chạy lại test_edges, test_system, đối chiếu DAX với DuckDB
 
