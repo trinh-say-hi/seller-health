@@ -42,7 +42,7 @@
               },
               "queryRef": "dim_seller.region",
               "nativeQueryRef": "region",
-              "displayName": "Vùng"
+              "displayName": "Vùng seller"
             },
             {
               "field": {
@@ -57,7 +57,7 @@
               },
               "queryRef": "dim_seller.state",
               "nativeQueryRef": "state",
-              "displayName": "Bang"
+              "displayName": "Bang seller"
             },
             {
               "field": {
@@ -87,7 +87,7 @@
               },
               "queryRef": "ke_hoach_da_chot.Khả năng sụt (áp dụng)",
               "nativeQueryRef": "Khả năng sụt (áp dụng)",
-              "displayName": "Khả năng sụt"
+              "displayName": "Khả năng sụt GMV"
             },
             {
               "field": {
@@ -102,7 +102,7 @@
               },
               "queryRef": "ke_hoach_da_chot.GMV rủi ro trong kế hoạch (áp dụng)",
               "nativeQueryRef": "GMV rủi ro trong kế hoạch (áp dụng)",
-              "displayName": "GMV rủi ro"
+              "displayName": "GMV rủi ro 45 ngày"
             }
           ]
         }
@@ -141,7 +141,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Seller trong kế hoạch, sắp theo GMV rủi ro'"
+                  "Value": "'Seller trong kế hoạch, sắp theo GMV rủi ro 45 ngày'"
                 }
               }
             }

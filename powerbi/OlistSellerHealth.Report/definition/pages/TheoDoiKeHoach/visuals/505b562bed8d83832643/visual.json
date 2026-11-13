@@ -52,7 +52,7 @@
               },
               "queryRef": "dss_recommendation.GMV rủi ro 45 ngày",
               "nativeQueryRef": "GMV rủi ro 45 ngày",
-              "displayName": "GMV rủi ro toàn bộ"
+              "displayName": "GMV rủi ro 45 ngày"
             },
             {
               "field": {
@@ -67,7 +67,7 @@
               },
               "queryRef": "ke_hoach_da_chot.GMV rủi ro trong kế hoạch (áp dụng)",
               "nativeQueryRef": "GMV rủi ro trong kế hoạch (áp dụng)",
-              "displayName": "Phần kế hoạch xử lý"
+              "displayName": "GMV rủi ro trong kế hoạch"
             }
           ]
         }
@@ -88,7 +88,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Rủi ro tăng theo số seller, ngân sách cố định nên phần xử lý đi ngang'"
+                  "Value": "'GMV rủi ro 45 ngày tăng theo số seller, GMV rủi ro trong kế hoạch đi ngang'"
                 }
               }
             }

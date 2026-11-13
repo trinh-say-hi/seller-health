@@ -83,26 +83,20 @@ with sync_playwright() as p:
 
     goto(page, "Cần chú ý")
     check("Co chu thich KPI tu metrics.yml", page.locator('[data-testid="stMetric"] [data-testid="stTooltipIcon"], [data-testid="stMetric"] [data-testid="stTooltipHoverTarget"]').count() >= 4)
-    v1 = metric(page, "GMV")
+    v1 = metric(page, "GMV rủi ro 45 ngày")
     db = duckdb.connect(str(DB_PATH), read_only=True)
-    gmv, orders = db.execute("""SELECT sum(price), count(DISTINCT order_id) FROM core.fact_sales_item
-                                WHERE is_valid_sale AND purchase_ts >= DATE '2018-06-01' AND purchase_ts < DATE '2018-07-01'""").fetchone()
-    late, due = db.execute("""SELECT count(DISTINCT i.order_id) FILTER (WHERE o.d IS NULL OR CAST(o.d AS DATE) > CAST(o.est AS DATE)), count(DISTINCT i.order_id)
-                              FROM core.fact_sales_item i JOIN (SELECT order_id, try_cast(order_estimated_delivery_date AS TIMESTAMP) est, try_cast(order_delivered_customer_date AS TIMESTAMP) d
-                                  FROM raw.orders WHERE dwh_batch <= '2018-06' QUALIFY row_number() OVER (PARTITION BY order_id ORDER BY dwh_batch DESC) = 1) o USING (order_id)
-                              WHERE i.is_valid_sale AND o.est >= DATE '2018-06-01' AND o.est < DATE '2018-07-01'""").fetchone()
+    risk = db.execute("SELECT sum(gmv_risk) FROM dss.recommendation WHERE as_of = DATE '2018-07-01'").fetchone()[0]
     db.close()
     fmt = lambda x, d=0: f"{x:,.{d}f}".replace(",", "§").replace(".", ",").replace("§", ".")
-    check("GMV tren giao dien khop SQL", v1 == f"{fmt(float(gmv) / 1000)}k", f"{v1} / {float(gmv):,.2f}")
-    check("Ty le tre tren giao dien khop SQL", metric(page, "Tỷ lệ đơn trễ hẹn") == fmt(100 * late / due, 1) + "%", f"{metric(page, 'Tỷ lệ đơn trễ hẹn')} / {late}/{due}")
+    check("GMV rui ro tren giao dien khop SQL", v1 == f"{fmt(float(risk) / 1000)}k", f"{v1} / {float(risk):,.2f}")
 
     slider = page.locator('input[type="range"][aria-label*="as-of"]').first
     slider.focus()
     for _ in range(4):
         page.keyboard.press("ArrowLeft")
     settle(page)
-    v2 = metric(page, "GMV")
-    check("Doi as-of lam so GMV doi", v1 != v2, f"{v1} -> {v2}")
+    v2 = metric(page, "GMV rủi ro 45 ngày")
+    check("Doi as-of lam so GMV rui ro doi", v1 != v2, f"{v1} -> {v2}")
     check("Sau khi doi as-of khong loi", not errors(page))
 
     # Keo tha that tren bang kanban
@@ -188,13 +182,13 @@ with sync_playwright() as p:
 
     # Tra as-of ve mac dinh roi thu what-if
     goto(page, "What-if tuyến")
-    r1 = metric(page, "Tỷ lệ trễ")
+    r1 = metric(page, "Trễ hẹn với khách")
     s = page.locator('input[type="range"][aria-label*="Hứa thêm"]').first
     s.focus()
     for _ in range(3):
         page.keyboard.press("ArrowRight")
     settle(page)
-    r2 = metric(page, "Tỷ lệ trễ")
+    r2 = metric(page, "Trễ hẹn với khách")
     check("What-if hua them ngay lam ty le tre doi", r1 != r2, f"{r1} -> {r2}")
     page.screenshot(path=str(OUT / "10_whatif_sau_khi_doi.png"))
 

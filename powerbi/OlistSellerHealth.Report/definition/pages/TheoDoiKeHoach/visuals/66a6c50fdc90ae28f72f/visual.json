@@ -28,7 +28,7 @@
               },
               "queryRef": "dim_region.region",
               "nativeQueryRef": "region",
-              "displayName": "Vùng"
+              "displayName": "Vùng seller"
             }
           ]
         },
@@ -47,7 +47,7 @@
               },
               "queryRef": "dss_recommendation.GMV rủi ro 45 ngày",
               "nativeQueryRef": "GMV rủi ro 45 ngày",
-              "displayName": "Toàn bộ"
+              "displayName": "GMV rủi ro 45 ngày"
             },
             {
               "field": {
@@ -62,7 +62,7 @@
               },
               "queryRef": "ke_hoach_da_chot.GMV rủi ro trong kế hoạch (áp dụng)",
               "nativeQueryRef": "GMV rủi ro trong kế hoạch (áp dụng)",
-              "displayName": "Trong kế hoạch"
+              "displayName": "GMV rủi ro trong kế hoạch"
             }
           ]
         }
@@ -83,7 +83,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'GMV rủi ro theo vùng seller'"
+                  "Value": "'GMV rủi ro theo Vùng seller'"
                 }
               }
             }

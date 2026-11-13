@@ -2,14 +2,6 @@
 table dim_seller
 	lineageTag: 01bca72d-4096-5c70-9f46-175a368729aa
 
-	/// Mã seller rút gọn 8 ký tự, như trên app Streamlit.
-	column Seller = LEFT ( dim_seller[seller_id], 8 )
-		dataType: string
-		lineageTag: ac410276-a50c-4233-9828-b95fc3c06baf
-		summarizeBy: none
-
-		annotation SummarizationSetBy = Automatic
-
 	/// Khóa thay thế của phiên bản.
 	column seller_key
 		dataType: int64
@@ -103,6 +95,14 @@ table dim_seller
 		lineageTag: 1c97ffd5-d033-56ac-bcf1-4b3c236edb9e
 		summarizeBy: none
 		sourceColumn: is_current
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Mã seller rút gọn 8 ký tự, như trên app Streamlit.
+	column Seller = LEFT ( dim_seller[seller_id], 8 )
+		dataType: string
+		lineageTag: ac410276-a50c-4233-9828-b95fc3c06baf
+		summarizeBy: none
 
 		annotation SummarizationSetBy = Automatic
 

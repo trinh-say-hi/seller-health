@@ -12,7 +12,7 @@ H1 = 184
 # Ten feature cua mo hinh, cach doc gia tri, theo dung thu tu FEATS trong src/dss/run.py
 FEAT_LABEL = {"gmv_90": "GMV 90 ngày", "orders_90": "Số đơn 90 ngày", "gmv_30": "GMV 30 ngày", "orders_30": "Số đơn 30 ngày",
               "trend": "Xu hướng 30 ngày", "recency": "Ngày chưa bán", "tenure": "Thâm niên (ngày)", "n_cat": "Số danh mục",
-              "seller_late_rate": "Giao VC trễ", "cust_late_rate": "Khách nhận trễ", "avg_review": "Review TB", "days_to_carrier": "Ngày tới VC"}
+              "seller_late_rate": "Seller giao vận chuyển trễ", "cust_late_rate": "Trễ hẹn với khách", "avg_review": "Review trung bình", "days_to_carrier": "Ngày tới vận chuyển"}
 FEAT_FMT = {"trend": lambda v: signed_pct(v, 0), "seller_late_rate": lambda v: pct(v, 0), "cust_late_rate": lambda v: pct(v, 0),
             "avg_review": lambda v: num(v, 2), "days_to_carrier": lambda v: num(v, 1)}
 H2 = 232
@@ -141,7 +141,7 @@ def _why_not(r, risk_cut, value_cut):
     if r.p_decline < risk_cut:
         return f"Dưới ngưỡng rủi ro {pct(risk_cut, 0)}"
     if r.gmv_90 < value_cut:
-        return "Ngoài top 20% GMV: email"
+        return "Ngoài top 20% GMV"
     return "Hết ngân sách/suất"
 
 
@@ -174,31 +174,31 @@ def attention(as_of):
     gmv_change = last.gmv / prev.gmv - 1 if prev.gmv else None
     late_change = last.late_rate - prev.late_rate if pd.notna(last.late_rate) and pd.notna(prev.late_rate) else None
     note(f"Mốc {pd.Timestamp(as_of).strftime('%d/%m/%Y')}. Bối cảnh tháng {pd.Timestamp(last.month).strftime('%m/%Y')} (số chốt sổ): "
-         f"GMV {compact(last.gmv)} ({signed_pct(gmv_change)} so với tháng trước), trễ hẹn {pct(last.late_rate)} ({points(late_change)}). "
+         f"GMV (chốt sổ) {compact(last.gmv)} ({signed_pct(gmv_change)} so với tháng trước), tỷ lệ trễ hẹn (chốt sổ) {pct(last.late_rate)} ({points(late_change)}). "
          "Xu hướng, vùng, danh mục và giao hàng xem ở Power BI.")
     g = st.columns(2, gap="medium")
     kgroup(g[0], "Rủi ro seller", "#9C1C4A")
-    kgroup(g[1], "Kế hoạch đề xuất mặc định", ORANGE)
+    kgroup(g[1], "Kế hoạch đề xuất", ORANGE)
     m = g[0].columns(2, gap="small") + g[1].columns(2, gap="small")
     kpi(m[0], "new_at_risk", num(len(new_risk)), f"{n_risk} seller Nguy cơ", tone="off", chart=risk_trail.n_risk.tolist())
     kpi(m[1], "gmv_at_risk", compact(total_risk), f"{compact(over_risk)} ở seller vượt ngưỡng {pct(p.risk_threshold, 0)}", tone="off",
         chart=risk_trail.gmv_risk.tolist())
-    kpi(m[2], "plan_risk", compact(paid.gmv_risk.sum()), f"{pct(paid.gmv_risk.sum() / total_risk if total_risk else None, 0)} GMV rủi ro",
-        label="GMV rủi ro trong kế hoạch đề xuất", tone="off")
-    kpi(m[3], "plan_slots", num(len(paid)), f"{(paid.action == 'CALL').sum()} gọi, {(paid.action == 'OPS').sum()} hỗ trợ, {brl(paid.cost.sum())}",
-        label="Seller trong kế hoạch đề xuất", tone="off")
+    kpi(m[2], "plan_risk", compact(paid.gmv_risk.sum()),
+        f"{pct(paid.gmv_risk.sum() / total_risk if total_risk else None, 0)} % GMV rủi ro được xử lý", tone="off")
+    kpi(m[3], "plan_sellers", num(len(paid)),
+        f"{(paid.action == 'CALL').sum()} Gọi ngay, {(paid.action == 'OPS').sum()} Hỗ trợ vận hành · Tiền đã dùng {brl(paid.cost.sum())}", tone="off")
 
     c1, c2 = st.columns([3, 1.25])
     with c1:
-        title(f"{len(new_risk)} seller mới vào Nguy cơ, sắp theo GMV rủi ro",
+        title(f"{len(new_risk)} seller mới vào Nguy cơ, sắp theo GMV rủi ro 45 ngày",
               "Hạng do luật gán (lâu không bán, GMV giảm, giao trễ); kế hoạch do mô hình, ngưỡng và ngân sách chọn. Bấm một dòng để mở hồ sơ seller.")
         top_s = new_risk.sort_values("gmv_risk", ascending=False).reset_index(drop=True)
-        handled = [ACTION_LABEL[a] if w == "Trong kế hoạch" else w for a, w in zip(top_s.action, top_s.why)]
-        view = pd.DataFrame({"Seller": top_s.seller_id.map(short), "Bang": top_s.state, "GMV rủi ro": top_s.gmv_risk.round(0),
-                             "Khả năng sụt": top_s.p_decline.map(lambda v: pct(v, 0)), "Ngày chưa bán": top_s.recency.round(0),
-                             "Giao VC trễ": top_s.seller_late_rate.map(lambda v: pct(v, 0)), "Xử lý": handled, "Lý do": top_s.reason})
-        cfg = {c: st.column_config.NumberColumn(format="localized") for c in ("GMV rủi ro", "Ngày chưa bán")}
-        cfg["Xử lý"] = st.column_config.TextColumn(width="medium")
+        view = pd.DataFrame({"Seller": top_s.seller_id.map(short), "Bang seller": top_s.state, "GMV rủi ro 45 ngày": top_s.gmv_risk.round(0),
+                             "Khả năng sụt GMV": top_s.p_decline.map(lambda v: pct(v, 0)), "Ngày chưa bán": top_s.recency.round(0),
+                             "Seller giao vận chuyển trễ": top_s.seller_late_rate.map(lambda v: pct(v, 0)),
+                             "Hành động": top_s.action.map(ACTION_LABEL), "Lý do chưa gọi/hỗ trợ": top_s.why.where(top_s.why != "Trong kế hoạch", ""),
+                             "Lý do": top_s.reason})
+        cfg = {c: st.column_config.NumberColumn(format="localized") for c in ("GMV rủi ro 45 ngày", "Ngày chưa bán")}
         cfg["Lý do"] = st.column_config.TextColumn(width="large")
         key = f"attn-{as_of}"
 
@@ -211,14 +211,14 @@ def attention(as_of):
                      on_select=_open, selection_mode="single-row")
     with c2:
         title(f"{len(new_risk)} seller mới vào Nguy cơ được xử lý thế nào")
-        order = ["Trong kế hoạch", f"Dưới ngưỡng rủi ro {pct(p.risk_threshold, 0)}", "Ngoài top 20% GMV: email", "Hết ngân sách/suất"]
+        order = ["Trong kế hoạch", f"Dưới ngưỡng rủi ro {pct(p.risk_threshold, 0)}", "Ngoài top 20% GMV", "Hết ngân sách/suất"]
         w = new_risk.groupby("why").size().reindex(order).fillna(0)
         fig = go.Figure(go.Bar(y=w.index, x=w.values, orientation="h", marker_color=[BLUE, LIGHT_BLUE, LIGHT_BLUE, "#9C1C4A"], text=w.values.astype(int),
                                textposition="outside", cliponaxis=False, hovertemplate="%{y}: %{x} seller<extra></extra>"))
         fig.update_yaxes(autorange="reversed", showgrid=False, tickfont=dict(size=10))
         fig.update_xaxes(showgrid=False, showticklabels=False, range=[0, max(w.max(), 1) * 1.3])
         show(style(fig, H1))
-        title("GMV rủi ro theo hành động đề xuất", "Toàn bộ seller đang bán")
+        title("GMV rủi ro 45 ngày theo hành động", "Toàn bộ seller đang bán, kế hoạch đề xuất")
         a = cur.groupby("action").agg(n=("seller_id", "size"), risk=("gmv_risk", "sum")).reindex(["CALL", "OPS", "EMAIL", "NONE"]).fillna(0)
         fig = go.Figure(go.Bar(y=[ACTION_LABEL[x] for x in a.index], x=a.risk, orientation="h", marker_color=[BLUE, "#9C1C4A", LIGHT_BLUE, "#E9D3DC"],
                                text=[f"{compact(v)} · {int(n)} seller" for v, n in zip(a.risk, a.n)], textposition="outside", cliponaxis=False,
@@ -334,7 +334,7 @@ def _explain(as_of, sid, p):
     top = f.nlargest(6, "abs").sort_values("contrib")
     ups = f[f.contrib > 0].nlargest(3, "contrib")
     words = "; ".join(f"{FEAT_LABEL[x]} {FEAT_FMT.get(x, num)(v) if pd.notna(v) else '—'}" for x, v in zip(ups.feature, ups.value))
-    title(f"Vì sao khả năng sụt {pct(p, 0)}", f"Đẩy rủi ro lên nhiều nhất: {words}." if words else "Không yếu tố nào đẩy rủi ro lên.")
+    title(f"Vì sao khả năng sụt GMV {pct(p, 0)}", f"Đẩy rủi ro lên nhiều nhất: {words}." if words else "Không yếu tố nào đẩy rủi ro lên.")
     labels = [f"{FEAT_LABEL[x]} = {FEAT_FMT.get(x, num)(v) if pd.notna(v) else '—'}" for x, v in zip(top.feature, top.value)]
     fig = go.Figure(go.Bar(x=top.contrib, y=labels, orientation="h", marker_color=[ORANGE if c > 0 else BLUE for c in top.contrib],
                            customdata=top.z, hovertemplate="%{y}<br>Đóng góp vào điểm rủi ro %{x:+.2f}<br>Lệch chuẩn so với tập train %{customdata:+.1f}<extra></extra>"))
@@ -359,10 +359,10 @@ def seller(as_of):
     r = rec[rec.seller_id == sid].iloc[0]
 
     m = st.columns(4)
-    kpi(m[0], "tier_stable", r.stable_tier, f"hạng tháng này: {r.health_tier}", label="Hạng", tone="off")
+    kpi(m[0], "tier_stable", r.stable_tier, f"Hạng tháng: {r.health_tier}", tone="off")
     kpi(m[1], "gmv_90", compact(r.gmv_90), f"{num(r.orders_90)} đơn", tone="off")
     kpi(m[2], "p_decline", pct(r.p_decline, 0))
-    kpi(m[3], "seller_late_rate", pct(r.seller_late_rate, 0), f"khách nhận trễ {pct(r.cust_late_rate, 0)}", label="Seller giao vận chuyển trễ", tone="off")
+    kpi(m[3], "seller_late_rate", pct(r.seller_late_rate, 0), f"Trễ hẹn với khách {pct(r.cust_late_rate, 0)}", tone="off")
     # Chan doan: loi o khau seller thi thuoc luong giu chan seller, loi o van chuyen thi thuoc luong giao nhan
     seller_poor = pd.notna(r.seller_late_rate) and r.seller_late_rate >= Params().ops_late
     carrier = not seller_poor and pd.notna(r.cust_late_rate) and r.cust_late_rate >= .10
@@ -395,9 +395,10 @@ def seller(as_of):
     with c3:
         title(f"So với {'trung vị toàn sàn' if other == MEDIAN else short(other)}",
               "Đặt seller này cạnh seller ở giữa (trung vị) trong mọi seller đang bán; lệch xa là điểm bất thường.")
-        feats = [("GMV 90 ngày", "gmv_90", lambda v: num(v)), ("Đơn 90 ngày", "orders_90", lambda v: num(v)), ("Xu hướng 30 ngày", "trend", lambda v: signed_pct(v, 0)),
-                 ("Ngày chưa bán", "recency", lambda v: num(v)), ("Giao VC trễ", "seller_late_rate", lambda v: pct(v, 0)), ("Khách nhận trễ", "cust_late_rate", lambda v: pct(v, 0)),
-                 ("Review", "avg_review", lambda v: num(v, 2)), ("Ngày tới VC", "days_to_carrier", lambda v: num(v, 1))]
+        feats = [("GMV 90 ngày", "gmv_90", lambda v: num(v)), ("Số đơn 90 ngày", "orders_90", lambda v: num(v)), ("Xu hướng 30 ngày", "trend", lambda v: signed_pct(v, 0)),
+                 ("Ngày chưa bán", "recency", lambda v: num(v)), ("Seller giao vận chuyển trễ", "seller_late_rate", lambda v: pct(v, 0)),
+                 ("Trễ hẹn với khách", "cust_late_rate", lambda v: pct(v, 0)), ("Review trung bình", "avg_review", lambda v: num(v, 2)),
+                 ("Ngày tới vận chuyển", "days_to_carrier", lambda v: num(v, 1))]
         ref = rec.median(numeric_only=True) if other == MEDIAN else rec[rec.seller_id == other].iloc[0]
         ref_name = "Trung vị" if other == MEDIAN else short(other)
         table(pd.DataFrame({"Chỉ số": [f[0] for f in feats], short(sid): [f[2](r[f[1]]) for f in feats], ref_name: [f[2](ref[f[1]]) for f in feats]}), H1)
@@ -416,6 +417,7 @@ def seller(as_of):
         with st.expander(f"Lịch sử hạng (SCD2): {len(t)} phiên bản"):
             table(t, 140)
         with st.expander("Theo tháng, kèm hồ sơ sức khỏe (mini-dimension)"):
-            table(pd.DataFrame({"Tháng": pd.to_datetime(mh.month).dt.strftime("%m/%Y"), "Đơn": mh.n_orders, "GMV": mh.gmv.round(0),
-                                "Giao VC trễ": mh.seller_late_rate.map(pct), "Khách trễ": mh.customer_late_rate.map(pct), "Review": mh.avg_review.round(2),
+            table(pd.DataFrame({"Tháng": pd.to_datetime(mh.month).dt.strftime("%m/%Y"), "Số đơn": mh.n_orders, "GMV": mh.gmv.round(0),
+                                "Seller giao vận chuyển trễ": mh.seller_late_rate.map(pct), "Trễ hẹn với khách": mh.customer_late_rate.map(pct),
+                                "Review trung bình": mh.avg_review.round(2),
                                 "Hạng tháng": mh.health_tier, "Nhóm đơn": mh.size_band}), 176)

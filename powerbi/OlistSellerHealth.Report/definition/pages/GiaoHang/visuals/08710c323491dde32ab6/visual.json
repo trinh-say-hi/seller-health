@@ -27,8 +27,7 @@
                 }
               },
               "queryRef": "fact_order_seller.Đơn trễ, seller đúng hạn",
-              "nativeQueryRef": "Đơn trễ, seller đúng hạn",
-              "displayName": "Đơn trễ mà seller đúng hạn"
+              "nativeQueryRef": "Đơn trễ, seller đúng hạn"
             }
           ]
         }

@@ -28,7 +28,7 @@
               },
               "queryRef": "dss_recommendation.Mốc kế hoạch",
               "nativeQueryRef": "Mốc kế hoạch",
-              "displayName": "Mốc kế hoạch"
+              "displayName": "Mốc as-of"
             }
           ]
         }

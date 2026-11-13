@@ -28,7 +28,7 @@
               },
               "queryRef": "dim_seller_health.health_tier",
               "nativeQueryRef": "health_tier",
-              "displayName": "Hạng"
+              "displayName": "Hạng tháng"
             }
           ]
         },
@@ -68,7 +68,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Seller theo hạng tháng'"
+                  "Value": "'Số seller theo Hạng tháng'"
                 }
               }
             }

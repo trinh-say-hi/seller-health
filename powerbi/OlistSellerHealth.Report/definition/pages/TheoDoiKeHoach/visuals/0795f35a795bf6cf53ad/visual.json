@@ -27,8 +27,7 @@
                 }
               },
               "queryRef": "dss_recommendation.GMV rủi ro 45 ngày",
-              "nativeQueryRef": "GMV rủi ro 45 ngày",
-              "displayName": "GMV rủi ro 45 ngày (ước tính)"
+              "nativeQueryRef": "GMV rủi ro 45 ngày"
             }
           ]
         }

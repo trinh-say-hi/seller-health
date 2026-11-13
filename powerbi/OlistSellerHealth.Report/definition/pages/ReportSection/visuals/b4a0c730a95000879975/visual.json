@@ -52,7 +52,7 @@
               },
               "queryRef": "kpi_monthly.Tỷ lệ trễ hẹn tháng",
               "nativeQueryRef": "Tỷ lệ trễ hẹn tháng",
-              "displayName": "Tỷ lệ trễ hẹn"
+              "displayName": "Tỷ lệ trễ hẹn (chốt sổ)"
             }
           ]
         }
@@ -73,7 +73,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Tỷ lệ trễ hẹn theo tháng hẹn giao'"
+                  "Value": "'Tỷ lệ trễ hẹn (chốt sổ) theo tháng hẹn giao'"
                 }
               }
             }

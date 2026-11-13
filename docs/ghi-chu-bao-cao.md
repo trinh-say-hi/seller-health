@@ -130,7 +130,9 @@ Số liệu lấy từ bản kho đang phát hành. Dựng lại kho thì số k
 - Giữ chân seller: 1 Cần chú ý tháng này → 2 Chi tiết seller → 3 Bảng kế hoạch → 4 Kiểm chứng.
 - Giao nhận: What-if hẹn giao theo tuyến.
 
-**Power BI (4 trang):** KPI tháng; Doanh số dồn ở đâu?; Giao hàng; Kế hoạch đề xuất.
+**Power BI (4 trang):** KPI tháng; Doanh số dồn ở đâu?; Giao hàng; Kế hoạch.
+
+**Tên gọi:** dùng đúng [tu-dien-ten.md](tu-dien-ten.md) trong báo cáo, cùng tên với app và Power BI.
 
 **Điểm nối giữa hai luồng:** màn Chi tiết seller chẩn đoán lỗi ở khâu seller (→ hỗ trợ vận hành, luồng A) hay khâu vận chuyển (→ nút mở What-if hẹn giao, luồng B). Trang Giao hàng cho thấy 72,24% đơn trễ có seller đúng hạn.
 
@@ -242,6 +244,6 @@ Chép mục 7 của tài liệu người dùng. Thêm:
 ## 10. Hình nên chụp cho báo cáo
 
 - Streamlit: 5 màn ở mốc 01/07/2018 (ảnh trong `evidence/screenshots/` sau khi chạy test UI, hoặc chụp tay).
-- Power BI: 4 trang; trang KPI khi bấm một cột tháng (thấy "Kỳ đang xem" đổi); trang Kế hoạch đề xuất dưới "Xem dưới dạng" role Sudeste.
+- Power BI: 4 trang; trang KPI khi bấm một cột tháng (thấy "Kỳ đang xem" đổi); trang Kế hoạch sau khi chốt trên app (thẻ "Nguồn kế hoạch") và dưới "Xem dưới dạng" role Sudeste.
 - Dagster: đồ thị asset và một lần chạy thành công.
 - Sơ đồ: kiến trúc tổng thể, influence diagram, luồng A và B.

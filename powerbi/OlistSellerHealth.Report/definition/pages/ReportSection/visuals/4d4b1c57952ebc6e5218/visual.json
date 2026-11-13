@@ -52,7 +52,7 @@
               },
               "queryRef": "kpi_monthly.Review TB tháng",
               "nativeQueryRef": "Review TB tháng",
-              "displayName": "Review trung bình"
+              "displayName": "Review trung bình (chốt sổ)"
             }
           ]
         }
@@ -73,7 +73,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Review trung bình theo tháng trả lời: tụt đúng các tháng giao trễ'"
+                  "Value": "'Review trung bình (chốt sổ) theo tháng trả lời: tụt đúng các tháng giao trễ'"
                 }
               }
             }

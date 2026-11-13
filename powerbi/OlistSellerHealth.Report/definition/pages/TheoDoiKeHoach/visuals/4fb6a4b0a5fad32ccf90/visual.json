@@ -19,7 +19,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Kế hoạch đề xuất",
+                    "value": "Kế hoạch",
                     "textStyle": {
                       "fontFamily": "Segoe UI Semibold",
                       "fontSize": "17pt",
@@ -31,7 +31,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Bản Trưởng nhóm đã chốt trên app; chưa chốt thì là đề xuất mặc định của MILP. Bấm một điểm trên đường để xem mốc khác.",
+                    "value": "Mở sẵn mốc vừa chốt trên app; chưa chốt mốc nào thì là Kế hoạch đề xuất của MILP ở mốc cuối. Bấm một điểm trên đường để xem mốc khác.",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
                       "fontSize": "9pt",

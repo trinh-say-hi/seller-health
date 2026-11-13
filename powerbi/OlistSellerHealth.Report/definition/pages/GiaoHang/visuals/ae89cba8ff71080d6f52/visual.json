@@ -86,7 +86,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Khách nhận trễ và seller bàn giao trễ, theo tháng nhận'"
+                  "Value": "'Trễ hẹn với khách và Seller giao vận chuyển trễ, theo tháng khách nhận'"
                 }
               }
             }

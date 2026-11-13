@@ -78,7 +78,7 @@ def _controls(as_of):
 
 
 def _card(r):
-    return {"id": r.seller_id, "title": short(r.seller_id), "state": str(r.state), "detail": f"{num(r.gmv_90)} BRL · rủi ro {r.p_decline:.0%}", "flag": "VH kém" if r.ops_poor else ""}
+    return {"id": r.seller_id, "title": short(r.seller_id), "state": str(r.state), "detail": f"GMV 90 ngày {num(r.gmv_90)} · sụt {r.p_decline:.0%}", "flag": "VH kém" if r.ops_poor else ""}
 
 
 def _board_members(plan):
@@ -161,7 +161,7 @@ def board(as_of):
         kpi(m[2], "plan_risk", compact(s["gmv_risk_covered"]),
             f"trên {compact(s['gmv_risk_total'])} vượt ngưỡng {pct(p.risk_threshold, 0)}", tone="off")
         kpi(m[3], "plan_saved", compact(s["expected_saved"]), f"{s['expected_saved'] - s0['expected_saved']:+,.0f} so với đề xuất".replace(",", "."),
-            label="Giữ được, kỳ vọng (giả định)", tone="off")
+            tone="off")
         kpi(m[4], "plan_saved_range", f"{compact(mc['p10'])}–{compact(mc['p90'])}", f"lỗ (giữ < tiền chi): {pct(mc['p_below_cost'], 0)} số lần",
             label="Khoảng giữ được P10–P90", tone="off")
         if s["cost"] > p.budget:
@@ -197,8 +197,11 @@ def board(as_of):
         h = q("SELECT month, gmv FROM core.fact_seller_monthly WHERE seller_id = ? AND month < CAST(? AS DATE) ORDER BY month", (sid, as_of))
         title("GMV theo tháng")
         show(style(go.Figure(go.Bar(x=h.month, y=h.gmv, marker_color=BLUE, hovertemplate="%{x|%m/%Y}<br>%{y:,.0f} BRL<extra></extra>")), 96, date_x=True))
-        note(f"Chi phí {num(r.cost)} BRL. GMV rủi ro {num(r.gmv_risk)} BRL.")
-        export = picked.assign(as_of=as_of)[["as_of", "seller_id", "Hành động", "state", "gmv_90", "p_decline", "gmv_risk", "cost", "expected_saved", "reason"]].sort_values("gmv_risk", ascending=False)
+        note(f"Tiền {num(r.cost)} BRL · GMV rủi ro 45 ngày {num(r.gmv_risk)} BRL.")
+        export = (picked.assign(as_of=as_of).sort_values("gmv_risk", ascending=False)
+                  [["as_of", "seller_id", "Hành động", "state", "gmv_90", "p_decline", "gmv_risk", "cost", "expected_saved", "reason"]]
+                  .rename(columns={"as_of": "Mốc as-of", "seller_id": "Seller", "state": "Bang seller", "gmv_90": "GMV 90 ngày", "p_decline": "Khả năng sụt GMV",
+                                   "gmv_risk": "GMV rủi ro 45 ngày", "cost": "Tiền (BRL)", "expected_saved": "Giữ được (giả định)", "reason": "Lý do"}))
         b1, b2 = st.columns(2)
         b1.download_button("Xuất CSV", export.to_csv(index=False).encode("utf-8-sig"), f"ke_hoach_{as_of}.csv", "text/csv", width="stretch",
                            help="Danh sách cho nhân viên chăm sóc seller thực hiện.")
@@ -221,7 +224,7 @@ def route_whatif(as_of):
     c1, c2, c3 = st.columns(3)
     route = c1.selectbox("Tuyến (bang seller → bang khách)", routes.route_name.tolist())
     n = c2.slider("Hứa thêm (ngày)", -10, 20, 0)
-    target = c3.slider("Mục tiêu tỷ lệ trễ", 1, 25, 5, format="%d%%") / 100
+    target = c3.slider("Mục tiêu trễ hẹn với khách", 1, 25, 5, format="%d%%") / 100
     d = q("""SELECT f.delay_days, date_diff('day', CAST(f.purchase_ts AS DATE), CAST(f.estimated_ts AS DATE)) AS promise
              FROM core.fact_order_seller f JOIN core.dim_route r USING (route_key)
              WHERE r.route_name = ? AND f.delivered_ts < CAST(? AS DATE)
@@ -262,7 +265,7 @@ def route_whatif(as_of):
                    GROUP BY 1 HAVING count(*) >= 100 ORDER BY sum(CASE WHEN f.delay_days > 0 THEN 1 ELSE 0 END) DESC LIMIT 25""", (1 - target, as_of, as_of, as_of))
         if len(top):
             title(f"Tuyến nhiều đơn trễ nhất: {top.tuyen.iloc[0]}, cần hứa thêm {num(max(top.can_them.iloc[0], 0))} ngày để trễ ≤ {pct(target, 0)}", "Các tuyến từ 100 đơn, xếp theo số đơn trễ. Cột cuối cao nghĩa là seller đúng hạn mà khách vẫn nhận trễ: lỗi ở vận chuyển, nên nới lời hẹn")
-        table(pd.DataFrame({"Tuyến": top.tuyen, "Số đơn": top.so_don, "Tỷ lệ trễ": top.tre.map(pct), "Lời hẹn TB (ngày)": top.hen.round(1),
+        table(pd.DataFrame({"Tuyến": top.tuyen, "Số đơn": top.so_don, "Trễ hẹn với khách": top.tre.map(pct), "Lời hẹn trung bình (ngày)": top.hen.round(1),
                             f"Hứa thêm để trễ ≤ {pct(target, 0)}": top.can_them.clip(lower=0), "Đơn trễ, seller đúng hạn": top.ok.map(pct)}), 470)
 
 
@@ -316,7 +319,7 @@ def validation(as_of):
     with c2:
         s = q("SELECT case_name, avg(jaccard) j, avg(n_case) n, avg(expected_saved) saved, avg(expected_saved_base) base FROM dss.sensitivity GROUP BY 1 ORDER BY j")
         title("Danh sách đổi mạnh khi cắt nguồn lực, khá vững khi giả định đổi")
-        table(pd.DataFrame({"Thay đổi": s.case_name, "Trùng gốc": s.j.map(lambda v: pct(v, 0)), "Seller": s.n.round(0), "Giữ được": (s.saved / s.base - 1).map(lambda v: signed_pct(v, 0))}), 206)
+        table(pd.DataFrame({"Thay đổi": s.case_name, "Trùng gốc": s.j.map(lambda v: pct(v, 0)), "Seller": s.n.round(0), "Giữ được (giả định)": (s.saved / s.base - 1).map(lambda v: signed_pct(v, 0))}), 206)
     with c3:
         res = []
         path = EVIDENCE_DIR / "test_results.json"

@@ -31,7 +31,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Số mới nhất của kho, trễ hẹn theo tháng mua. Trên cây: bấm + rồi tự chọn Vùng → Bang → Danh mục.",
+                    "value": "Số mới nhất của kho, trễ hẹn theo tháng mua. Trên cây: bấm + rồi tự chọn Vùng seller → Bang seller → Danh mục.",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
                       "fontSize": "9pt",

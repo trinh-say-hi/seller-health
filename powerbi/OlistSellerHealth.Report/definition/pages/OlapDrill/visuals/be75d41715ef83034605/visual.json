@@ -46,7 +46,7 @@
               },
               "queryRef": "dim_region.region",
               "nativeQueryRef": "region",
-              "displayName": "Vùng"
+              "displayName": "Vùng seller"
             },
             {
               "field": {
@@ -91,7 +91,7 @@
               },
               "queryRef": "dim_seller.health_tier",
               "nativeQueryRef": "health_tier",
-              "displayName": "Hạng seller"
+              "displayName": "Hạng ổn định"
             }
           ]
         }

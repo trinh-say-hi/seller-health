@@ -46,7 +46,7 @@ META = {
 with st.sidebar:
     st.markdown('<div class="brand">Seller Health<span>DSS giữ chân người bán · Olist 2016–2018</span></div>', unsafe_allow_html=True)
     asofs = [str(d)[:10] for d in q("SELECT DISTINCT as_of FROM dss.recommendation ORDER BY 1").as_of]
-    as_of = st.select_slider("Hôm nay là ngày (as-of)", asofs, value="2018-07-01", format_func=lambda d: pd.Timestamp(d).strftime("%d/%m/%Y"),
+    as_of = st.select_slider("Mốc as-of (hôm nay là ngày)", asofs, value="2018-07-01", format_func=lambda d: pd.Timestamp(d).strftime("%d/%m/%Y"),
                              help="Tua thời gian: mọi màn hình chỉ thấy dữ liệu trước ngày này. Riêng Kiểm chứng dùng kết quả các tháng đã biết.")
     st.markdown('<div class="navgroup">Giữ chân seller · Seller Success</div>', unsafe_allow_html=True)
     screen = st.radio("Màn hình", list(SCREENS), label_visibility="collapsed", format_func=LABELS.get, key="screen")

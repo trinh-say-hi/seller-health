@@ -2,13 +2,13 @@
 # Moi chi so gom: label, definition, formula, window, source. caveat la tuy chon.
 
 gmv:
-  label: GMV
+  label: GMV (chốt sổ)
   definition: Tổng tiền hàng của các đơn không bị hủy, chưa gồm phí vận chuyển.
   formula: Σ price, đơn hợp lệ mua trong tháng
   window: Tháng ngay trước as-of
   source: mart.kpi_monthly
 orders:
-  label: Số đơn
+  label: Số đơn (chốt sổ)
   definition: Số đơn không bị hủy mua trong tháng.
   formula: Đếm order_id khác nhau
   window: Tháng ngay trước as-of
@@ -20,14 +20,14 @@ active_sellers_month:
   window: Tháng ngay trước as-of
   source: mart.kpi_monthly
 late_rate_month:
-  label: Tỷ lệ đơn trễ hẹn
+  label: Tỷ lệ trễ hẹn (chốt sổ)
   definition: Trong các đơn đến ngày hẹn trong tháng, tỷ lệ chưa giao hoặc giao sau ngày hẹn, biết tại lúc chốt tháng.
   formula: Số đơn trễ / số đơn đến hạn
   window: Đơn có ngày hẹn trong tháng
   source: mart.kpi_monthly
   caveat: Tính theo ngày hẹn, nên khác với tỷ lệ tính theo tháng mua.
 avg_review_month:
-  label: Review trung bình
+  label: Review trung bình (chốt sổ)
   definition: Điểm trung bình của các review được khách trả lời trong tháng.
   formula: Trung bình review_score
   window: Review trả lời trong tháng
@@ -138,6 +138,18 @@ plan_saved:
   window: 45 ngày sau as-of
   source: Tính trên giao diện
   caveat: Không phải số đo được, dữ liệu không có hiệu quả can thiệp thật.
+plan_sellers:
+  label: Seller trong kế hoạch
+  definition: Số seller được gọi ngay hoặc hỗ trợ vận hành trong kế hoạch.
+  formula: Đếm seller có hành động Gọi ngay hoặc Hỗ trợ vận hành
+  window: Kế hoạch tại mốc as-of
+  source: dss.recommendation, kế hoạch đã chốt
+plan_share:
+  label: "% GMV rủi ro được xử lý"
+  definition: Phần GMV rủi ro 45 ngày thuộc các seller trong kế hoạch.
+  formula: GMV rủi ro trong kế hoạch / GMV rủi ro 45 ngày
+  window: 45 ngày sau as-of
+  source: dss.recommendation, kế hoạch đã chốt
 plan_saved_range:
   label: Khoảng giữ được P10–P90
   definition: Mô phỏng Monte Carlo 2.000 lần. Mỗi lần mỗi seller sụt hay không theo khả năng sụt của mô hình, và hiệu quả của từng loại hành động được rút trong khoảng giả định ± độ bất định. 80% số lần mô phỏng rơi vào khoảng này.
@@ -146,7 +158,7 @@ plan_saved_range:
   source: src/dss/simulate.py
   caveat: Khoảng phản ánh bất định của giả định, không biến giả định thành số đo được.
 route_late:
-  label: Tỷ lệ trễ
+  label: Trễ hẹn với khách
   definition: Tỷ lệ đơn lịch sử của tuyến sẽ trễ nếu hứa thêm N ngày.
   formula: Số đơn có delay_days > N / số đơn
   window: Đơn mua từ 180 đến 60 ngày trước as-of, đã giao

@@ -176,6 +176,19 @@
             "width": 234
           },
           "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2753.8024973743231,
+            "y": 473.02344300643006
+          },
+          "nodeIndex": "ke_hoach_da_chot",
+          "nodeLineageTag": "9233d9b6-c88a-41f6-9b9a-1b8bb8c2ad0d",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
         }
       ],
       "name": "Tất cả các bảng",

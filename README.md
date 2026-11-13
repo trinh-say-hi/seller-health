@@ -73,7 +73,7 @@ Power BI không thay được Streamlit: nó không giải được MILP, không
 
 ## Lớp Power BI (OLAP server, RLS)
 
-Mô hình Tabular nạp vào VertiPaq, có quan hệ star, measure DAX, hierarchy để drill và phân quyền theo dòng (RLS). Báo cáo có 4 trang, đều khóa khoảng 01/2017 – 08/2018 (trừ trang kế hoạch), lọc theo cây Năm → Tháng và ghi rõ "Kỳ đang xem": **KPI tháng** (số chốt sổ), **Doanh số dồn ở đâu?** (cây phân rã vùng → bang → danh mục → hạng, tán xạ danh mục GMV × trễ), **Giao hàng** (trễ do seller hay do vận chuyển), **Kế hoạch đề xuất** (bấm một mốc trên đường để xem kế hoạch của mốc đó, kế hoạch theo vùng, seller theo hạng, danh sách seller trong kế hoạch).
+Mô hình Tabular nạp vào VertiPaq, có quan hệ star, measure DAX, hierarchy để drill và phân quyền theo dòng (RLS). Báo cáo có 4 trang, đều khóa khoảng 01/2017 – 08/2018 (trừ trang kế hoạch), lọc theo cây Năm → Tháng và ghi rõ "Kỳ đang xem": **KPI tháng** (số chốt sổ), **Doanh số dồn ở đâu?** (cây phân rã vùng → bang → danh mục → hạng, tán xạ danh mục GMV × trễ), **Giao hàng** (trễ do seller hay do vận chuyển), **Kế hoạch** (mở sẵn mốc vừa chốt trên app, bấm một mốc trên đường để xem mốc khác; kế hoạch theo vùng, seller theo hạng, danh sách seller trong kế hoạch).
 
 ```powershell
 .\run_pipeline.ps1 -Job xuat_power_bi      # chỉ xuất lại Parquet từ bản đang dùng
@@ -223,6 +223,8 @@ python -m tests.test_release  # bản phát hành: phát hành khi app đang m�
 ```
 
 Kết quả được ghi vào `evidence/`, kèm ảnh chụp giao diện trong `evidence/screenshots/`.
+
+Tên chỉ số, hành động, hạng và chiều dùng chung cho app, Power BI, CSV và báo cáo: [docs/tu-dien-ten.md](docs/tu-dien-ten.md).
 
 ## Cấu trúc thư mục
 

@@ -83,3 +83,4 @@ relationship 7a13a439-be6b-4ce9-ac64-cd9668e95763
 relationship 1e1482d2-7c17-41cd-bb96-378a3c948761
 	fromColumn: ke_hoach_da_chot.seller_key
 	toColumn: dim_seller.seller_key
+
