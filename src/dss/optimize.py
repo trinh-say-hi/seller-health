@@ -3,6 +3,8 @@
 Muc tieu: toi da GMV ky vong giu duoc = p_decline x gia tri 45 ngay x hieu qua gia dinh.
 Giai chinh xac bang MILP (HiGHS qua SciPy).
 """
+import warnings
+
 import numpy as np
 import pandas as pd
 from scipy.optimize import Bounds, LinearConstraint, milp
@@ -54,6 +56,9 @@ def solve(df: pd.DataFrame, p: Params) -> dict:
     ub = np.r_[p.budget, p.max_slots, np.ones(len(sellers))]
     res = milp(c=-np.array([o[2] for o in options]), constraints=LinearConstraint(A.tocsr(), -np.inf, ub),
                integrality=np.ones(n), bounds=Bounds(0, 1), options={"time_limit": 10})
+    if res.status != 0:
+        # 0 = HiGHS chung minh toi uu; 1 = het gio, nghiem tra ve (neu co) chi la nghiem kha thi tot nhat tim duoc
+        warnings.warn(f"MILP chua chung minh toi uu: status={res.status}, mip_gap={getattr(res, 'mip_gap', None)}, {res.message}")
     if res.x is None:
         return {}
     return {options[j][0]: options[j][1] for j in np.flatnonzero(res.x > 0.5)}

@@ -1,0 +1,8 @@
+seller_health:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      # Ban kho do src.pipeline.dbt_runner truyen vao. Chay tay: python -m src.pipeline.dbt_runner
+      path: "{{ env_var('OLIST_DB') }}"
+      threads: 4

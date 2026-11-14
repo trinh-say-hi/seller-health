@@ -1,0 +1,33 @@
+name: 'seller_health'
+version: '1.0.0'
+config-version: 2
+
+profile: 'seller_health'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  seller_health:
+    # Schema rieng dbt_*: dbt dung lai kho tu raw de doi chieu, khong ghi de core/mart ma app va Power BI doc.
+    staging:
+      +materialized: view
+      +schema: dbt_stg
+    intermediate:
+      +materialized: view
+      +schema: dbt_stg
+    marts:
+      core:
+        +materialized: table
+        +schema: dbt_core
+      analytics:
+        +materialized: table
+        +schema: dbt_mart

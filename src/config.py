@@ -8,9 +8,9 @@ RAW_DIR = ROOT / "data" / "olist" / "raw"
 SQL_DIR = ROOT / "src" / "sql"
 EVIDENCE_DIR = ROOT / "evidence"
 
-# Database dat ngoai OneDrive de tranh khoa file khi dong bo. OLIST_HOME doi thu muc chua kho.
-_LOCAL = Path(os.environ.get("LOCALAPPDATA", str(ROOT))) / "seller_health"
-HOME = Path(os.environ.get("OLIST_HOME", str(_LOCAL)))
+# Kho, ban phat hanh, Parquet Power BI deu nam trong warehouse/ cua repo (da gitignore), nen doi may khong phai sua duong dan.
+# Repo nam trong OneDrive thi dat OLIST_HOME ra ngoai (vd %LOCALAPPDATA%\seller_health) de dong bo khong khoa file.
+HOME = Path(os.environ.get("OLIST_HOME", str(ROOT / "warehouse")))
 # Moi lan dung lai, kho duoc dung thanh mot ban phat hanh moi trong releases/, kiem tra xong moi tro current.json sang.
 # Khi app dang doc mot file DuckDB thi tien trinh khac khong mo file do de ghi duoc, nen khong dung de len kho app dang doc.
 RELEASES_DIR = HOME / "releases"
@@ -28,6 +28,17 @@ def current_db() -> Path:
 
 
 DB_PATH = current_db()
+
+
+def lake_dir(db: Path) -> Path:
+    """Lakehouse Parquet di kem tung ban kho (olist_x.duckdb -> olist_x_lake/), nen quay lui hay dung hong khong lam lech nhau."""
+    return db.with_name(db.stem + "_lake")
+
+
+LAKE_DIR = lake_dir(DB_PATH)
+BRONZE_LAKE = LAKE_DIR / "bronze"
+SILVER_LAKE = LAKE_DIR / "silver"
+GOLD_LAKE = LAKE_DIR / "gold"
 
 FIRST_BATCH = "2016-09"
 LAST_BATCH = "2018-10"

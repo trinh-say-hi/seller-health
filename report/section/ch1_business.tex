@@ -1,0 +1,241 @@
+% !TEX root = ../main.tex
+\section{BÀI TOÁN NGHIỆP VỤ VÀ NGƯỜI DÙNG}
+\suppressfloats[t]
+
+Một kho dữ liệu chỉ có nghĩa khi trả lời được một quyết định cụ thể. Chương này xác định quyết định đó — giữ chân seller nào, bằng hành động gì, dưới ngân sách nào — và đặt ra ba đại lượng đo được (GMV, mức tập trung, tỷ lệ trễ) để các chương sau không phải tranh luận lại.
+
+\begin{center}
+\noindent\resizebox{\textwidth}{!}{%
+\kpicard{13,49 triệu BRL}{GMV hợp lệ}{112.650 dòng hàng, 09/2016--10/2018} \hspace{0.2cm}
+\kpicard{99.441}{Đơn hàng}{96.478 đơn đã giao} \hspace{0.2cm}
+\kpicard{3.095}{Seller}{Top 20\% tạo 82,6\% GMV} \hspace{0.2cm}
+\kpicard{2.000 BRL / 40 suất}{Nguồn lực mỗi tháng}{Giả định của đề tài}%
+}
+\end{center}
+\vspace{0.2cm}
+
+\subsection{Bối cảnh Olist và tập dữ liệu}
+Olist là một nền tảng trung gian tại Brazil: các cửa hàng nhỏ (seller) đăng sản phẩm qua Olist để bán trên các sàn lớn. Khi có đơn, seller tự đóng gói và bàn giao cho đơn vị vận chuyển không muộn hơn hạn \texttt{shipping\_limit\_date}; đơn vị vận chuyển giao tới khách không muộn hơn ngày hẹn \texttt{order\_estimated\_delivery\_date}.
+
+Tập dữ liệu công khai trên Kaggle gồm 9 tệp CSV (Bảng~\ref{tab:olist_files}, Chương III). Sau khi nạp đủ 26 đợt, kho ghi nhận:
+\begin{itemize}
+    \item 99.441 đơn hàng. Trạng thái cuối cùng: 96.478 \texttt{delivered}, 1.107 \texttt{shipped}, 625 \texttt{canceled}, 609 \texttt{unavailable}, 314 \texttt{invoiced}, 301 \texttt{processing}, 5 \texttt{created}, 2 \texttt{approved}.
+    \item 112.650 dòng hàng với tổng tiền hàng 13.591.643,70 BRL. Bỏ các đơn \texttt{canceled} và \texttt{unavailable}, GMV hợp lệ là \textbf{13.494.400,74 BRL}. Mọi chỉ số GMV trong báo cáo dùng con số hợp lệ này.
+    \item 3.095 seller ở 555 thành phố (sau chuẩn hóa tên) thuộc 23 bang; 96.096 khách hàng duy nhất (theo \texttt{customer\_unique\_id}).
+\end{itemize}
+
+Hình~\ref{fig:kpi_monthly} vẽ GMV và tỷ lệ trễ hẹn theo tháng từ bảng chốt sổ \texttt{mart.kpi\_monthly}. Giai đoạn 09--12/2016 chỉ có 293 đơn có dòng hàng hợp lệ (11/2016 không có đơn nào) và 09--10/2018 chỉ có 1 đơn có GMV hợp lệ (trong 20 đơn, 19 đơn bị hủy), nên hình chỉ vẽ 01/2017--08/2018.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.95\textwidth, height=5.6cm,
+    ybar, bar width=4.2pt,
+    ymin=0, ymax=1100, axis y line*=left,
+    ylabel={GMV (nghìn BRL)},
+    symbolic x coords={01/17,02/17,03/17,04/17,05/17,06/17,07/17,08/17,09/17,10/17,11/17,12/17,01/18,02/18,03/18,04/18,05/18,06/18,07/18,08/18},
+    xtick={01/17,04/17,07/17,10/17,01/18,04/18,07/18}, x tick label style={font=\footnotesize}, xlabel={Tháng mua (nhãn mỗi quý)},
+    enlarge x limits=0.03, legend style={at={(0.3,1.03)}, anchor=south},
+]
+\addplot[fill=hcmutnavy!70, draw=none] coordinates {(01/17,120) (02/17,245) (03/17,368) (04/17,354) (05/17,503) (06/17,430) (07/17,492) (08/17,568) (09/17,621) (10/17,660) (11/17,1004) (12/17,742) (01/18,945) (02/18,838) (03/18,981) (04/18,994) (05/18,993) (06/18,863) (07/18,878) (08/18,849)};
+\addlegendentry{GMV theo tháng mua}
+\end{axis}
+\begin{axis}[
+    width=0.95\textwidth, height=5.6cm,
+    ymin=0, ymax=20, axis y line*=right, axis x line=none,
+    ylabel={Tỷ lệ trễ hẹn (\%)},
+    symbolic x coords={01/17,02/17,03/17,04/17,05/17,06/17,07/17,08/17,09/17,10/17,11/17,12/17,01/18,02/18,03/18,04/18,05/18,06/18,07/18,08/18},
+    enlarge x limits=0.03, legend style={at={(0.7,1.03)}, anchor=south},
+]
+\addplot[red!75!black, thick, mark=*, mark size=1.4pt] coordinates {(02/17,6.1) (03/17,6.5) (04/17,7.3) (05/17,9.4) (06/17,4.8) (07/17,5.1) (08/17,4.4) (09/17,5.2) (10/17,6.2) (11/17,5.9) (12/17,14.4) (01/18,8.4) (02/18,7.6) (03/18,17.5) (04/18,16.4) (05/18,6.0) (06/18,8.4) (07/18,2.3) (08/18,7.3)};
+\addlegendentry{Trễ hẹn (theo tháng đến hạn)}
+\end{axis}
+\end{tikzpicture}
+\caption{GMV và tỷ lệ đơn trễ hẹn theo tháng (nguồn: \texttt{mart.kpi\_monthly}, dòng tổng toàn sàn)}
+\label{fig:kpi_monthly}
+\end{figure}
+
+Hình~\ref{fig:kpi_monthly} cho thấy GMV tăng từ 120 nghìn BRL (01/2017) lên đỉnh 1,00 triệu BRL vào 11/2017 — tháng có Black Friday 24/11 — rồi đi ngang trong 2018 ở mức 0,84--0,99 triệu BRL/tháng. Điều đáng chú ý nằm ở nửa sau của đường cong: từ 01/2018 đến 08/2018, số seller có bán tăng từ 968 lên 1.266 (+31\%) trong khi GMV tháng giảm từ 945 xuống 849 nghìn BRL (−10\%). GMV bình quân mỗi seller vì thế giảm từ 977 xuống 670 BRL/tháng (−31\%). Sàn có thêm seller, nhưng mỗi seller bán ít đi — đây là lý do đầu tiên khiến bài toán giữ chân seller trở nên cấp thiết.
+
+Đường trễ hẹn có hai đỉnh: 14,4\% vào 12/2017 (đơn mua dịp Black Friday đến hạn) và 17,5\% vào 03/2018; 04/2018 vẫn ở 16,4\%. Điểm review trung bình toàn sàn giảm đúng vào các tháng này (3,88 và 3,71 so với 3,9--4,3 ở phần lớn các tháng còn lại). Cần đọc con số này đúng phạm vi: tỷ lệ trễ được tính theo tháng đến hạn giao (\texttt{n\_late\_orders}/\texttt{n\_due\_orders}), không theo tháng mua.
+
+\subsection{Vì sao chọn bài toán giữ chân seller, không chọn khách hàng rời bỏ}
+
+\subsubsection*{Khách hàng gần như không quay lại}
+Tỷ lệ khách mua từ 2 đơn trở lên:
+\begin{equation}
+\text{Repeat}_{\text{buyer}} = \frac{|\{c : \text{số đơn}(c) \ge 2\}|}{|\{c\}|} = \frac{2.997}{96.096} = 3{,}12\%
+\end{equation}
+Với 96,88\% khách chỉ mua một lần, nhãn ``rời bỏ'' của khách gần như trùng với ``mọi khách''. Một mô hình dự báo khách rời bỏ sẽ có rất ít tín hiệu để học, và giá trị bình quân của một đơn chỉ là 137,42 BRL.
+
+\subsubsection*{GMV tập trung mạnh vào một nhóm nhỏ seller}
+Gọi $x_1 \le x_2 \le \dots \le x_n$ là GMV hợp lệ của $n = 3.053$ seller có ít nhất một dòng hàng hợp lệ (42 seller còn lại chỉ có đơn bị hủy hoặc không khả dụng). Hệ số Gini:
+\begin{equation}
+G = \frac{\sum_{i=1}^{n} (2i - n - 1)\, x_i}{n \sum_{i=1}^{n} x_i} = 0{,}791
+\end{equation}
+Áp dụng cùng công thức cho GMV theo khách hàng thì $G_{\text{buyer}} = 0{,}521$. Các điểm của đường cong Lorenz (Hình~\ref{fig:lorenz}) được tính trực tiếp từ dữ liệu:
+\begin{itemize}
+    \item 611 seller lớn nhất (top 20\%) tạo 11.143.405,94 BRL, tức \textbf{82,6\%} GMV hợp lệ.
+    \item 31 seller lớn nhất (top 1\%) tạo 26,2\% GMV; nửa dưới gồm 1.526 seller chỉ tạo 3,2\%.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=8.2cm, height=7cm,
+    xmin=0, xmax=100, ymin=0, ymax=100,
+    xlabel={\% seller (xếp GMV tăng dần)}, ylabel={\% GMV tích lũy},
+    grid=major, grid style={gray!20},
+    legend style={at={(0.03,0.97)}, anchor=north west},
+]
+\addplot[gray, dashed] coordinates {(0,0) (100,100)};
+\addlegendentry{Phân bổ đều ($G=0$)}
+\addplot[hcmutnavy, very thick, mark=*, mark size=1.5pt] coordinates {(0,0) (20,0.37) (40,1.74) (50,3.24) (60,5.68) (80,17.42) (90,32.57) (95,46.73) (99,73.82) (100,100)};
+\addlegendentry{Seller ($G=0{,}791$)}
+\draw[red!70!black, dotted, thick] (axis cs:80,0) -- (axis cs:80,17.42) -- (axis cs:0,17.42);
+\node[font=\scriptsize, anchor=west, align=left, text=red!70!black, fill=white, draw=red!40, rounded corners=2pt, inner sep=3pt] (pareto) at (axis cs:6,68) {80\% seller nhỏ chỉ tạo\\17,4\% GMV};
+\draw[->, >={Stealth[length=4pt]}, red!70!black, line width=0.6pt] (pareto.south east) to[bend left=15] (axis cs:79,18.5);
+\end{axis}
+\end{tikzpicture}
+\caption[Đường cong Lorenz của GMV theo seller]{Đường cong Lorenz của GMV hợp lệ theo seller (9 điểm phân vị tính từ \texttt{core.fact\_sales\_item})}
+\label{fig:lorenz}
+\end{figure}
+
+Bảng~\ref{tab:buyer_vs_seller} đặt hai đối tượng cạnh nhau. Chỉ đưa vào các chỉ số đo được trên kho.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{So sánh định lượng người mua và người bán}
+\label{tab:buyer_vs_seller}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}m{4.4cm}|>{\centering\arraybackslash}m{3.6cm}|C|}
+\hline
+\textbf{Chỉ số} & \textbf{Khách hàng} & \textbf{Seller} \\
+\hline
+Số đối tượng & 96.096 & 3.095 (3.053 có GMV hợp lệ) \\
+\hline
+Có giao dịch lặp lại & 3,12\% mua từ 2 đơn & 1.658 seller có đơn trong 90 ngày tại mốc 01/07/2018 \\
+\hline
+Hệ số Gini của GMV & 0,521 & 0,791 \\
+\hline
+Giá trị bình quân & 137,42 BRL/đơn & Ngưỡng top 20\% tại 01/07/2018: GMV 90 ngày $\ge$ 1.892,6 BRL \\
+\hline
+\end{tabularx}
+\end{table}
+
+Ba quan sát trên dẫn đến một kết luận có hệ quả cho thiết kế kho. GMV phụ thuộc vào một nhóm seller có thể đếm được (vài trăm seller), còn khách hàng thì phân tán và hầu như không quay lại; vì thế can thiệp có chủ đích — gọi điện, hỗ trợ vận hành — chỉ khả thi về chi phí khi đối tượng là seller. Lập luận này dựa trên mức độ tập trung, chưa đo được hiệu quả của can thiệp; giới hạn đó được nêu ở Chương IX.
+
+\subsection{Định nghĩa rủi ro: tạm ngừng và sụt GMV}
+Nếu GMV tập trung ở seller, câu hỏi tiếp theo là nhận diện seller nào sắp sụt. Tại mốc as-of $t$, với mỗi seller có đơn trong 90 ngày trước $t$, gọi $\text{GMV}_{90}$ là GMV 90 ngày trước $t$ và $\text{GMV}_{45}$ là GMV 45 ngày sau $t$. Ba đại lượng được định nghĩa trong \texttt{src/dss/run.py}:
+\begin{align}
+\text{dormant} &= \mathbb{I}(\text{GMV}_{45} = 0) \\
+\text{decline} &= \mathbb{I}\!\left(\text{GMV}_{45} < 0{,}5 \times \tfrac{\text{GMV}_{90}}{2}\right) \\
+\text{loss} &= \max\!\left(\tfrac{\text{GMV}_{90}}{2} - \text{GMV}_{45},\; 0\right)
+\end{align}
+trong đó $\text{GMV}_{90}/2$ là mức GMV 45 ngày ``bình thường'' của seller và $\mathbb{I}(\cdot)$ là hàm chỉ thị. Mọi seller \texttt{dormant} đều thỏa \texttt{decline}, nên \texttt{decline} là nhãn rộng hơn và là mục tiêu chính của DSS.
+
+Trên 16 mốc có nhãn (04/2017--07/2018, bảng \texttt{dss.labels}), tỷ lệ \texttt{decline} dao động 35,6--51,1\%, tỷ lệ \texttt{dormant} 26,6--34,9\%. Tạm ngừng không có nghĩa là rời bỏ: trong các mốc 04/2017--05/2018, \textbf{34--50\%} seller tạm ngừng có đơn trở lại sau 45 ngày (cột \texttt{returned\_later}). Các mốc 06--07/2018 cho tỷ lệ thấp hơn (28\% và 8\%) vì dữ liệu chỉ đáng tin tới 01/09/2018, nên còn quá ít thời gian để quan sát việc quay lại. Hai con số này bị cắt phải (right-censored) và không được dùng để kết luận.
+
+\subsection{Người dùng và quyết định}
+Biết đối tượng là seller chưa đủ; cần biết ai ra quyết định và quyết định đó là gì. Hệ thống có hai nhóm người dùng với hai loại việc khác nhau: nhóm \textbf{xem và theo dõi} (Ban điều hành, Quản lý vùng) và nhóm \textbf{ra quyết định} (Trưởng nhóm Seller Success, Quản lý vận hành giao nhận). Mỗi vai trò ra quyết định có đúng một loại quyết định (Bảng~\ref{tab:roles}); R4 chỉ thực hiện danh sách, không tự quyết.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Vai trò người dùng, quyết định và công cụ}
+\label{tab:roles}
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}m{0.7cm}|>{\raggedright\arraybackslash}m{3.1cm}|L|>{\centering\arraybackslash}m{1.9cm}|>{\raggedright\arraybackslash}m{3.2cm}|}
+\hline
+\textbf{\#} & \textbf{Vai trò} & \textbf{Quyết định} & \textbf{Loại} & \textbf{Công cụ} \\
+\hline
+R1 & Ban điều hành & Có tăng ngân sách, nhân sự cho Seller Success không (theo quý) & Phi cấu trúc & Power BI (toàn quốc) \\
+\hline
+R2 & Quản lý vùng & Vùng mình có vấn đề ở đâu, cần phối hợp về seller nào & Bán cấu trúc & Power BI, lọc theo vùng (RLS) \\
+\hline
+R3 & Trưởng nhóm Seller Success & Tháng này gọi ai, hỗ trợ ai, ai chỉ nhận email & Bán cấu trúc & Streamlit: 4 màn luồng A \\
+\hline
+R4 & Nhân viên chăm sóc seller & Không ra quyết định, thực hiện danh sách & Có cấu trúc & Tệp CSV xuất từ R3 \\
+\hline
+R5 & Quản lý vận hành giao nhận & Có nới ngày hẹn giao trên tuyến nào, bao nhiêu ngày & Bán cấu trúc & Power BI Giao hàng, Streamlit What-if tuyến \\
+\hline
+R6 & Nhóm dữ liệu & Kho có được phát hành không, mô hình còn tin được không & Có cấu trúc & Dagster, màn Kiểm chứng \\
+\hline
+\end{tabularx}
+\end{table}
+
+\textbf{Luồng A (giữ chân seller, chủ sở hữu R3)} có ba quyết định nối tiếp mỗi tháng:
+\begin{enumerate}
+    \item \textbf{Chọn đối tượng:} seller nào có khả năng sụt GMV cao và đáng giá đủ lớn để bỏ công.
+    \item \textbf{Chọn hành động:} \texttt{CALL} (gọi điện, 50 BRL, 1 suất), \texttt{OPS} (hỗ trợ vận hành, 150 BRL, 2 suất), \texttt{EMAIL} (tự động, 0 BRL) hoặc không làm gì.
+    \item \textbf{Phân bổ nguồn lực:} trong ngân sách 2.000 BRL và 40 suất nhân sự mỗi tháng, chọn tổ hợp tối đa GMV giữ được kỳ vọng.
+\end{enumerate}
+Tiêu chí lựa chọn (principle of choice) là tối đa GMV giữ được kỳ vọng. Chi phí, số suất và hiệu quả của từng hành động là \textbf{giả định} của đề tài: dữ liệu Olist không có thông tin về các lần can thiệp thật.
+
+\textbf{Luồng B (lời hẹn giao, chủ sở hữu R5):} trên tuyến nào cần hứa thêm bao nhiêu ngày để tỷ lệ trễ không vượt mục tiêu. Tiêu chí: số ngày hứa thêm nhỏ nhất đạt mục tiêu. Luồng B tồn tại vì phân tích ở mục sau cho thấy phần lớn đơn trễ không do seller.
+
+\subsection{Phát hiện: phần lớn đơn trễ có seller bàn giao đúng hạn}
+Luồng B chỉ đáng theo đuổi nếu phần lớn đơn trễ thực sự nằm ở khâu vận chuyển. Vì vậy trước khi thiết kế hành động, cần tách lỗi giao trễ theo từng khâu. Với mỗi cặp đơn $\times$ seller đã giao (\texttt{core.fact\_order\_seller}), hai cờ được tính sẵn trong kho:
+\begin{align}
+\text{seller\_late} &= \mathbb{I}(\text{carrier\_ts} > \text{shipping\_limit\_ts}) \\
+\text{customer\_late} &= \mathbb{I}(\text{delivered\_date} > \text{estimated\_date})
+\end{align}
+Ở cấp đơn hàng (\texttt{core.fact\_order}, cờ \texttt{any\_seller\_late}), có 96.475 đơn đã giao đủ các mốc, trong đó 6.534 đơn khách nhận trễ. Trong số đó, 4.720 đơn có \emph{mọi} seller đã bàn giao đúng hạn:
+\begin{equation}
+P(\text{seller đúng hạn} \mid \text{khách nhận trễ}) = \frac{4.720}{6.534} = 72{,}2\%
+\end{equation}
+Thời gian trung vị của hai khâu khác nhau rõ rệt. Trên toàn bộ cặp đơn $\times$ seller đã giao: seller mất 2,2 ngày để bàn giao, vận chuyển mất 7,1 ngày. Riêng các cặp khách nhận trễ: 3,5 ngày ở seller và \textbf{26,2 ngày} ở vận chuyển. Như vậy phần thời gian tăng thêm của đơn trễ nằm chủ yếu ở khâu vận chuyển.
+
+Cần đọc con số 72,2\% đúng phạm vi: nó cho biết seller \emph{không} vi phạm hạn bàn giao. Nó không chứng minh lỗi hoàn toàn thuộc đơn vị vận chuyển, vì ngày hẹn với khách do Olist đặt và có thể đặt quá ngắn cho các tuyến xa.
+
+Bảng~\ref{tab:order_types} chia 97.816 cặp đơn $\times$ seller đã giao thành 5 nhóm; 107 cặp còn lại không xác định được thời điểm review nên không xếp được vào $G_3$ hay $G_5$. Nhóm $G_3$ và $G_5$ được tách theo thời điểm khách gửi review so với lúc nhận hàng.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Năm nhóm đơn $\times$ seller đã giao và điểm review trung bình (\texttt{core.fact\_order\_seller})}
+\label{tab:order_types}
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}m{0.9cm}|>{\raggedright\arraybackslash}m{3.3cm}|L|>{\raggedleft\arraybackslash}m{2.4cm}|>{\centering\arraybackslash}m{1.6cm}|}
+\hline
+\textbf{Nhóm} & \textbf{Tên} & \textbf{Điều kiện} & \textbf{Số cặp (tỷ lệ)} & \textbf{Review TB} \\
+\hline
+$G_1$ & Cả hai đúng hạn & $\neg$seller\_late $\land$ $\neg$customer\_late & 84.308 (86,2\%) & 4,29 \\
+\hline
+$G_2$ & Seller trễ, khách vẫn nhận đúng hẹn & seller\_late $\land$ $\neg$customer\_late & 6.961 (7,1\%) & 4,06 \\
+\hline
+$G_3$ & Trễ ở vận chuyển, review sau khi nhận & $\neg$seller\_late $\land$ customer\_late $\land$ $t_{\text{review}} \ge t_{\text{nhận}}$ & 1.344 (1,4\%) & 3,73 \\
+\hline
+$G_4$ & Cả hai trễ & seller\_late $\land$ customer\_late & 1.816 (1,9\%) & 2,27 \\
+\hline
+$G_5$ & Trễ ở vận chuyển, review trước khi nhận & $\neg$seller\_late $\land$ customer\_late $\land$ $t_{\text{review}} < t_{\text{nhận}}$ & 3.280 (3,4\%) & 1,68 \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.82\textwidth, height=5.2cm,
+    xbar, bar width=9pt, xmin=0, xmax=5,
+    xlabel={Điểm review trung bình (sao)},
+    symbolic y coords={G5,G4,G3,G2,G1}, ytick=data,
+    yticklabels={{$G_5$ (3.280)},{$G_4$ (1.816)},{$G_3$ (1.344)},{$G_2$ (6.961)},{$G_1$ (84.308)}},
+    nodes near coords, nodes near coords style={font=\scriptsize, /pgf/number format/fixed, /pgf/number format/precision=2},
+    enlarge y limits=0.15, grid=major, grid style={gray!20},
+]
+\addplot[fill=hcmutnavy!70, draw=none] coordinates {(1.68,G5) (2.27,G4) (3.73,G3) (4.06,G2) (4.29,G1)};
+\end{axis}
+\end{tikzpicture}
+\caption{Điểm review trung bình theo nhóm $G_1$--$G_5$ (trong ngoặc: số cặp đơn $\times$ seller)}
+\label{fig:delivery_blame}
+\end{figure}
+
+Bảng~\ref{tab:order_types} và Hình~\ref{fig:delivery_blame} cho thấy khách chấm điểm theo việc nhận hàng đúng hẹn hơn là theo lỗi thuộc về ai. $G_2$ — seller bàn giao trễ nhưng khách vẫn nhận đúng hẹn — đạt 4,06, chỉ thấp hơn $G_1$ 0,23 sao; trong khi toàn bộ đơn đúng hẹn đạt 4,27 và đơn trễ chỉ 2,27, chênh 2,0 sao. $G_4$ (cả hai khâu trễ) có điểm 2,27; nhóm trễ do vận chuyển ($G_3 \cup G_5$, 4.624 review) có điểm bình quân gia quyền $\frac{1.344 \times 3{,}73 + 3.280 \times 1{,}68}{4.624} = 2{,}28$ — gần như bằng nhau. Nói cách khác, seller giao đúng hạn vẫn chịu điểm thấp khi vận chuyển trễ.
+
+Thời điểm review tạo ra chênh lệch lớn hơn cả bản thân lỗi. Trong các đơn trễ do vận chuyển có review, 70,9\% ($3.280/4.624$) review được gửi \emph{trước} khi nhận hàng và đạt 1,68 sao; nhóm review sau khi nhận đạt 3,73, chênh 2,05 sao. Đây là tương quan, chưa tách được nhân quả: khách review trước khi nhận có thể chính là những người chờ lâu nhất.
+
+\takeawaybox{Hệ quả cho thiết kế kho}{
+Vì 72,2\% đơn trễ có seller bàn giao đúng hạn và khách chấm điểm như nhau bất kể khâu nào gây trễ, kho phải lưu hai cờ \texttt{seller\_late} và \texttt{customer\_late} ở grain đơn $\times$ seller (\texttt{fact\_order\_seller}), kèm thời điểm review. Nếu chỉ lưu \texttt{customer\_late} ở cấp đơn, DSS sẽ đánh giá sai seller trong khoảng 7 trên 10 đơn trễ, và sẽ chọn sai hành động (\texttt{OPS} cho seller không có vấn đề vận hành).
+}

@@ -1,0 +1,49 @@
+% Hình 4.2 -- Bố trí schema trong một bản phát hành kho (kèm quy mô sau 26 đợt)
+% Một hàng năm schema; hàng dưới là ba thành phần hỗ trợ. Số dòng làm tròn theo đơn vị thật.
+\newcommand{\srow}[2]{{\ttfamily\fontsize{7}{8}\selectfont #1}\hfill\textbf{#2}\\[1pt]}
+\begin{tikzpicture}[font=\erdfont\scriptsize]
+% ---- hàng 1: năm schema theo luồng dữ liệu ----
+\kcard[minimum height=3.8cm]{raw}{0,0}{kbronze}{2.45cm}{kdb}{Bronze \textperiodcentered{} raw}{%
+  Nạp 26 đợt, chỉ thêm\\[2pt]
+  \srow{orders}{137.236}
+  \srow{items}{112.650}
+  \srow{geo}{1.000.163}}
+\kcard[minimum height=3.8cm]{stg}{3.1,0}{ksilver}{2.45cm}{kfilter}{Silver \textperiodcentered{} stg}{%
+  Làm sạch, chuẩn hóa\\[2pt]
+  \srow{customers}{99.441}
+  \srow{sellers}{3.095}
+  \srow{geography}{19.015}}
+\kcard[minimum height=3.8cm]{core}{6.2,0}{kgold}{2.45cm}{kstar}{Gold \textperiodcentered{} core}{%
+  Galaxy 8 dim $\times$ 6 fact\\[2pt]
+  \srow{fact\_sales}{112.650}
+  \srow{fact\_order}{99.441}
+  \srow{dim\_seller}{11.209}}
+\kcard[minimum height=3.8cm]{mart}{9.3,0}{kgold}{2.45cm}{kchart}{Gold \textperiodcentered{} mart}{%
+  Chốt sổ lúc đóng đợt\\[2pt]
+  \srow{features}{25.487}
+  \srow{kpi\_monthly}{4.790}
+  \srow{route}{6.186}}
+\kcard[minimum height=3.8cm]{dss}{12.4,0}{kdss}{2.45cm}{kbulb}{DSS \textperiodcentered{} dss}{%
+  Nhãn, điểm, kế hoạch\\[2pt]
+  \srow{recommend}{17.727}
+  \srow{labels}{18.048}
+  \srow{explain}{230.451}}
+
+\foreach \a/\bb in {raw/stg, stg/core, core/mart, mart/dss} \draw[karrow] (\a.east) -- (\bb.west);
+
+% ---- hàng 2: ba thành phần hỗ trợ ----
+\draw[kdash=kops] (7.4,-4.0) -- (7.4,-4.45);
+\draw[draw=kops!55, dashed, line width=0.8pt] (0.2,-4.45) -- (15.0,-4.45);
+\foreach \xx in {2.4,7.4,12.2} \draw[kdash=kops] (\xx,-4.45) -- (\xx,-4.75);
+\node[anchor=west, font=\erdfont\tiny, text=kops!80!black] at (0.25,-4.25) {hỗ trợ xuyên suốt};
+
+\kcard[minimum height=1.9cm]{ops}{0.2,-4.75}{kops}{4.7cm}{kgear}{Vận hành \textperiodcentered{} ops}{%
+  nhật ký 26 đợt \textperiodcentered{} 286 dòng đối soát\\ 113 dòng sổ cái \textperiodcentered{} 42 dòng cách ly}
+\kcard[minimum height=1.9cm]{lake}{5.4,-4.75}{klake}{3.9cm}{klayers}{Lakehouse}{%
+  123 tệp Parquet ZSTD\\ 101,1 MB, đi kèm bản kho}
+\kcard[minimum height=1.9cm]{dbt}{9.8,-4.75}{kdbt}{5.2cm}{kcode}{dbt \textperiodcentered{} đường dựng thứ hai}{%
+  27 model \textperiodcentered{} 52 test\\ 11 đại lượng đối chiếu với \texttt{core}}
+
+\node[anchor=west, font=\erdfont\tiny, text=ksrc] at (0.2,-7.15)
+  {1 bản phát hành = 1 tệp DuckDB 206,1 MB + 1 thư mục lake 101,1 MB};
+\end{tikzpicture}

@@ -32,7 +32,18 @@ Cần Windows, Python 3.13 và dữ liệu trong `data/olist/raw` (xem [data/REA
 
 Dựng lại mất khoảng 2 phút và **không cần tắt app**: kho mới được dựng thành một bản phát hành riêng, qua hết kiểm tra mới được đưa vào dùng (xem mục Pipeline).
 
-Venv và database nằm ở `%LOCALAPPDATA%\seller_health`, ngoài OneDrive, để việc đồng bộ không khóa file. Đặt `OLIST_HOME` để đổi thư mục, hoặc `OLIST_DB` để dùng cố định một file (khi đó dựng thẳng vào file đó như trước, không qua bước phát hành).
+Mọi dữ liệu sinh ra nằm trong thư mục `warehouse/` của repo (đã gitignore), theo đường dẫn tương đối nên đổi máy không phải sửa gì:
+
+| Thư mục | Nội dung |
+|---|---|
+| `warehouse/releases/olist_*.duckdb` | Các bản kho; `warehouse/current.json` trỏ bản đang dùng |
+| `warehouse/releases/olist_*_lake/` | Lakehouse Parquet (bronze, gold) đi kèm đúng bản kho đó |
+| `warehouse/powerbi/` | Parquet cho Power BI; lần xuất đầu tiên tự trỏ tham số `ThuMucParquet` của `.pbip` về máy đang chạy |
+| `warehouse/dagster/` | Lịch sử chạy Dagster |
+
+Venv là của riêng từng máy (`%LOCALAPPDATA%\seller_health\.venv`, do `setup.ps1` tạo). Repo nằm trong OneDrive thì đặt `OLIST_HOME` ra ngoài (ví dụ `%LOCALAPPDATA%\seller_health`) để việc đồng bộ không khóa file kho. Đặt `OLIST_DB` để dùng cố định một file (khi đó dựng thẳng vào file đó, không qua bước phát hành).
+
+dbt (`dbt/`) dựng lại kho từ `raw` vào các schema riêng `dbt_stg`, `dbt_core`, `dbt_mart`, không ghi đè bảng app đang đọc, rồi chạy test. `run_all.py` và Dagster chạy bước này trước khi phát hành nếu đã cài `requirements-dev.txt`. Chạy tay trên kho đang dùng: `python -m src.pipeline.dbt_runner` (mặc định `build`; có thể `test`, `docs generate`).
 
 ## Pipeline và điều phối (Dagster)
 
@@ -80,7 +91,7 @@ Mô hình Tabular nạp vào VertiPaq, có quan hệ star, measure DAX, hierarch
 python -m src.pipeline.powerbi_export      # như trên, không qua Dagster
 ```
 
-Sau đó mở `powerbi/OlistSellerHealth.pbip` bằng Power BI Desktop rồi bấm **Refresh**. Asset `xuat_parquet` chạy sau `kho_phat_hanh`, nên job `dung_lai_toan_bo` và `chay_lai_dss` cũng tự xuất lại. Parquet nằm ở `%LOCALAPPDATA%\seller_health\powerbi\`, kèm `manifest.json` ghi bản phát hành và số dòng. Máy khác thì đổi tham số `ThuMucParquet` (Transform data > Edit parameters).
+Sau đó mở `powerbi/OlistSellerHealth.pbip` bằng Power BI Desktop rồi bấm **Refresh**. Asset `xuat_parquet` chạy sau `kho_phat_hanh`, nên job `dung_lai_toan_bo` và `chay_lai_dss` cũng tự xuất lại. Parquet nằm ở `warehouse/powerbi/`, kèm `manifest.json` ghi bản phát hành và số dòng. Mỗi lần xuất, tham số `ThuMucParquet` của `.pbip` được trỏ về thư mục này trên máy đang chạy (Power BI chỉ nhận đường dẫn tuyệt đối), nên máy khác chỉ cần chạy pipeline rồi mở lại `.pbip`.
 
 | Thành phần | Nội dung |
 |---|---|
@@ -140,7 +151,7 @@ Tài liệu: [thiết kế và báo cáo](docs/thiet-ke-he-thong.md) · [data ca
 
 ### Khép vòng: kế hoạch đã chốt từ app sang Power BI
 
-1. Trưởng nhóm chỉnh kế hoạch ở màn **Bảng kế hoạch** rồi bấm **Chốt kế hoạch**. App ghi kế hoạch đang có, kể cả thao tác kéo tay, ra `%LOCALAPPDATA%\seller_health\powerbi\ke_hoach_da_chot.parquet` (`src/app/decisions.py`). Mỗi mốc giữ một bản; chốt lại thì thay.
+1. Trưởng nhóm chỉnh kế hoạch ở màn **Bảng kế hoạch** rồi bấm **Chốt kế hoạch**. App ghi kế hoạch đang có, kể cả thao tác kéo tay, ra `warehouse/powerbi/ke_hoach_da_chot.parquet` (`src/app/decisions.py`). Mỗi mốc giữ một bản; chốt lại thì thay.
 2. Power BI đọc file này thành bảng `ke_hoach_da_chot`, nối với `dim_seller` và `dim_date`, nên RLS theo vùng vẫn áp dụng.
 3. Các measure "(áp dụng)" dùng bản đã chốt nếu mốc đó đã chốt, còn không thì dùng đề xuất mặc định của MILP. Thẻ **Nguồn kế hoạch** ghi rõ đang xem bản nào.
 4. Power BI cập nhật khi bấm **Làm mới** (vài giây). Đây không phải thời gian thực: mô hình chạy chế độ Import. Muốn tự động thì đưa lên Power BI Service và đặt lịch làm mới; muốn thời gian thực thật thì phải chuyển kế hoạch sang một cơ sở dữ liệu cho phép DirectQuery.

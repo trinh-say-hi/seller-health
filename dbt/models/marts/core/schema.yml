@@ -1,0 +1,127 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: "Enterprise date dimension spanning 2016-2018 with ISO weeks, quarters, holidays and business days"
+    columns:
+      - name: date_key
+        description: "Primary key in YYYYMMDD format"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_customer
+    description: "Conformed customer dimension linking unique customers to geographic locations"
+    columns:
+      - name: customer_key
+        description: "Surrogate key for customer"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_seller
+    description: "SCD Type-2 seller dimension tracking location and historical health tier transitions"
+    columns:
+      - name: seller_key
+        description: "Surrogate key for seller revision"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_product
+    description: "Product dimension with English category translations and physical specifications"
+    columns:
+      - name: product_key
+        description: "Surrogate key for product"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_location
+    description: "Conformed geographic location dimension with state, region and centroid coordinates"
+    columns:
+      - name: location_key
+        description: "Surrogate key for zip location"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_route
+    description: "Logistical route dimension representing 27x27 Brazilian interstate shipping pairs"
+    columns:
+      - name: route_key
+        description: "Surrogate key for route"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_order_status
+    description: "Order status dimension classifying terminal states, cancellations, and active progress"
+    columns:
+      - name: status_key
+        description: "Surrogate key for order status"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_seller_health
+    description: "Mini-dimension combining health tiers, size bands, late rate bands, and review rating bands"
+    columns:
+      - name: health_key
+        description: "Surrogate key for seller health profile"
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_sales_item
+    description: "Transaction grain sales item fact table linking orders, products, sellers, routes, and dates"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: order_item_id
+        tests:
+          - not_null
+      - name: product_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: product_key
+      - name: customer_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_key
+
+  - name: fact_payment
+    description: "Transaction grain payment fact table recording installment methods and monetary values"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: payment_sequential
+        tests:
+          - not_null
+      - name: payment_value
+        tests:
+          - not_null
+
+  - name: fact_order
+    description: "Accumulating snapshot order fact table tracking complete order lifecycle milestones"
+    columns:
+      - name: order_id
+        description: "Order identifier"
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_order_seller
+    description: "Grain: 1 order x 1 seller, isolating seller dispatch SLA from carrier delivery SLA"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: seller_id
+        description: "Seller ID (NULL for orders without items, seller_key = -1)"

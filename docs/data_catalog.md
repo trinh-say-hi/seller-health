@@ -58,6 +58,7 @@ Tự sinh từ kho bằng `python -m src.etl.catalog`, không sửa tay. Mô t�
 | `dss.sensitivity` | DSS | Đánh giá | 1 kịch bản × 1 as-of | 63 |
 | `ops.dq_issue` | Vận hành | Chất lượng dữ liệu | 1 quy tắc | 19 |
 | `ops.etl_log` | Vận hành | Nhật ký | 1 đợt | 27 |
+| `ops.ingestion_batches` | Vận hành | Sổ cái mẻ nạp Lakehouse | 1 mẻ nạp file | 113 |
 | `ops.layer_reconciliation` | Vận hành | Cổng chất lượng | 1 phép kiểm tra × 1 đợt | 286 |
 | `ops.quarantine` | Vận hành | Cách ly | 1 dòng lỗi | 42 |
 | `ops.source_manifest` | Vận hành | Nguồn gốc dữ liệu | 1 file nguồn | 9 |
@@ -631,6 +632,21 @@ Kết quả từng đợt nạp. Đợt không ở trạng thái ok sẽ đượ
 | `duration_s` | DOUBLE | Số giây. |
 | `status` | VARCHAR | Trạng thái, ok hoặc failed. |
 | `error_message` | VARCHAR | Nội dung lỗi nếu có. |
+
+### `ops.ingestion_batches`
+
+Sổ cái theo dõi các mẻ nạp Parquet ZSTD bất biến của tầng Bronze Lakehouse.
+
+**Loại:** Sổ cái mẻ nạp Lakehouse. **Grain:** 1 mẻ nạp file.
+
+| Cột | Kiểu | Mô tả |
+|---|---|---|
+| `batch_id` | VARCHAR | Mã đợt nạp hoặc init. |
+| `source_file` | VARCHAR | File nguồn của mẻ, là tên CSV với mẻ init, đường dẫn Parquet trong thư mục lake với các đợt tháng. |
+| `file_hash` | VARCHAR | SHA-256 của chính file đó (CSV hoặc Parquet vừa ghi), dùng để phát hiện file bị sửa sau khi nạp. |
+| `row_count` | BIGINT | Số dòng dữ liệu trong mẻ. |
+| `ingested_at` | TIMESTAMP | Thời điểm nạp vào Lakehouse. |
+| `status` | VARCHAR | Trạng thái mẻ nạp (COMMITTED). |
 
 ### `ops.layer_reconciliation`
 

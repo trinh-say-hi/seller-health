@@ -5,6 +5,9 @@ backgroundColor = "#FFF7FA"
 secondaryBackgroundColor = "#FDEAF2"
 textColor = "#2B1A24"
 
+[server]
+runOnSave = true
+
 [browser]
 gatherUsageStats = false
 

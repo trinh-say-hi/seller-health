@@ -1,31 +1,16 @@
 [
  {
-  "test": "Man hinh 'Tổng quan' khong loi",
+  "test": "Man hinh 'Cần chú ý' khong loi",
   "ok": true,
   "detail": ""
  },
  {
-  "test": "Man hinh 'Tổng quan' co KPI",
+  "test": "Man hinh 'Cần chú ý' co KPI",
   "ok": true,
-  "detail": "7"
+  "detail": "4"
  },
  {
-  "test": "Man hinh 'Tổng quan' vua 1440x800, khong cuon",
-  "ok": true,
-  "detail": "doc 0px, ngang 0px"
- },
- {
-  "test": "Man hinh 'Lỗi giao trễ' khong loi",
-  "ok": true,
-  "detail": ""
- },
- {
-  "test": "Man hinh 'Lỗi giao trễ' co KPI",
-  "ok": true,
-  "detail": "5"
- },
- {
-  "test": "Man hinh 'Lỗi giao trễ' vua 1440x800, khong cuon",
+  "test": "Man hinh 'Cần chú ý' vua 1440x800, khong cuon",
   "ok": true,
   "detail": "doc 0px, ngang 0px"
  },
@@ -37,7 +22,7 @@
  {
   "test": "Man hinh 'Chi tiết seller' co KPI",
   "ok": true,
-  "detail": "6"
+  "detail": "4"
  },
  {
   "test": "Man hinh 'Chi tiết seller' vua 1440x800, khong cuon",
@@ -52,7 +37,7 @@
  {
   "test": "Man hinh 'Bảng kế hoạch' co KPI",
   "ok": true,
-  "detail": "4"
+  "detail": "5"
  },
  {
   "test": "Man hinh 'Bảng kế hoạch' vua 1440x800, khong cuon",
@@ -90,44 +75,19 @@
   "detail": "doc 0px, ngang 0px"
  },
  {
-  "test": "Man hinh 'Đa chiều' khong loi",
-  "ok": true,
-  "detail": ""
- },
- {
-  "test": "Man hinh 'Đa chiều' co KPI",
-  "ok": true,
-  "detail": "5"
- },
- {
-  "test": "Man hinh 'Đa chiều' vua 1440x800, khong cuon",
-  "ok": true,
-  "detail": "doc 0px, ngang 0px"
- },
- {
   "test": "Co chu thich KPI tu metrics.yml",
   "ok": true,
   "detail": ""
  },
  {
-  "test": "GMV tren giao dien khop SQL",
+  "test": "GMV rui ro tren giao dien khop SQL",
   "ok": true,
-  "detail": "863k / 863,265.53"
+  "detail": "479k / 479,459.17"
  },
  {
-  "test": "So don tren giao dien khop SQL",
+  "test": "Doi as-of lam so GMV rui ro doi",
   "ok": true,
-  "detail": "6.145"
- },
- {
-  "test": "Ty le tre tren giao dien khop SQL",
-  "ok": true,
-  "detail": "8,4% / 389/4642"
- },
- {
-  "test": "Doi as-of lam so GMV doi",
-  "ok": true,
-  "detail": "863k -> 838k"
+  "detail": "479k -> 340k"
  },
  {
   "test": "Sau khi doi as-of khong loi",
@@ -142,7 +102,7 @@
  {
   "test": "Dung ten cac cot",
   "ok": true,
-  "detail": "['Gọi ngay', 'Hỗ trợ vận hành', 'Email tự động', 'Chưa xử lý']"
+  "detail": "['Gọi ngay (tổng 16)', 'Hỗ trợ vận hành (tổng 8)', 'Email tự động (tổng 917)', 'Chưa xử lý (tổng 397)']"
  },
  {
   "test": "Cac cot nam ngang hang nhau",
@@ -182,7 +142,7 @@
  {
   "test": "Keo tha lam GMV ky vong doi",
   "ok": true,
-  "detail": "24.882 BRL -> 23.766 BRL"
+  "detail": "25k -> 24k"
  },
  {
   "test": "Sau keo tha khong loi",
@@ -227,7 +187,7 @@
  {
   "test": "Chi tiet seller co bieu do giai thich du bao",
   "ok": true,
-  "detail": "Vì sao rủi ro 94%: số đơn 90 ngày đẩy lên mạnh nhất"
+  "detail": "Vì sao khả năng sụt GMV 94%"
  },
  {
   "test": "Kich ban: luu duoc va so sanh trong hop thoai",
@@ -235,12 +195,7 @@
   "detail": "Hiệu quả trên mỗi 1.000 BRL cao nhất trong các kịch bản đã lưu: KB1 · 2.000 BRL "
  },
  {
-  "test": "Moc som nhat: 'Tổng quan' khong cuon",
-  "ok": true,
-  "detail": "doc 0px, ngang 0px"
- },
- {
-  "test": "Moc som nhat: 'Lỗi giao trễ' khong cuon",
+  "test": "Moc som nhat: 'Cần chú ý' khong cuon",
   "ok": true,
   "detail": "doc 0px, ngang 0px"
  },
@@ -261,11 +216,6 @@
  },
  {
   "test": "Moc som nhat: 'Kiểm chứng' khong cuon",
-  "ok": true,
-  "detail": "doc 0px, ngang 0px"
- },
- {
-  "test": "Moc som nhat: 'Đa chiều' khong cuon",
   "ok": true,
   "detail": "doc 0px, ngang 0px"
  },

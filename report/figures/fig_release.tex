@@ -1,0 +1,39 @@
+% Hình 5.2 -- Quy trình dựng và phát hành một bản kho
+% Bốn bước ngang; mỗi bước có panel con ngay bên dưới, không chồng lấn.
+\begin{tikzpicture}[font=\erdfont\scriptsize]
+\kcard[minimum height=2.3cm]{c1}{0,0}{kdss}{3.1cm}{kfile}{1 \textperiodcentered{} Tạo bản mới}{%
+  Tệp DuckDB mới trong \texttt{releases/}\\ chưa đổi \texttt{current.json}}
+\kcard[minimum height=2.3cm]{c2}{3.9,0}{kdss}{3.1cm}{kdb}{2 \textperiodcentered{} Dựng kho}{%
+  26 đợt + lake Parquet\\ DSS và catalog}
+\kcard[minimum height=2.3cm]{c3}{7.8,0}{kdss}{3.1cm}{kshield}{3 \textperiodcentered{} Kiểm tra}{%
+  Bốn cổng bên dưới\\ tất cả phải đạt}
+\kcard[minimum height=2.3cm]{c4}{11.7,0}{kdss}{3.1cm}{kcheck}{4 \textperiodcentered{} Phát hành}{%
+  Đổi \texttt{current.json}\\ bằng \texttt{os.replace}}
+
+\foreach \a/\b in {c1/c2, c2/c3, c3/c4} \draw[karrow] (\a.east) -- (\b.west);
+
+% ---- cột 3: bốn cổng và nhánh lỗi ----
+\kcard[minimum height=2.2cm]{gates}{7.8,-2.55}{kwarn}{3.1cm}{kshield}{Bốn cổng}{%
+  286 đối soát \textperiodcentered{} 133 test\\ 11 lakehouse \textperiodcentered{} 79 dbt}
+\kcard[minimum height=2.3cm]{fail}{7.8,-5.15}{kalert}{3.1cm}{kcross}{Khi một cổng lỗi}{%
+  Dừng ngay\\ \texttt{current.json} không đổi\\ app đọc bản đang dùng}
+\draw[karrow] (c3.south) -- (gates.north);
+\draw[kdash=kalert] (gates.south) -- (fail.north) node[midway, right, font=\erdfont\tiny, text=kalert] {lỗi};
+
+% ---- cột 4: phát hành và quay lui ----
+\kcard[minimum height=2.0cm]{curr}{11.7,-2.55}{klake}{3.1cm}{kcheck}{\texttt{current.json}}{%
+  \texttt{os.replace} nguyên tử\\ app đọc bản mới ở lần tải sau}
+\kcard[minimum height=2.0cm]{roll}{11.7,-5.15}{ksrc}{3.1cm}{kclock}{Quay lui}{%
+  \texttt{rollback} đổi chỗ hai bản\\ bản cũ hơn bị xóa kèm lake}
+\draw[karrow] (c4.south) -- (curr.north);
+\draw[kdash=ksrc] (curr.south) -- (roll.north);
+
+% ---- chân hình ----
+\begin{scope}[yshift=-8.0cm]
+  \draw[karrow] (0,0) -- (0.55,0);
+  \node[anchor=west, font=\erdfont\tiny] at (0.6,0) {tiến trình};
+  \draw[kdash=kalert] (3.1,0) -- (3.65,0);
+  \node[anchor=west, font=\erdfont\tiny] at (3.7,0) {lỗi/quay lui};
+  \node[anchor=west, font=\erdfont\tiny] at (7.2,0) {Mỗi bước chạy trong một tiến trình con trỏ vào bản phát hành của lần chạy đó};
+\end{scope}
+\end{tikzpicture}

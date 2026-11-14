@@ -156,6 +156,22 @@ def kiem_thu_he_thong(context) -> AssetCheckResult:
     return AssetCheckResult(passed=passed and not bad, metadata=meta)
 
 
+@asset_check(asset=danh_muc_du_lieu, blocking=True,
+             description="Lakehouse Parquet khop kho, so cai nap day du; dbt dung lai kho tu raw vao dbt_* va doi chieu voi kho chinh. "
+                         "Cung tieu chuan voi run_all.py. Chua cai dbt-duckdb thi bo qua phan dbt.")
+def lakehouse_va_dbt(context) -> AssetCheckResult:
+    from src.pipeline import dbt_runner
+    db = _release_path(context)
+    steps = ["tests.test_lakehouse_medallion"] + (["src.pipeline.dbt_runner"] if dbt_runner.available() else [])
+    meta = {}
+    for module in steps:
+        try:
+            meta[module] = f"{_run_module(context, module, db)} s"
+        except Failure:
+            return AssetCheckResult(passed=False, metadata={**meta, module: "hong"})
+    return AssetCheckResult(passed=True, metadata=meta)
+
+
 # ---------------------------------------------------------------- Phat hanh
 @asset(group_name="phat_hanh", deps=[danh_muc_du_lieu],
        description="Tro current.json sang ban moi (doi ten nguyen tu). App tu doc ban moi o lan tai trang sau; ban truoc giu lai de quay lui.")
@@ -187,7 +203,7 @@ xuat_power_bi = define_asset_job("xuat_power_bi", selection=AssetSelection.asset
 
 defs = Definitions(
     assets=[nguon_csv, kho_du_lieu, dss_khuyen_nghi, danh_muc_du_lieu, kho_phat_hanh, xuat_parquet],
-    asset_checks=[doi_soat_cac_lop, bat_thuong_du_lieu, kiem_thu_he_thong],
+    asset_checks=[doi_soat_cac_lop, bat_thuong_du_lieu, kiem_thu_he_thong, lakehouse_va_dbt],
     jobs=[dung_lai_toan_bo, chay_lai_dss, xuat_power_bi],
     # Lam moi kho hang ngay luc 2 gio sang (muc bao tri kho, chuong 3). Mac dinh tat, bat trong giao dien Dagster.
     schedules=[ScheduleDefinition(job=dung_lai_toan_bo, cron_schedule="0 2 * * *", execution_timezone="Asia/Ho_Chi_Minh",

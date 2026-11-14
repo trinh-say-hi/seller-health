@@ -1,0 +1,76 @@
+% !TEX root = ../main.tex
+\section{KẾT LUẬN, HẠN CHẾ VÀ HƯỚNG PHÁT TRIỂN}
+\suppressfloats[t]
+
+Sau tám chương, bức tranh đã đủ để trả lời câu hỏi ban đầu: kho dữ liệu này có giúp chọn đúng seller không, và nếu có thì ở mức nào. Chương này tổng hợp kết quả đo được, nói rõ phần chưa đo được, và đề xuất ba hướng phát triển có thể kiểm chứng.
+
+\subsection{Kết quả đạt được}
+Bảng~\ref{tab:summary} tóm tắt từng phần của hệ thống, kèm bằng chứng đo được và giới hạn tương ứng.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Tóm tắt kết quả}
+\label{tab:summary}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}m{2.4cm}|L|L|}
+\hline
+\textbf{Phần} & \textbf{Kết quả đo được} & \textbf{Giới hạn} \\
+\hline
+Kho dữ liệu & Galaxy schema 8 dimension, 6 fact; SCD2 với luật 2 kỳ giảm 44,8\% số phiên bản; 26 đợt, 286/286 đối soát khớp & Nạp theo tháng là giả lập từ một bản CSV cuối \\
+\hline
+Lakehouse, dbt & 123 tệp Parquet đi kèm bản kho, sổ cái SHA-256; dbt dựng lại 11 đại lượng lõi khớp kho chính, đã phát hiện 1 lỗi phình to dữ liệu (fan-out, hệ số 4,56) & Model tháng và mart của dbt là bản rút gọn, không được đối chiếu \\
+\hline
+Vận hành & Phát hành theo bản sau 4 cổng kiểm tra; quay lui được; Dagster cùng tiêu chuẩn với \texttt{run\_all.py} & DuckDB không chạy được giao dịch lớn, nên đợt lỗi không tự rollback mà dừng và chạy lại \\
+\hline
+OLAP & ROLAP (8 truy vấn, 1,8--90,8 ms) và MOLAP (Power BI 4 trang, 50 measure, RLS) & RLS mới có 1 vùng; Power BI phải bấm Làm mới \\
+\hline
+Mô hình & AUC 0,711 (sụt GMV), 0,826 (tạm ngừng) & Chỉ hơn xếp theo số ngày chưa bán 0,012 và 0,041 \\
+\hline
+Kế hoạch & Gọi trúng 55,5\% so với 25,9\% khi chọn theo GMV & Bao phủ GMV mất thấp hơn ở 4/5 tháng (19,3\% so với 25,1\%) \\
+\hline
+Giao diện & 5 màn Streamlit cho 2 luồng; 45/45 test trình duyệt & Streamlit chưa có đăng nhập \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Hạn chế}
+\begin{enumerate}
+    \item \textbf{Chưa đo được hiệu quả can thiệp.} Olist không có dữ liệu về các lần gọi hoặc hỗ trợ seller. Mọi con số ``GMV giữ được'' dựa trên giả định hiệu quả ở Bảng~\ref{tab:assume}. Kiểm chứng ngược chỉ cho biết DSS chọn đúng seller \emph{sẽ sụt}, không cho biết gọi họ có giúp gì.
+    \item \textbf{Mô hình dự báo yếu với mục tiêu chính.} AUC 0,71 cho sụt GMV; hai biến \texttt{orders\_30} và \texttt{recency} mang phần lớn thông tin. Biến vận hành gần như không giúp dự báo (bỏ đi chỉ giảm 0,003 AUC).
+    \item \textbf{Dữ liệu cuối kỳ bị cắt.} Từ 08/2018 gần như không còn đơn mới; \texttt{dss.labels} vì vậy kết thúc ở 07/2018. Tỷ lệ seller tạm ngừng quay lại ở các mốc cuối bị đánh giá thấp. Hạng hiện hành ở mốc cuối (75\% Tạm ngừng) không phản ánh sức khỏe thật của sàn.
+    \item \textbf{Giả lập nguồn.} Trạng thái trung gian của đơn được tái dựng từ các mốc thời gian trong bản CSV cuối. Nguồn không có ngày hủy, nên đơn hủy được coi như hủy từ tháng mua.
+    \item \textbf{What-if hẹn giao} giả định thời gian giao không đổi khi lời hẹn đổi, và không đo được việc hứa lâu hơn làm mất bao nhiêu đơn.
+    \item \textbf{Sổ cái xử lý của Silver chưa có nội dung.} Với \texttt{orders} và \texttt{order\_items}, \texttt{silver.processing\_}\allowbreak\texttt{batches} ghi số dòng nhận bằng số dòng vào, nên phép kiểm tra ``vào = nhận + cách ly + trùng'' luôn đúng và chưa có giá trị kiểm tra.
+    \item \textbf{Phân quyền chưa đầy đủ.} Streamlit không có đăng nhập. RLS của Power BI mới có role Sudeste. Kịch bản đã lưu nằm ở máy cục bộ, không chia sẻ giữa người dùng.
+    \item \textbf{Luật cách ly tọa độ chưa tính tới hải đảo.} Khung chữ nhật $[-34; 6] \times [-74; -34]$ chỉ bao phần đất liền, nên 11 dòng hợp lệ của đảo Fernando de Noronha (ZIP 53990) bị cách ly nhầm (Chương III). Sai sót này không ảnh hưởng tới các bảng fact vì không có khách hay seller nào ở ZIP này, nhưng cần được khắc phục bằng danh sách hộp tọa độ ngoại lệ cho các quần đảo Fernando de Noronha, Trindade--Martim Vaz và São Pedro e São Paulo.
+    \item \textbf{Power BI cần đường dẫn tuyệt đối.} Bước xuất Parquet tự trỏ tham số \texttt{ThuMucParquet} về máy đang chạy, nên tệp \texttt{.tmdl} đổi theo từng máy.
+\end{enumerate}
+
+\subsection{Hướng phát triển}
+\subsubsection*{1. Thử nghiệm có nhóm đối chứng}
+Đây là việc cần nhất, vì nó thay giả định hiệu quả bằng số đo. Mỗi tháng, chia ngẫu nhiên các seller được MILP chọn thành nhóm can thiệp và nhóm đối chứng (không gọi), rồi so tỷ lệ sụt GMV sau 45 ngày. Cỡ mẫu mỗi nhóm để phát hiện chênh lệch $\Delta$ giữa hai tỷ lệ, với mức ý nghĩa $\alpha = 0{,}05$ (hai phía) và độ mạnh $1-\beta = 0{,}8$:
+\begin{equation}
+n \approx \frac{2\,(z_{1-\alpha/2} + z_{1-\beta})^2\, \bar p(1-\bar p)}{\Delta^2} = \frac{2 \times (1{,}96 + 0{,}84)^2 \times \bar p(1-\bar p)}{\Delta^2}
+\end{equation}
+Lấy $\bar p = 0{,}5$ (gần tỷ lệ gọi trúng 55,5\% của kế hoạch; đây cũng là trường hợp cần nhiều mẫu nhất):
+\begin{itemize}
+    \item để phát hiện giảm 10 điểm \% tỷ lệ sụt ($\Delta = 0{,}10$): $n \approx 392$ seller mỗi nhóm;
+    \item để phát hiện giảm 20 điểm \% ($\Delta = 0{,}20$): $n \approx 98$.
+\end{itemize}
+Kế hoạch hiện chọn trung bình 30,4 seller/tháng. Nếu chia đôi, mỗi nhóm có khoảng 15 seller/tháng, nên cần khoảng \textbf{26 tháng} cho $\Delta = 0{,}10$ và khoảng 7 tháng cho $\Delta = 0{,}20$. Ở quy mô ngân sách hiện tại, thử nghiệm chỉ khả thi nếu hiệu quả can thiệp lớn, hoặc nếu mở rộng nhóm đối chứng sang các seller ứng viên không được chọn.
+
+\subsubsection*{2. Đo kết quả của kế hoạch đã chốt}
+Kế hoạch đã chốt (kể cả thao tác tay) đã được lưu. Bước tiếp theo là sau 45 ngày tự động nối kế hoạch này với nhãn thật, rồi so sánh kế hoạch đề xuất với kế hoạch người dùng chốt. Phép so sánh này cho biết việc chỉnh tay của người dùng làm kế hoạch tốt lên hay xấu đi.
+
+\subsubsection*{3. Các việc kỹ thuật}
+\begin{itemize}
+    \item Hiệu chỉnh xác suất của mô hình (calibration), vì bài toán tối ưu dùng trực tiếp giá trị $p_i$.
+    \item Thử feature mới về nhu cầu theo danh mục và mùa vụ, vì feature hiện tại đã bão hòa: tăng dữ liệu huấn luyện gấp 5 lần không làm AUC tăng.
+    \item Thêm xác thực và phân quyền theo màn cho Streamlit; tạo role RLS cho các vùng còn lại.
+    \item Đưa kế hoạch đã chốt vào kho thay vì qua một tệp Parquet, để Power BI đọc bằng DirectQuery.
+    \item Hoàn thiện sổ cái Silver: đếm thật số dòng bị loại hoặc gộp ở mỗi bước làm sạch.
+\end{itemize}
+
+\takeawaybox{Kết luận}{
+Đề tài xây dựng được một kho dữ liệu có lịch sử theo tháng, đối soát khớp ở mọi đợt và được kiểm tra bằng hai cách dựng độc lập, cùng một DSS chuyển xác suất sụt GMV thành kế hoạch can thiệp tối ưu dưới ràng buộc ngân sách và nhân sự. Phần kho đã được kiểm chứng định lượng; phần DSS mới được kiểm chứng ở mức chọn đúng seller sẽ sụt. Hệ thống có ích thật hay không phụ thuộc vào hiệu quả can thiệp, và điều đó chỉ đo được bằng thử nghiệm có nhóm đối chứng ở trên.
+}

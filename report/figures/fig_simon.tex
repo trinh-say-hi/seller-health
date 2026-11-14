@@ -1,0 +1,19 @@
+% Hình 2.2 -- Mô hình bốn pha của Simon (mức lý thuyết)
+\colorlet{ksim1}{kdss!55!kops}
+\colorlet{ksim2}{kdss!80!kops}
+\colorlet{ksim3}{kdss}
+\colorlet{ksim4}{kdss!70!black}
+\begin{tikzpicture}[font=\erdfont\scriptsize]
+\foreach \i/\x/\ic/\en/\vi/\txt in {
+   1/0/klens/Intelligence/Nhận thức/{Thu thập, giám sát dữ liệu để phát hiện vấn đề hoặc cơ hội cần quyết định},
+   2/4.5/kgear/Design/Thiết kế/{Mô hình hóa vấn đề, sinh và phân tích các phương án khả thi},
+   3/9.0/kcheck/Choice/Lựa chọn/{Đánh giá phương án theo tiêu chí lựa chọn, chọn phương án tốt nhất},
+   4/13.5/kflag/Implementation/Thực thi/{Triển khai quyết định, theo dõi kết quả và phản hồi}} {
+  \kcard[minimum height=2.1cm]{p\i}{\x,0}{ksim\i}{3.05cm}{\ic}{\i.~\en}{%
+     \textbf{\vi}\\[3pt] \txt}
+}
+\foreach \a/\bb in {1/2,2/3,3/4} \draw[karrow=kdss!70] (p\a.east) -- (p\bb.west);
+\draw[kdash=kdss!70, line width=1.1pt] (p4.south) -- ++(0,-0.5) -| (p1.south)
+  node[pos=0.25, below, font=\erdfont\scriptsize\itshape, text=kdss!80!black]
+  {phản hồi: kết quả thực thi trở thành dữ liệu đầu vào của chu kỳ quyết định tiếp theo};
+\end{tikzpicture}

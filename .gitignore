@@ -14,6 +14,56 @@ kaggle.json
 credentials.json
 .env
 
+# Kho, ban phat hanh, lakehouse, Parquet Power BI, lich su Dagster (src/config.py HOME)
+warehouse/
+# Vi tri lake cu (truoc khi lake di kem tung ban kho), xoa tay duoc
+data/lake/
+
+# IDE / he dieu hanh
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+
 # File tam khi xuat bao cao
 report/_print.html
 report/_review.html
+report/_review_pages/
+report/_build_test*
+report/main.aux
+report/main.log
+report/main.out
+report/main.toc
+report/main.lof
+report/main.lot
+report/main.tex.bak
+report/section.bak/
+report/_backup_rewrite/
+*.synctex.gz
+
+# Tai lieu noi bo / ban cu, khong dua vao repo nop bai
+report/NHAN_XET_*.md
+report/KICH_BAN_PHAN_BIEN.md
+report/CHANGELOG_prose_diagrams.md
+NHAN_XET_GIANG_VIEN_HUONG_DAN.md
+docs/bao_cao_btl_mau.md
+BaoCao_SellerHealth_CO4031.pdf
+test_tcb.log
+texput.log
+
+# Chi giu cac anh report thuc su duoc \includegraphics/\annotatedimage su dung.
+# Anh cu, ban chup trung gian nam ngoai repo de giam nhieu.
+report/image/*
+!report/image/HCMUT_official_logo.png
+!report/image/app_1_can_chu_y_crop.png
+!report/image/app_2_chi_tiet_seller_crop.png
+!report/image/app_3_bang_ke_hoach_crop.png
+!report/image/app_4_whatif_tuyen.png
+!report/image/app_5_kiem_chung.png
+!report/image/app_7_crop_cols.png
+!report/image/app_8_crop_cols.png
+!report/image/app_9_bang_vuot_rang_buoc.png
+!report/image/dagster_1_dss.png
+!report/image/dagster_1_kho.png
+!report/image/dagster_1_phat_hanh.png
+!report/image/dagster_4_run_gantt.png

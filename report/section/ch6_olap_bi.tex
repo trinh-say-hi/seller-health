@@ -1,0 +1,182 @@
+% !TEX root = ../main.tex
+\section{OLAP VÀ GIAO DIỆN NGƯỜI DÙNG}
+\suppressfloats[t]
+
+Kho đã có dữ liệu và mô hình; câu hỏi tiếp theo là người dùng nhìn thấy gì. Chương này so sánh ROLAP và MOLAP trên cùng một kho, rồi giải thích vì sao Power BI dành cho người xem còn Streamlit dành cho người ra quyết định.
+
+\subsection{Hai cách hiện thực OLAP trên cùng một kho}
+\begin{table}[htbp]
+\centering
+\small
+\caption{ROLAP và MOLAP trong hệ thống}
+\label{tab:rolap_molap}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}m{2.4cm}|L|L|}
+\hline
+ & \textbf{ROLAP (DuckDB)} & \textbf{MOLAP (Power BI, chế độ Import)} \\
+\hline
+Nơi tính & SQL \texttt{GROUP BY}, \texttt{ROLLUP}, \texttt{CUBE} trên bảng Gold & Engine VertiPaq, dữ liệu nạp từ Parquet \\
+\hline
+Độ mới & Luôn là bản kho đang dùng & Bản chụp lúc xuất Parquet; phải bấm Làm mới \\
+\hline
+Ngữ nghĩa & Viết trong từng truy vấn & Semantic model: 50 measure DAX, quan hệ, hierarchy \\
+\hline
+Phân quyền & Không có & Row-level security theo vùng \\
+\hline
+Dùng ở & \texttt{src/sql/olap\_examples.sql}, Streamlit & 4 trang báo cáo cho R1, R2, R5 \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsubsection*{Tám truy vấn OLAP và thời gian chạy}
+Bảng~\ref{tab:olap_time} đo thời gian trung bình của 5 lần chạy mỗi truy vấn trong \texttt{olap\_examples.sql}, trên bản kho đang dùng (DuckDB, máy thử nghiệm, kho đã nằm trong bộ nhớ đệm).
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Thời gian chạy tám truy vấn OLAP mẫu}
+\label{tab:olap_time}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}m{2.3cm}|L|>{\raggedright\arraybackslash}m{3.5cm}|>{\raggedleft\arraybackslash}m{1.1cm}|>{\raggedleft\arraybackslash}m{1.3cm}|}
+\hline
+\textbf{Thao tác} & \textbf{Truy vấn} & \textbf{Đọc từ} & \textbf{Số dòng} & \textbf{ms} \\
+\hline
+ROLL-UP & GMV từ tháng lên quý, lên năm, kèm dòng tổng & \texttt{fact\_sales\_item} & 37 & 90,8 \\
+\hline
+DRILL-DOWN & Vùng $\rightarrow$ bang $\rightarrow$ seller, dùng dòng SCD2 có hiệu lực lúc mua & \texttt{fact\_sales\_item} & 20 & 11,3 \\
+\hline
+SLICE & Chỉ danh mục \texttt{housewares}: GMV và review theo tháng & \texttt{fact\_sales\_item} & 21 & 25,1 \\
+\hline
+DICE & Khách ở SP, quý 4/2017, đơn giao trễ & \texttt{fact\_order} & 19 & 6,4 \\
+\hline
+PIVOT & GMV theo tháng $\times$ hạng sức khỏe lúc bán & \texttt{fact\_seller\_monthly} & 9 & 28,5 \\
+\hline
+CUBE & KPI tính sẵn: tổng theo vùng của một tháng & \texttt{mart.kpi\_monthly} & 4 & 2,7 \\
+\hline
+SCD2 & Phân bố hạng tại một thời điểm trong quá khứ & \texttt{dim\_seller} & 7 & 1,8 \\
+\hline
+ROLE-PLAYING & Một \texttt{dim\_date} cho ngày mua và ngày giao: đơn Black Friday 2017 & \texttt{fact\_order} & 1 & 3,9 \\
+\hline
+\end{tabularx}
+\end{table}
+
+Truy vấn đọc bảng tính sẵn (\texttt{CUBE} trên \texttt{mart.kpi\_monthly}, 2,7 ms) nhanh hơn khoảng 34 lần so với ROLL-UP quét \texttt{fact\_sales\_item} (90,8 ms). Ở quy mô 112.650 dòng hàng, cả tám truy vấn đều dưới 0,1 giây, nên người dùng không cảm nhận được khác biệt. Lý do chính để giữ \texttt{kpi\_monthly} vì vậy \emph{không phải} tốc độ, mà là để có \textbf{số chốt sổ}: mỗi tháng được đóng băng lúc đóng đợt và không đổi khi dữ liệu sau này đến (Chương IV).
+
+\subsection{Chia vai: Power BI cho người xem, Streamlit cho người ra quyết định}
+Phân chia này đi theo bảng vai trò ở Chương I. Ban điều hành (R1) và quản lý vùng (R2) chỉ cần xem và lọc, nhưng cần phân quyền theo vùng; Power BI đáp ứng bằng RLS. Trưởng nhóm Seller Success (R3) lại cần giải lại bài toán tối ưu khi đổi ràng buộc, kéo thả để chỉnh tay và lưu kịch bản — những việc DAX không làm được và báo cáo Power BI không ghi lại thao tác người dùng. Vì thế phần này nằm ở Streamlit.
+
+\subsubsection*{Power BI: 4 trang và phân quyền}
+Asset \texttt{xuat\_parquet} xuất 12 bảng từ bản kho đang dùng: 7 dimension, 3 fact, \texttt{kpi\_monthly}, \texttt{dss\_recommendation}. Kèm theo là tệp \texttt{ke\_hoach\_da\_chot.parquet} do ứng dụng ghi khi người dùng chốt kế hoạch. Mô hình TMDL trong \texttt{powerbi/} gồm 4 trang (Bảng~\ref{tab:pbi_pages}).
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Bốn trang Power BI}
+\label{tab:pbi_pages}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}m{3.2cm}|>{\centering\arraybackslash}m{1.3cm}|L|>{\centering\arraybackslash}m{1.4cm}|}
+\hline
+\textbf{Trang} & \textbf{Visual} & \textbf{Câu hỏi} & \textbf{Vai trò} \\
+\hline
+KPI tháng & 13 & GMV, đơn, seller có bán, trễ hẹn, review theo tháng; số chốt sổ & R1, R2 \\
+\hline
+Doanh số dồn ở đâu? & 11 & Cây phân rã vùng $\rightarrow$ bang $\rightarrow$ danh mục $\rightarrow$ hạng (drill-down, roll-up, slice, dice, pivot) & R1, R2 \\
+\hline
+Giao hàng & 11 & Trễ do seller hay do vận chuyển, theo tuyến & R5 \\
+\hline
+Kế hoạch & 14 & Kế hoạch đề xuất hoặc đã chốt, GMV rủi ro được xử lý & R1, R2 \\
+\hline
+\end{tabularx}
+\end{table}
+
+Role \texttt{Quản lý vùng Sudeste} lọc bảng \texttt{dim\_region} theo \texttt{region = "Sudeste"}. Bộ lọc lan qua \texttt{dim\_seller} tới mọi fact theo seller và tới \texttt{kpi\_monthly}. Trong DuckDB, Sudeste có 2.287 seller; số liệu Power BI dưới role này được đối chiếu với truy vấn DuckDB tương ứng. Hiện chỉ có một role làm mẫu. Các vùng khác dùng cùng mẫu nhưng chưa được tạo.
+
+Hình~\ref{fig:pbi_kpi} tóm tắt bốn trang Power BI; Hình~\ref{fig:pbi_rls} mô tả cơ chế RLS — không phải ảnh chụp giao diện, mà là sơ đồ để đọc đúng phạm vi dữ liệu của từng trang.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\erdfont\scriptsize]
+\kcard[minimum height=1.9cm]{p1}{0,0}{hcmutnavy}{6.4cm}{kchart}{KPI tháng \textperiodcentered{} 13 visual}{GMV, đơn, seller, trễ hẹn, review theo tháng; số chốt sổ}
+\kcard[minimum height=1.9cm]{p2}{6.9,0}{hcmutnavy}{6.4cm}{kchart}{Doanh số dồn ở đâu? \textperiodcentered{} 11 visual}{Cây phân rã vùng $\rightarrow$ bang $\rightarrow$ danh mục $\rightarrow$ hạng}
+\kcard[minimum height=1.9cm]{p3}{0,-2.25}{hcmutnavy}{6.4cm}{kchart}{Giao hàng \textperiodcentered{} 11 visual}{Trễ do seller hay do vận chuyển, theo tuyến}
+\kcard[minimum height=1.9cm]{p4}{6.9,-2.25}{hcmutnavy}{6.4cm}{kchart}{Kế hoạch \textperiodcentered{} 14 visual}{Kế hoạch đề xuất hoặc đã chốt, GMV rủi ro được xử lý}
+\end{tikzpicture}
+\caption{Sơ đồ bốn trang Power BI: mỗi trang trả lời một câu hỏi và dùng chung semantic model 50 measure; màu nền chỉ cùng một vai trò người xem}
+\label{fig:pbi_kpi}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\erdfont\scriptsize]
+\kcard[minimum height=1.9cm]{reg}{0,0}{kdss}{3.8cm}{kfilter}{Bộ lọc}{\texttt{dim\_region}\\ \texttt{region = "Sudeste"}}
+\kcard[minimum height=1.9cm]{sel}{4.8,0}{kdss}{3.8cm}{kstar}{\texttt{dim\_seller}}{2.287 seller\\ thuộc Sudeste}
+\kcard[minimum height=1.9cm]{fact}{9.6,0}{kdss}{3.8cm}{kdb}{Fact \& KPI}{\texttt{fact\_*} và \texttt{kpi\_monthly}\\ chỉ còn dòng Sudeste}
+\draw[karrow] (reg.east) -- (sel.west);
+\draw[karrow] (sel.east) -- (fact.west);
+\node[anchor=north west, font=\erdfont\tiny, text=ksrc] at (0,-2.15) {Role mẫu hiện có một vùng; các vùng khác dùng cùng mẫu nhưng chưa tạo.};
+\end{tikzpicture}
+\caption{Cơ chế RLS: mũi tên đi từ lọc (\texttt{dim\_region}) sang lan (\texttt{dim\_seller}) rồi tới fact; số seller Sudeste 2.287 khớp truy vấn DuckDB}
+\label{fig:pbi_rls}
+\end{figure}
+
+
+\subsubsection*{Streamlit: 5 màn, 2 luồng}
+Mọi màn có một bộ chọn \textbf{mốc as-of} ở sidebar: người dùng ``tua thời gian'' và mọi màn chỉ thấy dữ liệu trước mốc đó. Các hình dưới đây chụp ở mốc 01/07/2018 với tham số mặc định.
+
+\annotatedimage{image/app_1_can_chu_y_crop.png}{Luồng A, bước 1 -- Cần chú ý tháng này (mốc 01/07/2018). \uiref{1} Thẻ chỉ số rủi ro và kế hoạch; \uiref{2} danh sách seller mới vào Nguy cơ; \uiref{3} lý do seller chưa được xử lý; \uiref{4} GMV rủi ro theo hành động}{fig:ui_attention}{%
+  \uimark{0.012}{0.90}{1}
+  \uimark{0.010}{0.69}{2}
+  \uimark{0.700}{0.69}{3}
+  \uimark{0.700}{0.41}{4}}
+
+\textbf{Màn Cần chú ý} (Hình~\ref{fig:ui_attention}) trả lời câu hỏi: seller nào \emph{vừa} rơi vào nhóm Nguy cơ. Thẻ chỉ số \uiref{1} cho biết tại 01/07/2018 có 70 seller mới vào Nguy cơ (tổng 89 seller đang ở hạng này); tổng GMV rủi ro 45 ngày của toàn sàn là 479 nghìn BRL, trong đó 70 seller mới đóng góp 29 nghìn BRL, và kế hoạch đề xuất xử lý 138 nghìn BRL qua 32 seller.
+
+Bảng \uiref{2} xếp 70 seller theo GMV rủi ro, kèm khả năng sụt, số ngày chưa bán, tỷ lệ giao vận chuyển trễ và hành động được đề xuất. Biểu đồ \uiref{3} giải thích vì sao phần lớn các seller này \emph{không} được gọi: chỉ 2/70 seller nằm trong kế hoạch; 52 seller ngoài top 20\% GMV; 14 seller bị loại vì hết ngân sách hoặc hết suất; 2 seller dưới ngưỡng rủi ro 30\%. Cuối màn, \uiref{4} phân bổ GMV rủi ro của toàn bộ seller đang bán theo bốn nhóm hành động. Màn này cho thấy hạng (luật mô tả) và kế hoạch (tối ưu) là hai thứ khác nhau, và cho người dùng biết lý do chênh lệch giữa hai thứ đó.
+
+\annotatedimage{image/app_2_chi_tiet_seller_crop.png}{Luồng A, bước 2 -- Chi tiết seller: chẩn đoán khâu gây sụt. \uiref{1} Thẻ chỉ số; \uiref{2} khuyến nghị và chẩn đoán; \uiref{3} GMV theo tháng; \uiref{4} đóng góp của từng feature vào xác suất sụt; \uiref{5} lịch sử SCD2 và mini-dimension}{fig:ui_seller}{%
+  \uimark{0.010}{0.885}{1}
+  \uimark{0.008}{0.745}{2}
+  \uimark{0.010}{0.665}{3}
+  \uimark{0.010}{0.305}{4}
+  \uimark{0.388}{0.305}{5}}
+
+\textbf{Màn Chi tiết seller} (Hình~\ref{fig:ui_seller}) chẩn đoán một seller. Với seller \texttt{7d13fca1} (SP), GMV 90 ngày là 62.232 BRL với 349 đơn, nhưng GMV tháng gần nhất thấp hơn bình quân 3 tháng liền trước 65\% (theo trend 90 ngày của mô hình là −54\%). Khả năng sụt GMV là 97\%; 18\% sản phẩm được bàn giao cho vận chuyển trễ hạn, và trung bình 3 tháng seller mất 4,2 ngày để bàn giao, vận chuyển mất 14,9 ngày.
+
+Vì tỷ lệ bàn giao trễ vượt ngưỡng 15\%, hệ thống chẩn đoán lỗi ở khâu seller và đề xuất \texttt{OPS} thay vì \texttt{CALL}. Biểu đồ ``Vì sao khả năng sụt GMV 97\%'' tách log-odds thành đóng góp của từng feature (Chương VII). Đóng góp lớn nhất là cặp \emph{số đơn 90 ngày cao} (+) và \emph{số đơn 30 ngày} (−). Mô hình do đó nhận diện được mẫu hình seller có quy mô lớn nhưng suy giảm mạnh trong tháng gần nhất. Hai thẻ cuối hiển thị lịch sử SCD2 (3 phiên bản) và hồ sơ mini-dimension theo tháng của seller này.
+
+\annotatedimage{image/app_3_bang_ke_hoach_crop.png}{Luồng A, bước 3 -- Bảng kế hoạch: bộ tối ưu đề xuất, người dùng kéo thả để chỉnh. \uiref{1} Ràng buộc và tham số; \uiref{2} kết quả kế hoạch; \uiref{3} đường cong ngân sách; \uiref{4} bốn cột hành động kéo thả; \uiref{5} chi tiết seller, Xuất CSV, Chốt kế hoạch}{fig:ui_board}{%
+  \uimark{0.008}{0.955}{1}
+  \uimark{0.008}{0.80}{2}
+  \uimark{0.727}{0.80}{3}
+  \uimark{0.008}{0.655}{4}
+  \uimark{0.775}{0.20}{5}}
+
+\textbf{Màn Bảng kế hoạch} (Hình~\ref{fig:ui_board}) là nơi ra quyết định. \uiref{1} Bốn thanh trượt là ràng buộc và tham số: ngân sách, số suất, ngưỡng rủi ro, top giá trị. Mỗi lần đổi, bộ tối ưu giải lại và cho ra một danh sách seller mới, không chỉ một con số mới.
+
+\uiref{2} Ở cấu hình mặc định, kế hoạch dùng hết 2.000 BRL và 36/40 suất cho 28 seller \texttt{CALL} và 4 seller \texttt{OPS}. Kế hoạch bao phủ 138 nghìn trên tổng 378 nghìn BRL GMV rủi ro của các seller vượt ngưỡng; GMV giữ được kỳ vọng là 37 nghìn BRL (P10--P90: 28--46 nghìn). \uiref{3} Biểu đồ góc phải cho thấy chi trên khoảng 2.500 BRL gần như không thêm lợi ích (phân tích ở Chương VII). \uiref{4} Mỗi cột là một hành động; thẻ seller có thể kéo giữa các cột. \uiref{5} Bảng bên phải hiển thị chẩn đoán của seller đang chọn cùng hai nút Xuất CSV và Chốt kế hoạch.
+
+Người dùng có thể kéo thẻ giữa các cột. Hình~\ref{fig:ui_drag} và Hình~\ref{fig:ui_violate} (Phụ lục B) chụp ở mốc 01/03/2018; đề xuất gốc tại mốc này là 16 seller \texttt{CALL} và 8 seller \texttt{OPS}. Khi kéo một seller khỏi cột \texttt{CALL} (Hình~\ref{fig:ui_drag}), tiền dùng giảm từ 2.000 xuống 1.950 BRL, suất dùng còn 31/40, GMV giữ được kỳ vọng thấp hơn đề xuất 1.116 BRL; hệ thống ghi ``Đã đổi 1 seller so với đề xuất, vẫn trong ràng buộc''. Khi chuyển một seller từ \texttt{CALL} sang \texttt{OPS} (Hình~\ref{fig:ui_violate}), tiền dùng thành 2.100 BRL; hệ thống cảnh báo ``Vượt ngân sách 100 BRL'' và khóa nút Chốt kế hoạch. Người dùng được quyền sửa đề xuất nhưng không thể chốt một kế hoạch vượt ràng buộc. Nút \textbf{Chốt kế hoạch} ghi kế hoạch cuối cùng, gồm cả thao tác tay, ra Parquet để Power BI đọc; nút \textbf{Xuất CSV} tạo danh sách cho nhân viên (R4).
+
+
+
+
+
+\textbf{Màn Kiểm chứng} (Hình~\ref{fig:ui_validation}, Phụ lục B) đặt kế hoạch của các tháng trước cạnh kết quả thật 45 ngày sau. Phân tích chi tiết ở Chương VIII. Màn này cố ý hiển thị cả chỉ số mà DSS thua (bao phủ GMV mất thấp hơn cách chọn theo GMV ở 4/5 tháng), để người dùng không tin kế hoạch nhiều hơn mức số liệu cho phép.
+
+
+\textbf{Màn What-if hẹn giao theo tuyến} (Hình~\ref{fig:ui_whatif}, Phụ lục B) phục vụ quản lý vận hành (R5). Với một tuyến, lấy các đơn mua từ 180 đến 60 ngày trước mốc (để mọi đơn đã kịp giao). Nếu hứa thêm $n$ ngày, tỷ lệ trễ được ước lượng bằng:
+\begin{equation}
+\text{late}(n) = \frac{1}{N} \sum_{o=1}^{N} \mathbb{I}(\text{delay\_days}_o > n)
+\end{equation}
+trong đó $\text{delay\_days}_o$ là số ngày nhận hàng muộn so với ngày hẹn (âm nếu sớm). Số ngày cần hứa thêm để đạt mục tiêu $\tau$ là $n^* = \min\{n : \text{late}(n) \le \tau\}$. Kết quả ở mốc 01/07/2018 với $\tau = 5\%$:
+\begin{itemize}
+    \item \textbf{SP$\rightarrow$SP} (9.052 đơn, lời hẹn trung bình 18,5 ngày): trễ 5,0\%, đạt mục tiêu chỉ với $n^* = +1$ ngày.
+    \item \textbf{SP$\rightarrow$RJ} (2.338 đơn, lời hẹn 28,6 ngày): trễ 24,7\%. Hứa thêm 5 ngày còn 18,9\%, thêm 10 ngày còn 12,5\%, và cần $n^* = 23$ ngày. 86,0\% đơn trễ trên tuyến này có seller bàn giao đúng hạn.
+    \item \textbf{SP$\rightarrow$CE} (283 đơn): trễ 32,5\%, cần 28 ngày; 91,3\% đơn trễ có seller đúng hạn.
+\end{itemize}
+Màn này dựa trên một giả định quan trọng: thời gian giao thực tế không đổi khi lời hẹn đổi. Nó cũng không đo được việc hứa lâu hơn làm mất bao nhiêu đơn. Với SP$\rightarrow$RJ, kết luận hợp lý là nới lời hẹn \emph{không} đủ (lời hẹn 51,6 ngày là không thực tế), và vấn đề cần chuyển sang đối tác vận chuyển. Đây đúng là loại quyết định mà R5 cần hỗ trợ.
+
+\takeawaybox{Tóm tắt Chương VI}{
+\begin{itemize}
+    \item Power BI (MOLAP, có RLS) phục vụ người xem; Streamlit phục vụ người ra quyết định. Cả hai đọc cùng một bản kho đã phát hành.
+    \item Hai giao diện được nối bằng kế hoạch đã chốt: quyết định của R3 trên Streamlit chảy sang trang Kế hoạch của Power BI cho R1, R2.
+    \item Streamlit hiện chưa có đăng nhập. Quyền truy cập dựa vào việc ai có đường dẫn, và RLS mới có một vùng. Đây là giới hạn đã biết (Chương IX).
+\end{itemize}
+}

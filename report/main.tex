@@ -1,0 +1,507 @@
+%!TEX program = xelatex
+\documentclass[a4paper,11pt]{article}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage[paperheight=29.7cm,paperwidth=21cm,right=2.5cm,left=3cm,top=2.5cm,bottom=2.5cm,headheight=16pt,footskip=22pt]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{tabularx,array,indentfirst,xltabular}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{calc,positioning,arrows.meta,fit,backgrounds,shapes.geometric,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18, /pgf/number format/use comma, /pgf/number format/1000 sep={.},
+  every axis/.append style={font=\footnotesize, tick label style={font=\scriptsize}, label style={font=\footnotesize}, legend style={font=\scriptsize}}}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usetikzlibrary{shapes.arrows}
+\newfontfamily\erdfont{Arial}
+% =====================================================================
+% BỘ SƠ ĐỒ THỐNG NHẤT (card có dải tiêu đề, biểu tượng, đổ bóng)
+% Màu theo vai trò, dùng chung cho mọi sơ đồ kiến trúc của báo cáo
+% =====================================================================
+\usetikzlibrary{shadows}
+\definecolor{ksrc}{HTML}{475569}     % nguồn
+\definecolor{kbronze}{HTML}{C2691F}  % Bronze
+\definecolor{ksilver}{HTML}{5B6B80}  % Silver
+\definecolor{kgold}{HTML}{B8860B}    % Gold
+\definecolor{kdss}{HTML}{1D4ED8}     % DSS, quyết định
+\definecolor{kops}{HTML}{0F766E}     % vận hành
+\definecolor{klake}{HTML}{15803D}    % Lakehouse, thành công
+\definecolor{kdbt}{HTML}{7C3AED}     % dbt
+\definecolor{kalert}{HTML}{B91C1C}   % lỗi, cách ly
+\definecolor{kwarn}{HTML}{B45309}    % cảnh báo, cổng kiểm tra
+\tikzset{
+  kshadow/.style={drop shadow={opacity=0.20, shadow xshift=1.4pt, shadow yshift=-1.8pt}},
+  kbody/.style={rectangle, rounded corners=5pt, draw=#1!75!black, line width=0.7pt, fill=white,
+                kshadow, align=left, inner sep=6pt, font=\erdfont\scriptsize},
+  karrow/.style={-{Stealth[length=7pt,width=6pt]}, line width=1.6pt, draw=#1},
+  karrow/.default=ksrc!80,
+  kdash/.style={-{Stealth[length=5pt]}, line width=0.9pt, dash pattern=on 3pt off 2pt, draw=#1},
+  kbadge/.style={circle, fill=#1, draw=white, line width=1.1pt, text=white,
+                 font=\erdfont\scriptsize\bfseries, minimum size=15pt, inner sep=0pt},
+  kpill/.style={rectangle, rounded corners=5pt, fill=#1!10, draw=#1!55, text=#1!85!black,
+                font=\erdfont\tiny\bfseries, inner sep=2.5pt},
+  kbig/.style={font=\erdfont\Large\bfseries, text=#1!85!black, inner sep=1pt},
+  % ---- biểu tượng nhỏ (vẽ theo màu hiện hành) ----
+  pics/kdb/.style={code={
+     \draw[line width=0.75pt] (-0.15,0.13) -- (-0.15,-0.11) arc[start angle=180,end angle=360,x radius=0.15,y radius=0.05] -- (0.15,0.13);
+     \draw[line width=0.75pt] (0,0.13) ellipse (0.15 and 0.05);
+     \draw[line width=0.6pt] (-0.15,0.01) arc[start angle=180,end angle=360,x radius=0.15,y radius=0.05];}},
+  pics/kfile/.style={code={
+     \draw[line width=0.75pt, line join=round] (-0.12,-0.16) -- (-0.12,0.16) -- (0.05,0.16) -- (0.12,0.09) -- (0.12,-0.16) -- cycle;
+     \draw[line width=0.5pt] (-0.06,0.03) -- (0.06,0.03) (-0.06,-0.05) -- (0.06,-0.05);}},
+  pics/kshield/.style={code={
+     \draw[line width=0.8pt, line join=round] (0,0.17) -- (0.14,0.11) -- (0.13,-0.03) .. controls (0.1,-0.12) .. (0,-0.17) .. controls (-0.1,-0.12) .. (-0.13,-0.03) -- (-0.14,0.11) -- cycle;
+     \draw[line width=0.8pt, line cap=round] (-0.06,0) -- (-0.01,-0.05) -- (0.07,0.05);}},
+  pics/kfilter/.style={code={
+     \draw[line width=0.8pt, line join=round] (-0.16,0.14) -- (0.16,0.14) -- (0.04,0.0) -- (0.04,-0.15) -- (-0.04,-0.1) -- (-0.04,0.0) -- cycle;}},
+  pics/kstar/.style={code={
+     \draw[line width=0.75pt, line join=round] (90:0.17) -- (162:0.17) -- (234:0.17) -- (306:0.17) -- (18:0.17) -- cycle;
+     \draw[line width=0.75pt] (90:0.17) -- (234:0.17) -- (18:0.17) -- (162:0.17) -- (306:0.17) -- cycle;}},
+  pics/kchart/.style={code={
+     \fill (-0.15,-0.15) rectangle (-0.07,0.0); \fill (-0.04,-0.15) rectangle (0.04,0.1); \fill (0.07,-0.15) rectangle (0.15,0.16);}},
+  pics/kgear/.style={code={
+     \draw[line width=0.8pt] (0,0) circle (0.09);
+     \foreach \a in {0,45,...,315} \draw[line width=1.6pt] (\a:0.1) -- (\a:0.165);}},
+  pics/kcheck/.style={code={
+     \draw[line width=0.8pt] (0,0) circle (0.16);
+     \draw[line width=1pt, line cap=round] (-0.07,0) -- (-0.02,-0.06) -- (0.08,0.06);}},
+  pics/kcross/.style={code={
+     \draw[line width=0.8pt] (0,0) circle (0.16);
+     \draw[line width=1pt, line cap=round] (-0.06,-0.06) -- (0.06,0.06) (-0.06,0.06) -- (0.06,-0.06);}},
+  pics/kcode/.style={code={\node[font=\erdfont\tiny\bfseries, inner sep=0] {</>};}},
+  pics/klens/.style={code={
+     \draw[line width=0.85pt] (-0.03,0.03) circle (0.1);
+     \draw[line width=1.3pt, line cap=round] (0.05,-0.05) -- (0.15,-0.15);}},
+  pics/kflag/.style={code={
+     \draw[line width=0.8pt] (-0.12,-0.17) -- (-0.12,0.17);
+     \fill (-0.12,0.17) -- (0.15,0.1) -- (-0.12,0.02) -- cycle;}},
+  pics/kbulb/.style={code={
+     \draw[line width=0.8pt] (0,0.05) circle (0.11);
+     \draw[line width=0.8pt] (-0.05,-0.08) -- (-0.05,-0.15) -- (0.05,-0.15) -- (0.05,-0.08);}},
+  pics/klayers/.style={code={
+     \foreach \yy in {-0.09,0,0.09} \draw[line width=0.7pt, fill=white, fill opacity=0.25] (-0.15,\yy) -- (0,\yy+0.06) -- (0.15,\yy) -- (0,\yy-0.06) -- cycle;}},
+  pics/kclock/.style={code={
+     \draw[line width=0.8pt] (0,0) circle (0.15); \draw[line width=0.8pt, line cap=round] (0,0.09) -- (0,0) -- (0.07,-0.04);}},
+  pics/knone/.style={code={}},
+}
+% \kcard[tùy chọn node]{tên}{vị trí}{màu}{bề rộng}{biểu tượng}{tiêu đề}{nội dung}
+% Vị trí mặc định là góc trên-trái (anchor=north west); có thể ghi đè bằng tùy chọn.
+\newcommand{\kcard}[8][]{%
+  \node[kbody=#4, text width=#5, anchor=north west, #1] (#2) at (#3) {\mbox{}\\[4.6mm]#8};
+  \begin{scope}
+    \clip[rounded corners=5pt] (#2.north west) rectangle (#2.south east);
+    \fill[#4] (#2.north west) rectangle ([yshift=-0.52cm]#2.north east);
+    \fill[#4!40!white] ([yshift=-0.52cm]#2.north west) rectangle ([yshift=-0.56cm]#2.north east);
+  \end{scope}
+  \draw[#4!75!black, line width=0.7pt, rounded corners=5pt] (#2.north west) rectangle (#2.south east);
+  \node[anchor=west, text=white, font=\erdfont\footnotesize\bfseries, inner sep=0pt]
+       at ([xshift=6pt, yshift=-0.26cm]#2.north west) {#7};
+  \pic[white] at ([xshift=-0.3cm, yshift=-0.26cm]#2.north east) {#6};
+}
+% Bảng màu nền sáng (in ấn) cho sơ đồ ERD
+\definecolor{erdbg}{HTML}{FFFFFF}
+\definecolor{erdbody}{HTML}{FFFFFF}
+\definecolor{erdhead}{HTML}{E8EEF6}
+\definecolor{erdborder}{HTML}{4B6584}
+\definecolor{erdgrid}{HTML}{DDE3EA}
+\definecolor{erdtext}{HTML}{1F2937}
+\definecolor{erdmuted}{HTML}{6B7280}
+\definecolor{erdkey}{HTML}{C99400}
+\definecolor{erdfk}{HTML}{4B5563}
+\definecolor{erdnk}{HTML}{2563EB}
+\definecolor{erdcol}{HTML}{0F9F7A}
+\definecolor{erdred}{HTML}{B91C1C}
+\definecolor{erdtbl}{HTML}{002D62}
+\definecolor{erdwire}{HTML}{4B6584}
+\usepackage[hidelinks]{hyperref}
+
+% Cấu hình khoảng cách ô và bảng chuyên nghiệp
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{7pt}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+% Định nghĩa màu sắc thương hiệu học thuật đồng nhất
+\definecolor{hcmutnavy}{HTML}{002D62}
+\definecolor{slateaccent}{HTML}{4A5568}
+\definecolor{softbg}{HTML}{F8FAFC}
+\definecolor{subtleborder}{HTML}{CBD5E1}
+\colorlet{hcmutblue}{hcmutnavy}
+
+% Thiết lập Header & Footer chuẩn báo cáo kỹ thuật
+\makeatletter
+\def\ps@bkreports{%
+  \def\@oddhead{\vbox{\hbox to \textwidth{{\footnotesize\color{slateaccent}Seller Health -- Kho dữ liệu \& DSS (CO4031)\hfill\textbf{\color{hcmutnavy}\leftmark}}}\vskip 3pt\hrule height 0.6pt width \textwidth}}%
+  \def\@evenhead{\vbox{\hbox to \textwidth{{\footnotesize\color{slateaccent}Seller Health -- Kho dữ liệu \& DSS (CO4031)\hfill\textbf{\color{hcmutnavy}\leftmark}}}\vskip 3pt\hrule height 0.6pt width \textwidth}}%
+  \def\@oddfoot{\vbox{\hrule height 0.3pt width \textwidth\vskip 4pt\hbox to \textwidth{{\footnotesize\color{slateaccent}Trường Đại học Bách Khoa -- ĐHQG-HCM\hfill Trang \thepage}}}}%
+  \def\@evenfoot{\vbox{\hrule height 0.3pt width \textwidth\vskip 4pt\hbox to \textwidth{{\footnotesize\color{slateaccent}Trường Đại học Bách Khoa -- ĐHQG-HCM\hfill Trang \thepage}}}}%
+}
+\makeatother
+
+% Định dạng tiêu đề chương mục đồng bộ
+\makeatletter
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+                                   {-3.5ex \@plus -1ex \@minus -.2ex}%
+                                   {2.3ex \@plus.2ex}%
+                                   {\normalfont\Large\bfseries\color{hcmutnavy}}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\normalfont\large\bfseries\color{hcmutnavy}}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\normalfont\normalsize\bfseries\color{slateaccent}}}
+\renewcommand\sectionmark[1]{\markboth{Chương \thesection}{Chương \thesection}}
+
+% Sửa lỗi Mục lục: Mở rộng khoảng cách số La Mã VII. và VIII. không bị dính chữ
+\renewcommand*\l@section[2]{%
+  \ifnum \c@tocdepth >\z@
+    \addpenalty\@secpenalty
+    \addvspace{1.0em \@plus\p@}%
+    \setlength\@tempdima{3.2em}%
+    \begingroup
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode \bfseries
+      \advance\leftskip\@tempdima
+      \hskip -\leftskip
+      #1\nobreak\hfil \nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+    \endgroup
+  \fi}
+\renewcommand*\l@subsection{\@dottedtocline{2}{3.2em}{2.6em}}
+\renewcommand*\l@subsubsection{\@dottedtocline{3}{5.8em}{3.2em}}
+\makeatother
+
+% Hộp điểm nhấn điều hành đồng nhất (Unified Executive Callout Box)
+\newcommand{\takeawaybox}[2]{%
+    \begin{center}
+    \begin{tikzpicture}
+        \node[
+            rectangle, 
+            rounded corners=3pt, 
+            fill=softbg, 
+            draw=subtleborder, 
+            line width=0.7pt, 
+            inner sep=9pt, 
+            text width=0.92\textwidth,
+            align=left
+        ] (box) {
+            {\fontsize{10.5pt}{12pt}\selectfont \textbf{\color{hcmutnavy} $\blacksquare$ \ #1}}\\[4pt]
+            {\fontsize{9.5pt}{13.5pt}\selectfont #2}
+        };
+        \draw[hcmutnavy, line width=3.2pt, line cap=round] 
+            ([xshift=1.5pt]box.north west) -- ([xshift=1.5pt]box.south west);
+    \end{tikzpicture}
+    \end{center}
+}
+\let\calloutbox\takeawaybox
+
+% Thẻ chỉ số nổi bật (KPI Hero Card)
+\newcommand{\kpicard}[3]{%
+    \begin{tikzpicture}
+        \node[
+            rectangle,
+            rounded corners=4pt,
+            fill=softbg,
+            draw=hcmutnavy!30!white,
+            line width=0.8pt,
+            inner sep=7pt,
+            text width=3.35cm,
+            align=center,
+            minimum height=1.7cm
+        ] {
+            {\fontsize{13.5pt}{15.5pt}\selectfont \textbf{\color{hcmutnavy} #1}}\\[3pt]
+            {\fontsize{8.5pt}{10.5pt}\selectfont \textbf{\color{slateaccent} #2}}\\[2pt]
+            {\fontsize{7.5pt}{9pt}\selectfont \color{gray} #3}
+        };
+    \end{tikzpicture}%
+}
+
+% Macro đóng khung ảnh chụp giao diện đồng nhất
+\newcommand{\appimage}[4][0.92\textwidth]{%
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}
+        \node[
+            draw=subtleborder, 
+            line width=0.7pt, 
+            rounded corners=2pt, 
+            inner sep=1.5pt, 
+            fill=white
+        ] {
+            \includegraphics[width=#1]{#2}
+        };
+    \end{tikzpicture}
+    \caption{#3}
+    \label{#4}
+\end{figure}
+}
+
+% Nhãn chú thích đánh số đặt lên ảnh chụp giao diện (tọa độ chuẩn hóa 0--1 theo ảnh)
+\newcommand{\uimark}[3]{%
+  \node[circle, fill=red!75!black, text=white, draw=white, line width=1pt,
+        inner sep=0pt, minimum size=15pt, font=\footnotesize\bfseries] at (#1,#2) {#3};}
+\DeclareRobustCommand{\uiref}[1]{\tikz[baseline=(c.base)]\node[circle, fill=red!75!black, text=white, inner sep=0pt, minimum size=11pt, font=\scriptsize\bfseries](c){#1};}
+% \annotatedimage[width]{file}{caption}{label}{các lệnh \uimark}
+\newcommand{\annotatedimage}[5][0.95\textwidth]{%
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}
+        \node[anchor=south west, inner sep=0pt] (img) {\includegraphics[width=#1]{#2}};
+        \draw[subtleborder, line width=0.7pt, rounded corners=2pt] (img.south west) rectangle (img.north east);
+        \begin{scope}[x={(img.south east)}, y={(img.north west)}]
+            #5
+        \end{scope}
+    \end{tikzpicture}
+    \caption{#3}
+    \label{#4}
+\end{figure}
+}
+
+% Khung chờ ảnh chụp (để trống, nhóm sẽ thay bằng ảnh thật)
+\newcommand{\pbislot}[1]{%
+  \tikz\node[draw=subtleborder, dashed, line width=0.8pt, rounded corners=2pt, fill=softbg,
+    minimum width=0.92\textwidth, minimum height=7.2cm, align=center, font=\small\color{slateaccent}] {#1};}
+
+\renewcommand{\figurename}{\bfseries Hình}
+\renewcommand{\tablename}{\bfseries Bảng}
+\renewcommand{\contentsname}{MỤC LỤC}
+\renewcommand{\listfigurename}{DANH MỤC HÌNH ẢNH}
+\renewcommand{\listtablename}{DANH MỤC BẢNG}
+
+\renewcommand\thesection{\Roman{section}.}
+\renewcommand\thesubsection{\arabic{subsection})}
+\renewcommand\thesubsubsection{\alph{subsubsection}/}
+
+\makeatletter
+\renewcommand{\thefigure}{\arabic{section}.\arabic{figure}}
+\renewcommand{\thetable}{\arabic{section}.\arabic{table}}
+\renewcommand{\theequation}{\arabic{section}.\arabic{equation}}
+\@addtoreset{figure}{section}
+\@addtoreset{table}{section}
+\@addtoreset{equation}{section}
+\makeatother
+
+\providecommand{\href}[2]{#2}
+\providecommand{\url}[1]{\texttt{#1}}
+
+\pagestyle{plain}
+
+\begin{document}
+    \begin{titlepage}
+        \begin{tikzpicture}[overlay,remember picture]
+			\draw [line width=3pt]
+			($ (current page.north west) + (3.0cm,-2.0cm) $)
+			rectangle
+			($ (current page.south east) + (-2.0cm,2.5cm) $);
+			\draw [line width=0.5pt]
+			($ (current page.north west) + (3.1cm,-2.1cm) $)
+			rectangle
+			($ (current page.south east) + (-2.1cm,2.6cm) $);
+		\end{tikzpicture}
+		\begin{center}
+			\vspace{-6pt} ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH \\
+			\textbf{\fontsize{15pt}{0pt}\selectfont TRƯỜNG ĐẠI HỌC BÁCH KHOA}\\
+            \textbf{\fontsize{15pt}{0pt}\selectfont KHOA KHOA HỌC VÀ KỸ THUẬT MÁY TÍNH}
+			\vspace{1.5cm}
+			\begin{figure}[htbp]
+				\centering
+				\includegraphics[width=3.8cm,height=3.8cm]{image/HCMUT_official_logo.png}
+			\end{figure}
+			\vspace{0.5cm}
+            \rule{0.85\linewidth}{1pt} \\[0.3cm]
+			\textbf{\fontsize{15pt}{0pt}\selectfont BÁO CÁO BÀI TẬP LỚN}\\
+			\textbf{\fontsize{14pt}{0pt}\selectfont MÔN: KHO DỮ LIỆU VÀ HỆ HỖ TRỢ QUYẾT ĐỊNH (CO4031)}\\
+            \vspace{0.6cm}
+            \textbf{\fontsize{13pt}{0pt}\selectfont ĐỀ TÀI:}\\
+            \textbf{\fontsize{15pt}{18pt}\selectfont KHO DỮ LIỆU \& HỆ HỖ TRỢ QUYẾT ĐỊNH CHĂM SÓC NGƯỜI BÁN TRÊN SÀN TMĐT OLIST}\\
+            \textbf{\fontsize{13pt}{0pt}\selectfont (SELLER HEALTH DW \& DSS)}
+            \rule{0.85\linewidth}{1pt} \\[0.8cm]
+		\end{center}
+
+    \begin{table}[htbp]
+    \centering
+        \begin{tabular}{rl}
+        \hspace{2cm}\textbf{Giảng viên hướng dẫn}: & Đỗ Thanh Thái\\
+        \textbf{Nhóm}: & Seller Health\\
+        \textbf{Sinh viên thực hiện}: 
+        &  Nguyễn Khánh Trinh -- MSSV: \makebox[2.6cm]{\dotfill}\\[4pt]
+        &  \makebox[4.2cm]{\dotfill} -- MSSV: \makebox[2.6cm]{\dotfill}\\[4pt]
+        &  \makebox[4.2cm]{\dotfill} -- MSSV: \makebox[2.6cm]{\dotfill}\\
+        \end{tabular}
+    \end{table}
+        \vfill
+        \begin{center}
+			\fontsize{12pt}{0pt}\selectfont Thành phố Hồ Chí Minh, tháng 11 - 2026\\
+		\end{center}
+    \end{titlepage}
+    \cleardoublepage
+    \pagenumbering{roman}
+
+    \begin{center}
+        \fontsize{14pt}{0pt}\selectfont \textbf{DANH SÁCH THÀNH VIÊN VÀ ĐÓNG GÓP} \\
+		\vspace{0.8cm}
+    \end{center}
+    \noindent
+    \begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}m{0.9cm}|>{\centering\arraybackslash}m{2.1cm}|>{\raggedright\arraybackslash}m{3.1cm}|L|>{\centering\arraybackslash}m{1.7cm}|}
+		\hline
+		\textbf{STT} & \textbf{MSSV} & \textbf{Họ và tên} & \textbf{Nhiệm vụ chính} & \textbf{Tỷ lệ đóng góp}\\
+		\hline
+		1 &  & Nguyễn Khánh Trinh &
+        $\bullet$ Thiết kế Galaxy Schema (8 dimension, 6 fact)\newline
+        $\bullet$ Pipeline ELT 26 đợt nạp trên DuckDB, 11 phép đối soát mỗi đợt\newline
+        $\bullet$ Lakehouse Parquet, dbt (27 model) và đối chiếu chéo với kho & \ldots\ \%\\
+		\hline
+		2 &  &  &
+        $\bullet$ Xây dựng mô hình phân loại rủi ro Logistic Regression\newline
+        $\bullet$ Thiết lập ma trận luật hành động (Action Engine)\newline
+        $\bullet$ Tối ưu hóa phân bổ nguồn lực MILP Knapsack (HiGHS) & \ldots\ \%\\
+		\hline
+		3 &  &  &
+        $\bullet$ Giao diện Streamlit (5 màn, 2 luồng) và Power BI (4 trang, RLS)\newline
+        $\bullet$ Bộ kiểm thử: 133 test hệ thống, 65 test biên, 45 test trình duyệt\newline
+        $\bullet$ Kiểm chứng ngược 5 mốc 03--07/2018 và tổng hợp báo cáo & \ldots\ \%\\
+		\hline
+		\multicolumn{4}{|r|}{\textbf{Tổng}} & \textbf{100\%}\\
+		\hline
+	\end{tabularx}
+
+    \vspace{0.3cm}
+    \noindent{\small\textit{Ghi chú:} cột ``Tỷ lệ đóng góp'' là phần trăm khối lượng công việc của từng thành viên trên toàn đề tài; tổng ba thành viên bằng 100\%.}
+    \cleardoublepage
+
+    \tableofcontents
+    \cleardoublepage
+
+    \phantomsection
+    \addcontentsline{toc}{section}{DANH MỤC HÌNH ẢNH}
+    \listoffigures
+    \cleardoublepage
+
+    \phantomsection
+    \addcontentsline{toc}{section}{DANH MỤC BẢNG}
+    \listoftables
+    \cleardoublepage
+
+    \phantomsection
+    \addcontentsline{toc}{section}{DANH MỤC TỪ VIẾT TẮT VÀ THUẬT NGỮ}
+    \input{section/abbreviations}
+    \cleardoublepage
+
+    \pagenumbering{arabic}
+    \pagestyle{bkreports}
+
+    \input{section/ch1_business}
+    \newpage
+    \input{section/ch2_theory}
+    \newpage
+    \input{section/ch3_data}
+    \newpage
+    \input{section/ch4_schema}
+    \newpage
+    \input{section/ch5_elt}
+    \newpage
+    \input{section/ch6_olap_bi}
+    \newpage
+    \input{section/ch7_dss}
+    \newpage
+    \input{section/ch8_eval}
+    \newpage
+    \input{section/ch9_conclusion}
+
+    \newpage
+    \renewcommand{\refname}{TÀI LIỆU THAM KHẢO}
+    \phantomsection
+    \addcontentsline{toc}{section}{TÀI LIỆU THAM KHẢO}
+    \begin{thebibliography}{99}
+    \markboth{TÀI LIỆU THAM KHẢO}{TÀI LIỆU THAM KHẢO}
+        \bibitem{kimball2013}
+        Ralph Kimball and Margy Ross,
+        \textit{The Data Warehouse Toolkit: The Definitive Guide to Dimensional Modeling},
+        3rd Edition, Wiley, 2013.
+
+        \bibitem{inmon2005}
+        William H. Inmon,
+        \textit{Building the Data Warehouse},
+        4th Edition, John Wiley \& Sons, 2005.
+
+        \bibitem{turban2020}
+        Ramesh Sharda, Dursun Delen, and Efraim Turban,
+        \textit{Analytics, Data Science, \& Artificial Intelligence: Systems for Decision Support},
+        7th Edition, Pearson, 2020.
+
+        \bibitem{simon1960}
+        Herbert A. Simon,
+        \textit{The New Science of Management Decision},
+        Harper \& Row, 1960.
+
+        \bibitem{holsapple1996}
+        Clyde W. Holsapple and Andrew B. Whinston,
+        \textit{Decision Support Systems: A Knowledge-Based Approach},
+        West Publishing, 1996.
+
+        \bibitem{alter1980}
+        Steven L. Alter,
+        \textit{Decision Support Systems: Current Practice and Continuing Challenges},
+        Addison-Wesley, 1980.
+
+        \bibitem{armbrust2021}
+        Michael Armbrust, Ali Ghodsi, Reynold Xin, and Matei Zaharia,
+        ``Lakehouse: A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics'',
+        \textit{Conference on Innovative Data Systems Research (CIDR)}, 2021.
+
+        \bibitem{kellerer2004}
+        Hans Kellerer, Ulrich Pferschy, and David Pisinger,
+        \textit{Knapsack Problems},
+        Springer, 2004.
+
+        \bibitem{gareyjohnson1979}
+        Michael R. Garey and David S. Johnson,
+        \textit{Computers and Intractability: A Guide to the Theory of NP-Completeness},
+        W. H. Freeman, 1979.
+
+        \bibitem{wolsey1998}
+        Laurence A. Wolsey,
+        \textit{Integer Programming},
+        John Wiley \& Sons, 1998.
+
+        \bibitem{huangfu2018}
+        Qi Huangfu and J. A. Julian Hall,
+        ``Parallelizing the dual revised simplex method'',
+        \textit{Mathematical Programming Computation}, vol.~10, no.~1, pp.~119--142, 2018.
+
+        \bibitem{fawcett2006}
+        Tom Fawcett,
+        ``An introduction to ROC analysis'',
+        \textit{Pattern Recognition Letters}, vol.~27, no.~8, pp.~861--874, 2006.
+
+        \bibitem{saito2015}
+        Takaya Saito and Marc Rehmsmeier,
+        ``The Precision-Recall Plot Is More Informative than the ROC Plot When Evaluating Binary Classifiers on Imbalanced Datasets'',
+        \textit{PLoS ONE}, vol.~10, no.~3, e0118432, 2015.
+
+        \bibitem{hosmer2013}
+        David W. Hosmer, Stanley Lemeshow, and Rodney X. Sturdivant,
+        \textit{Applied Logistic Regression},
+        3rd Edition, Wiley, 2013.
+
+        \bibitem{saltelli2008}
+        Andrea Saltelli et al.,
+        \textit{Global Sensitivity Analysis: The Primer},
+        John Wiley \& Sons, 2008.
+
+        \bibitem{hcmut2026}
+        Khoa Khoa học và Kỹ thuật Máy tính -- Trường Đại học Bách Khoa, ĐHQG-HCM,
+        \textit{Quy định Bài tập lớn môn Kho dữ liệu và Hệ hỗ trợ Quyết định (CO4031) -- Học kỳ 261},
+        2026.
+    \end{thebibliography}
+
+    \newpage
+    \input{section/appendix}
+
+\end{document}

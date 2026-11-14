@@ -1,0 +1,125 @@
+{
+  "db": "olist_run_c0135898.duckdb",
+  "time_limit_s": 10,
+  "default": {
+    "calls": 13,
+    "optimal": 13,
+    "max_gap": 0.0,
+    "median_s": 0.018078099994454533,
+    "max_s": 0.07329590001609176,
+    "n_vars_min": 114,
+    "n_vars_max": 502,
+    "per_as_of": [
+      {
+        "as_of": "2017-09-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.010627200012095273,
+        "n_vars": 114
+      },
+      {
+        "as_of": "2017-10-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.011475899955257773,
+        "n_vars": 152
+      },
+      {
+        "as_of": "2017-11-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.00877850002143532,
+        "n_vars": 160
+      },
+      {
+        "as_of": "2017-12-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.010301300033461303,
+        "n_vars": 128
+      },
+      {
+        "as_of": "2018-01-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.016314999957103282,
+        "n_vars": 254
+      },
+      {
+        "as_of": "2018-02-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.028947199985850602,
+        "n_vars": 230
+      },
+      {
+        "as_of": "2018-03-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.01430479995906353,
+        "n_vars": 206
+      },
+      {
+        "as_of": "2018-04-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.018078099994454533,
+        "n_vars": 240
+      },
+      {
+        "as_of": "2018-05-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.02975779998814687,
+        "n_vars": 248
+      },
+      {
+        "as_of": "2018-06-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.025797100039198995,
+        "n_vars": 330
+      },
+      {
+        "as_of": "2018-07-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.07329590001609176,
+        "n_vars": 374
+      },
+      {
+        "as_of": "2018-08-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.0359967999975197,
+        "n_vars": 400
+      },
+      {
+        "as_of": "2018-09-01",
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "mip_gap": 0.0,
+        "seconds": 0.04792809998616576,
+        "n_vars": 502
+      }
+    ]
+  },
+  "sensitivity": {
+    "calls": 70,
+    "optimal": 70,
+    "max_gap": 0.0,
+    "max_s": 0.1278685000143014
+  }
+}

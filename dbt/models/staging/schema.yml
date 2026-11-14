@@ -1,0 +1,79 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: "Silver staging orders cleaned with row-version deduplication and status chronology checks"
+    columns:
+      - name: order_id
+        description: "Primary key of order"
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_items
+    description: "Silver staging order items with price and freight values"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: order_item_id
+        tests:
+          - not_null
+      - name: price
+        tests:
+          - not_null
+
+  - name: stg_payments
+    description: "Silver staging payments per order"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: payment_value
+        tests:
+          - not_null
+
+  - name: stg_reviews
+    description: "Silver staging customer feedback and review scores"
+    columns:
+      - name: review_id
+        tests:
+          - not_null
+      - name: order_id
+        tests:
+          - not_null
+      - name: review_score
+        tests:
+          - not_null
+
+  - name: stg_customers
+    description: "Silver staging customer registry with normalized city names"
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_sellers
+    description: "Silver staging seller registry with normalized city and state"
+    columns:
+      - name: seller_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_products
+    description: "Silver staging products mapped with translated category names"
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_geography
+    description: "Silver staging geographic coordinates clustered and deduplicated by zip prefix"
+    columns:
+      - name: zip_prefix
+        tests:
+          - unique
+          - not_null

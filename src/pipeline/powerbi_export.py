@@ -9,13 +9,14 @@ khong tinh lai so lieu nao. File duoc ghi vao thu muc tam roi doi ten, nen Power
 import datetime as dt
 import json
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
 
 import duckdb
 
-from src.config import HOME, LAST_BATCH, current_db
+from src.config import HOME, LAST_BATCH, ROOT, current_db
 
 OUT_DIR = HOME / "powerbi"
 # Moc as-of cua kho day du: ngay chot dot cuoi. Don toi han truoc moc nay moi tinh tre.
@@ -84,7 +85,24 @@ def export(db: Path | None = None, out_dir: Path = OUT_DIR) -> dict:
     manifest = {"release": db.name, "as_of": AS_OF, "exported_at": dt.datetime.now().isoformat(timespec="seconds"),
                 "out_dir": str(out_dir), "rows": rows}
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
+    if out_dir == OUT_DIR:
+        sync_pbip_path(out_dir)
     return manifest
+
+
+PBIP_EXPR = ROOT / "powerbi" / "OlistSellerHealth.SemanticModel" / "definition" / "expressions.tmdl"
+
+
+def sync_pbip_path(out_dir: Path = OUT_DIR) -> bool:
+    """Power BI chi nhan duong dan tuyet doi, nen tro tham so ThuMucParquet vao thu muc xuat cua may dang chay.
+    Khong doi thi khong ghi file. Mo lai .pbip sau khi doi."""
+    with open(PBIP_EXPR, encoding="utf-8", newline="") as f:  # giu CRLF/LF cua file goc
+        text = f.read()
+    new = re.sub(r'(expression ThuMucParquet = )"[^"]*"', lambda m: f'{m.group(1)}"{out_dir.resolve()}{os.sep}"', text, count=1)
+    if new == text:
+        return False
+    PBIP_EXPR.write_text(new, encoding="utf-8", newline="")
+    return True
 
 
 if __name__ == "__main__":

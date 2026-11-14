@@ -1,0 +1,149 @@
+% !TEX root = ../main.tex
+\section{DỮ LIỆU NGUỒN, LÀM SẠCH VÀ CÁCH LY}
+\suppressfloats[t]
+
+Chương II đã đặt khung lý thuyết; câu hỏi còn lại là dữ liệu Olist có đủ sạch để nuôi khung đó không. Chương này kiểm kê chín tệp nguồn, chỉ ra ba loại lỗi có thể làm sai phép tính (tên thành phố, tọa độ, đơn thiếu dòng hàng), và biện minh cho quyết định chỉ cách ly đúng 42 dòng tọa độ.
+
+\subsection{Chín tệp nguồn và grain}
+Trước khi nạp, mỗi tệp được tính giá trị băm SHA-256 và đối chiếu với \texttt{data/manifest.json}. Hệ thống áp dụng cơ chế Fail-Fast nghiêm ngặt: mọi bất thường về giá trị băm SHA-256, thiếu tệp hoặc sai lệch số lượng bản ghi đều lập tức ngắt tiến trình để cô lập rủi ro cho kho dữ liệu. Kết quả kiểm tra được ghi vào \texttt{ops.source\_manifest}.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Chín tệp CSV nguồn của Olist}
+\label{tab:olist_files}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash\ttfamily}m{4.6cm}|>{\raggedleft\arraybackslash}m{1.6cm}|L|>{\raggedright\arraybackslash\ttfamily}m{3.4cm}|}
+\hline
+\textbf{\rmfamily Tệp nguồn} & \textbf{\rmfamily Số dòng} & \textbf{\rmfamily Grain} & \textbf{\rmfamily Bảng Bronze} \\
+\hline
+olist\_orders\_dataset.csv & 99.441 & 1 đơn hàng (trạng thái cuối) & raw.orders \\
+\hline
+olist\_order\_items\_\allowbreak dataset.csv & 112.650 & 1 dòng hàng trong đơn & raw.order\_items \\
+\hline
+olist\_order\_payments\_\allowbreak dataset.csv & 103.886 & 1 lượt thanh toán & raw.order\_payments \\
+\hline
+olist\_order\_reviews\_\allowbreak dataset.csv & 99.224 & 1 review & raw.order\_reviews \\
+\hline
+olist\_customers\_\allowbreak dataset.csv & 99.441 & 1 \texttt{customer\_id} (mỗi đơn một mã) & raw.customers \\
+\hline
+olist\_sellers\_dataset.csv & 3.095 & 1 seller & raw.sellers \\
+\hline
+olist\_products\_\allowbreak dataset.csv & 32.951 & 1 sản phẩm & raw.products \\
+\hline
+olist\_geolocation\_\allowbreak dataset.csv & 1.000.163 & 1 tọa độ của một ZIP (nhiều dòng mỗi ZIP) & raw.geolocation \\
+\hline
+product\_category\_name\_\allowbreak translation.csv & 71 & 1 danh mục (Bồ Đào Nha $\rightarrow$ Anh) & raw.category\_\allowbreak translation \\
+\hline
+\end{tabularx}
+\end{table}
+
+Tổng dung lượng 9 tệp là 126,2 MB. Tệp \texttt{orders} chỉ chứa \emph{trạng thái cuối} của mỗi đơn. Chương V trình bày cách kho tái dựng các trạng thái trung gian khi nạp theo tháng.
+
+\subsection{Làm sạch ở lớp Silver}
+\subsubsection*{Tên thành phố}
+Tên thành phố trong nguồn lẫn dấu, hoa thường và mã bang (ví dụ \texttt{"sao paulo / sp"}). Hàm \texttt{stg.clean\_city} bỏ dấu, chuyển chữ thường và cắt phần mã bang. Sau đó tên đã chuẩn hóa được đối chiếu với tập tên lấy từ \texttt{geolocation}:
+\begin{itemize}
+    \item tên nằm trong tập thì giữ;
+    \item nếu không, lấy tên phổ biến nhất của ZIP đó;
+    \item tên gốc vẫn được giữ ở cột \texttt{city\_raw}.
+\end{itemize}
+Có 41 seller phải sửa tên theo ZIP. Có 35 seller khai bang khác với bang suy ra từ ZIP; các bang này được \emph{giữ nguyên} vì không đủ căn cứ để biết bên nào đúng.
+
+\subsubsection*{Tọa độ và cách ly}
+Một tọa độ được coi là nằm trong lãnh thổ Brazil nếu vĩ độ $\in [-34; 6]$ và kinh độ $\in [-74; -34]$. Khung này được xác định từ bốn điểm cực của \emph{phần đất liền} Brazil: cực Bắc là núi Caburaí (vĩ độ $\approx 5{,}27$), cực Nam là Arroio Chuí ($\approx -33{,}75$), cực Tây là nguồn sông Moa ($\approx -73{,}99$) và cực Đông là mũi Ponta do Seixas ($\approx -34{,}79$), mỗi phía nới thêm một biên an toàn nhỏ. Có \textbf{42 dòng} nằm ngoài khung này. Các dòng đó được ghi vào \texttt{ops.quarantine} (mã \texttt{GEO\_OUTSIDE\_BRAZIL}, kèm khóa dòng và lý do) và sao sang \texttt{silver.quarantine\_records} kèm payload JSON; chúng không được dùng khi tính tọa độ.
+
+\subsubsection*{Kiểm tra các vùng lãnh thổ hải đảo}
+Khung chữ nhật trên chỉ bao phần đất liền, trong khi Brazil còn có các quần đảo ngoài Đại Tây Dương nằm phía đông kinh độ $-34$: Fernando de Noronha (kinh độ $\approx -32{,}4$), Trindade và Martim Vaz ($\approx -29{,}3$), São Pedro e São Paulo ($\approx -29{,}3$). Vì vậy toàn bộ 42 dòng bị cách ly đã được rà soát thủ công theo tọa độ (Bảng~\ref{tab:quarantine_geo}).
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Phân loại 42 dòng tọa độ bị cách ly theo vị trí thực tế}
+\label{tab:quarantine_geo}
+\begin{tabularx}{\textwidth}{|L|>{\raggedleft\arraybackslash}m{1.4cm}|>{\raggedright\arraybackslash}m{5.6cm}|}
+\hline
+\textbf{Vị trí thực tế của tọa độ} & \textbf{Số dòng} & \textbf{Đánh giá} \\
+\hline
+Bán đảo Iberia, Italy, quần đảo Canary & 21 & Ngoài Brazil, cách ly đúng \\
+\hline
+Argentina, Hoa Kỳ, Mexico & 9 & Ngoài Brazil, cách ly đúng \\
+\hline
+Philippines & 1 & Ngoài Brazil, cách ly đúng \\
+\hline
+\rowcolor{red!6}Đảo Fernando de Noronha (ZIP 53990, bang PE) & 11 & \textbf{Hợp lệ}, bị cách ly nhầm (dương tính giả) \\
+\hline
+\end{tabularx}
+\end{table}
+
+Kết quả rà soát cho thấy \textbf{31/42 dòng} thực sự nằm ngoài lãnh thổ Brazil (phần lớn rơi vào Bồ Đào Nha và Tây Ban Nha, nhiều khả năng do quá trình mã hóa địa lý của nguồn nhầm với địa danh trùng tên), còn \textbf{11 dòng} thuộc ZIP 53990 (Fernando de Noronha, Pernambuco) là dữ liệu hợp lệ bị khung chữ nhật loại nhầm. Tác động của sai sót này đã được định lượng trên kho: không có khách hàng hay seller nào mang ZIP 53990, nên không có dòng nào trong \texttt{fact\_order}, \texttt{fact\_order\_seller} và \texttt{dim\_route} bị ảnh hưởng; ZIP này chỉ xuất hiện trong \texttt{dim\_location} với tọa độ NULL. Hướng khắc phục là bổ sung danh sách hộp tọa độ ngoại lệ cho các quần đảo hợp pháp của Brazil vào luật \texttt{GEO\_OUTSIDE\_BRAZIL} (Chương IX).
+
+Bảng \texttt{geolocation} có 1.000.163 dòng cho 19.015 ZIP, tức 981.148 dòng trùng ZIP. Tọa độ của mỗi ZIP là \emph{trung vị} các dòng hợp lệ. Trung vị được chọn thay cho trung bình để một vài điểm sai không kéo lệch tâm ZIP.
+
+Mỗi đợt nạp cũng có luật cách ly cho giá không hợp lệ (\texttt{INVALID\_PRICE}), tiền thanh toán âm (\texttt{INVALID\_PAYMENT}) và review sai định dạng (\texttt{INVALID\_REVIEW}). Trên dữ liệu Olist, cả ba luật không bắt dòng nào; 42 dòng tọa độ là toàn bộ dữ liệu bị cách ly.
+
+\subsection{Bất thường dữ liệu và cách xử lý}
+Sau khi dựng kho, \texttt{record\_dq} (\texttt{src/etl/build.py}) đếm lại 19 loại bất thường và ghi vào \texttt{ops.dq\_issue}. Hình~\ref{fig:dq_flow} tóm tắt đường đi của dữ liệu qua các cổng chất lượng: chỉ một luật duy nhất loại bản ghi khỏi luồng chính (tọa độ ngoài lãnh thổ), mọi bất thường còn lại được \emph{giữ và gắn cờ}.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/fig_dqflow}}
+\caption{Luồng chất lượng dữ liệu tọa độ: một luật cách ly duy nhất, các bất thường khác được giữ và gắn cờ}
+\label{fig:dq_flow}
+\end{figure}
+
+Bảng~\ref{tab:dq} liệt kê mười loại bất thường có số dòng lớn nhất. Chín quy tắc còn lại gồm tám quy tắc bắt được 4--41 dòng (ví dụ 41 tên thành phố seller được sửa theo ZIP, 35 seller khai bang khác bang suy ra từ ZIP, 23 đơn khách nhận trước khi giao vận chuyển) và một quy tắc không bắt được dòng nào (duyệt trước khi mua); tất cả đều được lưu trong \texttt{ops.dq\_issue}.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Mười loại bất thường dữ liệu lớn nhất trong \texttt{ops.dq\_issue}}
+\label{tab:dq}
+\begin{tabularx}{\textwidth}{|L|>{\raggedleft\arraybackslash}m{1.7cm}|>{\raggedright\arraybackslash}m{6.4cm}|}
+\hline
+\textbf{Bất thường} & \textbf{Số dòng} & \textbf{Cách xử lý} \\
+\hline
+Tọa độ trùng theo ZIP & 981.148 & Lấy trung vị theo ZIP \\
+\hline
+Đơn có nhiều seller & 1.278 & Tách \texttt{fact\_order} và \texttt{fact\_order\_seller} \\
+\hline
+\texttt{review\_id} dùng cho nhiều đơn & 789 & Khóa \texttt{fact\_review} là (\texttt{review\_id}, \texttt{order\_id}) \\
+\hline
+Đơn không có dòng hàng & 775 & Giữ; \texttt{seller\_key} $= -1$ ở \texttt{fact\_order\_seller} \\
+\hline
+Sản phẩm không có danh mục & 610 & Ghi \texttt{Unknown} \\
+\hline
+Đơn có nhiều review & 547 & Gộp về đơn trước khi nối; \texttt{fact\_review} giữ từng review \\
+\hline
+Tiền trả khác tiền hàng + phí & 303 & Giữ nguyên (phần lớn do lãi trả góp) \\
+\hline
+Dòng khách có ZIP không tọa độ & 279 & Giữ khách trong fact; tọa độ NULL ở \texttt{dim\_location} \\
+\hline
+Giao vận chuyển trước khi mua & 166 & Giữ, bật cờ \texttt{has\_chronology\_issue} \\
+\hline
+Tọa độ ngoài lãnh thổ Brazil & 42 & Cách ly (Bảng~\ref{tab:quarantine_geo}) \\
+\hline
+\end{tabularx}
+\end{table}
+
+Nguyên tắc chung là: bất thường về \emph{thứ tự thời gian} hoặc \emph{trạng thái} được giữ lại và bật cờ, không sửa và không xóa. Sửa sẽ tạo ra dữ liệu mà nguồn không có, còn xóa sẽ làm lệch phép đối soát số tiền ở Chương V. Chỉ tọa độ sai mới bị cách ly, vì chúng làm sai phép tính khoảng cách tuyến.
+
+\subsection{Hai trường hợp ảnh hưởng tới thiết kế fact}
+\subsubsection*{775 đơn không có dòng hàng}
+775 đơn có trong \texttt{orders} và có thanh toán (tổng 162.591,95 BRL) nhưng không có dòng nào trong \texttt{order\_items}. Trạng thái của chúng: 603 \texttt{unavailable}, 164 \texttt{canceled}, 5 \texttt{created}, 2 \texttt{invoiced}, 1 \texttt{shipped}.
+
+Nếu \texttt{fact\_order} được dựng bằng cách nối từ \texttt{order\_items}, cả 775 đơn sẽ mất, và tổng tiền thanh toán trong kho sẽ thấp hơn nguồn 162.591,95 BRL. Vì vậy \texttt{fact\_order} được dựng từ \texttt{orders}: các đơn này có \texttt{n\_items} $= 0$ và được tính vào phép đối soát tiền thanh toán (16.008.872,12 BRL khớp nguồn ở mọi đợt).
+
+\subsubsection*{1.278 đơn có nhiều seller}
+1.278 đơn có hàng của từ 2 seller trở lên, tạo ra 2.622 cặp đơn $\times$ seller. Nếu gắn seller vào \texttt{fact\_order}, các đơn này sẽ bị đếm nhiều lần khi nhóm theo seller. Vì vậy kho có hai fact riêng:
+\begin{itemize}
+    \item \texttt{fact\_order}, grain 1 đơn (99.441 dòng): thanh toán, trạng thái, giao tới khách;
+    \item \texttt{fact\_order\_seller}, grain 1 đơn $\times$ 1 seller: doanh số và trách nhiệm bàn giao của từng seller.
+\end{itemize}
+Số dòng của \texttt{fact\_order\_seller} kiểm tra lại được bằng phép cộng:
+\begin{equation}
+\underbrace{97.388}_{\text{đơn 1 seller}} + \underbrace{2.622}_{\text{cặp từ 1.278 đơn nhiều seller}} + \underbrace{775}_{\text{đơn không có hàng}} = 100.785
+\end{equation}
+
+\takeawaybox{Tóm tắt Chương III}{
+Chỉ 42 dòng (0,004\% của 1.000.163 dòng tọa độ) bị cách ly, trong đó rà soát thủ công phát hiện 11 dòng hải đảo hợp lệ bị loại nhầm nhưng không ảnh hưởng tới các bảng fact; mọi bất thường khác được giữ và bật cờ, để mọi phép đối soát số dòng và số tiền giữa nguồn và kho khớp tuyệt đối. Hai trường hợp đơn không có hàng và đơn nhiều seller quyết định việc tách \texttt{fact\_order} và \texttt{fact\_order\_seller} ở Chương IV.
+}

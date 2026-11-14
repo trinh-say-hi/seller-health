@@ -1,0 +1,318 @@
+% !TEX root = ../main.tex
+\section{KIỂM THỬ VÀ ĐÁNH GIÁ}
+\suppressfloats[t]
+
+Chương VII đã trình bày cách hệ thống ra quyết định; câu hỏi còn lại là nó đúng đến đâu. Chương này kiểm thử hệ thống, đo khả năng xếp hạng của mô hình, kiểm chứng ngược kế hoạch trên năm tháng, và đo độ nhạy của kế hoạch trước các giả định.
+
+\subsection{Kiểm thử tự động}
+Bảng~\ref{tab:tests} tổng hợp các bộ kiểm thử trên bản kho đang phát hành. Ba bộ đầu và dbt là \emph{cổng phát hành}: chỉ cần một bộ hỏng là bản kho mới không được dùng (Chương V).
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Các bộ kiểm thử và kết quả}
+\label{tab:tests}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}m{4.3cm}|>{\centering\arraybackslash}m{1.6cm}|L|}
+\hline
+\textbf{Bộ kiểm thử} & \textbf{Kết quả} & \textbf{Kiểm tra gì} \\
+\hline
+Đối soát theo đợt (\texttt{13\_batch\_checks.sql}) & 286/286 & 11 phép đối soát số dòng, số tiền $\times$ 26 đợt \\
+\hline
+\texttt{tests/test\_system.py} & 133/133 & Hash nguồn, số dòng các lớp, khóa, SCD2, chống rò rỉ tương lai, tối ưu trên bài toán tính tay, mô phỏng, cổng chất lượng, catalog \\
+\hline
+\texttt{tests/test\_lakehouse\_\allowbreak medallion.py} & 11/11 & Đủ tệp Parquet, Parquet khớp kho, sổ cái, cách ly \\
+\hline
+\texttt{dbt build} & 79/79 & 27 model, 52 test gồm đối chiếu với kho chính \\
+\hline
+\texttt{tests/test\_release.py} & 15/15 & Phát hành khi app đang mở, quay lui, từ chối bản lỗi \\
+\hline
+\texttt{tests/test\_edges.py} & 65/65 & Mỗi màn hình $\times$ các mốc as-of và tổ hợp lọc biên, không lỗi \\
+\hline
+\texttt{tests/test\_ui.py} (trình duyệt thật) & 45/45 & Kéo thả, ràng buộc, xuất CSV, What-if, không cuộn trang \\
+\hline
+\end{tabularx}
+\end{table}
+
+Một số kịch bản kiểm thử trong \texttt{test\_system.py} được xây dựng theo tinh thần kiểm thử đột biến (mutation testing): chủ động tiêm lỗi vào hệ thống nhằm kích hoạt các trạng thái lỗi biên và xác nhận cơ chế phòng vệ phản ứng đúng:
+\begin{itemize}
+    \item Xóa 1 dòng ở \texttt{fact\_sales\_item} trên bản sao kho rồi chạy lại đợt cuối: đợt bị dừng, ghi \texttt{failed} kèm nội dung lỗi, và watermark không tiến.
+    \item Chạy lại đợt cuối khi không có thay đổi: không bảng nào trong 15 bảng được kiểm có thêm dòng (idempotent).
+    \item Kiểm tra chống rò rỉ tương lai:
+    \begin{itemize}
+        \item không đợt nào ở Bronze chứa ngày giao vận chuyển hoặc ngày nhận sau mốc chốt của đợt (0 dòng);
+        \item không review nào vào kho trước khi khách trả lời (0 dòng);
+        \item khoảng cách giữa mốc huấn luyện cuối và mốc chấm điểm nhỏ nhất là 59 ngày, đạt yêu cầu $\ge 45$ ngày.
+    \end{itemize}
+    \item Kiểm tra giải thích: cộng các số hạng trong \texttt{dss.explain} rồi qua hàm sigmoid phải ra đúng $p_{\text{decline}}$ đã lưu.
+\end{itemize}
+Kiểm thử trả lời câu hỏi ``hệ thống có làm đúng điều nó định làm không''. Nó không trả lời câu hỏi ``điều đó có đúng về nghiệp vụ không''. Câu hỏi thứ hai được xét ở các mục dưới.
+
+\subsection{Khả năng xếp hạng của mô hình}
+Mô hình được đánh giá trên 11 mốc có nhãn đầy đủ (09/2017--07/2018). Tại mỗi mốc, mô hình chỉ được huấn luyện trên các mốc trước đó ít nhất 45 ngày. Ngoài mô hình đầy đủ, có hai mô hình để so sánh:
+\begin{itemize}
+    \item \textbf{Bỏ biến vận hành:} logistic không có 4 biến vận hành;
+    \item \textbf{Chỉ dùng recency:} xếp hạng seller theo số ngày chưa bán, không cần mô hình.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.95\textwidth, height=5.8cm,
+    ymin=0.62, ymax=0.88, ylabel={AUC},
+    symbolic x coords={09/17,10/17,11/17,12/17,01/18,02/18,03/18,04/18,05/18,06/18,07/18},
+    xtick=data, x tick label style={font=\footnotesize}, xlabel={Mốc as-of},
+    legend columns=2, legend style={at={(0.5,1.03)}, anchor=south}, grid=major, grid style={gray!20},
+    /pgf/number format/precision=2,
+]
+\addplot[hcmutnavy, thick, mark=*, mark size=1.4pt] coordinates {(09/17,0.817) (10/17,0.839) (11/17,0.805) (12/17,0.825) (01/18,0.815) (02/18,0.843) (03/18,0.844) (04/18,0.841) (05/18,0.834) (06/18,0.803) (07/18,0.817)};
+\addlegendentry{dormant: mô hình}
+\addplot[hcmutnavy, dashed, mark=o, mark size=1.4pt] coordinates {(09/17,0.776) (10/17,0.771) (11/17,0.778) (12/17,0.788) (01/18,0.778) (02/18,0.796) (03/18,0.801) (04/18,0.798) (05/18,0.788) (06/18,0.772) (07/18,0.789)};
+\addlegendentry{dormant: chỉ recency}
+\addplot[red!70!black, thick, mark=square*, mark size=1.4pt] coordinates {(09/17,0.703) (10/17,0.719) (11/17,0.733) (12/17,0.697) (01/18,0.703) (02/18,0.742) (03/18,0.731) (04/18,0.705) (05/18,0.709) (06/18,0.674) (07/18,0.707)};
+\addlegendentry{decline: mô hình}
+\addplot[red!70!black, dashed, mark=square, mark size=1.4pt] coordinates {(09/17,0.683) (10/17,0.698) (11/17,0.715) (12/17,0.687) (01/18,0.708) (02/18,0.730) (03/18,0.726) (04/18,0.690) (05/18,0.691) (06/18,0.664) (07/18,0.697)};
+\addlegendentry{decline: chỉ recency}
+\end{axis}
+\end{tikzpicture}
+\caption{AUC theo mốc của mô hình và của cách xếp theo số ngày chưa bán (\texttt{dss.eval\_auc})}
+\label{fig:auc}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{AUC trung bình trên 11 mốc}
+\label{tab:auc}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}m{2.4cm}|>{\centering\arraybackslash}m{2.4cm}|C|C|C|C|}
+\hline
+\textbf{Mục tiêu} & \textbf{Tỷ lệ dương} & \textbf{Mô hình đầy đủ (min--max)} & \textbf{Bỏ biến vận hành} & \textbf{Chỉ recency} & \textbf{Chênh so với recency} \\
+\hline
+\texttt{decline} & 35,6--51,1\% & 0,711 (0,674--0,742) & 0,708 & 0,699 & +0,012 \\
+\hline
+\texttt{dormant} & 26,6--33,5\% & 0,826 (0,803--0,844) & 0,822 & 0,785 & +0,041 \\
+\hline
+\end{tabularx}
+\end{table}
+
+Hình~\ref{fig:auc} và Bảng~\ref{tab:auc} cho thấy mô hình dự báo tạm ngừng tốt hơn rõ rệt so với dự báo sụt GMV: AUC trung bình 0,826 so với 0,711. Điều này có lý: không có đơn nào trong 45 ngày tới là hiện tượng gần với “đã lâu không bán”, còn sụt dưới 50\% phụ thuộc biến động nhu cầu khó đoán hơn. Tuy vậy, so với quy tắc đơn biến theo độ tươi mới giao dịch, mô hình 12 biến chỉ hơn 0,012 AUC ở mục tiêu \texttt{decline} — và còn thua ở 01/2018 (0,703 so với 0,708); với \texttt{dormant}, khoảng cách là 0,041 và mô hình hơn ở cả 11 mốc.
+
+Bốn biến vận hành gần như không giúp dự báo: bỏ chúng đi, AUC chỉ giảm 0,003 (\texttt{decline}) và 0,004 (\texttt{dormant}). AUC cũng ổn định theo thời gian (độ lệch giữa các mốc dưới 0,07) dù tập huấn luyện tăng gấp 5 lần, từ 2.982 lên 14.835 dòng. Thêm dữ liệu không làm mô hình tốt lên rõ — giới hạn nằm ở feature, không ở cỡ mẫu.
+\subsubsection*{Đường cong ROC và Precision-Recall tại mốc 01/07/2018}
+AUC trung bình che mất hành vi của mô hình ở từng ngưỡng cắt. Hình~\ref{fig:roc_pr} vẽ đường cong ROC và Precision-Recall của mục tiêu \texttt{decline} tại mốc chuẩn 01/07/2018 (1.658 seller đang bán, tỷ lệ sụt thật 45,1\%), cho cả mô hình và quy tắc recency. Các điểm được tính trực tiếp từ \texttt{dss.scores}, \texttt{dss.labels} và \texttt{mart.seller\_features}; AUC tại mốc này là 0,707 (mô hình) và 0,697 (recency), độ chính xác trung bình (average precision) là 0,655 và 0,650.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    name=roc, width=0.49\textwidth, height=0.49\textwidth,
+    xmin=0, xmax=1, ymin=0, ymax=1,
+    xlabel={Tỷ lệ dương giả (FPR)}, ylabel={Tỷ lệ dương thật (TPR, recall)},
+    title={\footnotesize (a) ROC -- \texttt{decline}},
+    grid=major, grid style={gray!20},
+    xtick={0,0.2,0.4,0.6,0.8,1}, ytick={0,0.2,0.4,0.6,0.8,1},
+    xticklabels={0,{0,2},{0,4},{0,6},{0,8},1}, yticklabels={0,{0,2},{0,4},{0,6},{0,8},1},
+    legend style={at={(0.97,0.03)}, anchor=south east, font=\tiny},
+]
+\addplot[gray, dashed] coordinates {(0,0) (1,1)};
+\addlegendentry{Ngẫu nhiên (0,5)}
+\addplot[hcmutnavy, thick] coordinates {(0.000,0.009) (0.025,0.122) (0.050,0.178) (0.075,0.248) (0.100,0.345) (0.125,0.373) (0.150,0.411) (0.175,0.455) (0.200,0.489) (0.225,0.537) (0.250,0.556) (0.275,0.581) (0.300,0.616) (0.325,0.632) (0.350,0.661) (0.375,0.676) (0.400,0.687) (0.425,0.701) (0.450,0.724) (0.475,0.747) (0.500,0.767) (0.525,0.786) (0.550,0.803) (0.575,0.826) (0.600,0.842) (0.625,0.859) (0.650,0.874) (0.675,0.884) (0.700,0.893) (0.725,0.898) (0.750,0.909) (0.775,0.920) (0.800,0.941) (0.825,0.950) (0.850,0.957) (0.875,0.972) (0.900,0.987) (0.925,0.989) (0.950,0.995) (0.975,1.000) (1.000,1.000)};
+\addlegendentry{Mô hình (0,707)}
+\addplot[red!70!black, thick, dash dot] coordinates {(0.000,0.005) (0.025,0.103) (0.050,0.191) (0.075,0.261) (0.100,0.316) (0.125,0.341) (0.150,0.384) (0.175,0.442) (0.200,0.474) (0.225,0.518) (0.250,0.544) (0.275,0.565) (0.300,0.597) (0.325,0.618) (0.350,0.627) (0.375,0.653) (0.400,0.671) (0.425,0.699) (0.450,0.726) (0.475,0.744) (0.500,0.767) (0.525,0.782) (0.550,0.797) (0.575,0.821) (0.600,0.834) (0.625,0.853) (0.650,0.867) (0.675,0.871) (0.700,0.886) (0.725,0.901) (0.750,0.914) (0.775,0.925) (0.800,0.930) (0.825,0.933) (0.850,0.949) (0.875,0.956) (0.900,0.964) (0.925,0.973) (0.950,0.985) (0.975,0.991) (1.000,1.000)};
+\addlegendentry{Recency (0,697)}
+\addplot[only marks, mark=*, mark size=2.4pt, color=orange!85!black] coordinates {(0.779,0.922)};
+\node[font=\tiny, anchor=north west, align=left] at (axis cs:0.50,0.80) {ngưỡng $p \ge 0{,}30$\\(1.399 seller)};
+\addplot[only marks, mark=diamond*, mark size=2.8pt, color=orange!85!black] coordinates {(0.204,0.491)};
+\node[font=\tiny, anchor=west] at (axis cs:0.22,0.46) {$p \ge 0{,}50$ (553 seller)};
+\end{axis}
+\begin{axis}[
+    at={(roc.east)}, anchor=west, xshift=1.3cm,
+    width=0.49\textwidth, height=0.49\textwidth,
+    xmin=0, xmax=1, ymin=0.3, ymax=1,
+    xlabel={Recall}, ylabel={Precision (tỷ lệ gọi trúng)},
+    title={\footnotesize (b) Precision-Recall -- \texttt{decline}},
+    grid=major, grid style={gray!20},
+    xtick={0,0.2,0.4,0.6,0.8,1},
+    ytick={0.4,0.6,0.8,1}, xticklabels={0,{0,2},{0,4},{0,6},{0,8},1}, yticklabels={{0,4},{0,6},{0,8},1},
+    legend style={at={(0.03,0.03)}, anchor=south west, font=\tiny},
+]
+\addplot[gray, dashed] coordinates {(0,0.451) (1,0.451)};
+\addlegendentry{Tỷ lệ cơ sở (0,451)}
+\addplot[hcmutnavy, thick] coordinates {(0.025,0.809) (0.050,0.809) (0.075,0.809) (0.100,0.809) (0.125,0.808) (0.150,0.792) (0.175,0.750) (0.200,0.749) (0.225,0.746) (0.250,0.746) (0.275,0.746) (0.300,0.746) (0.325,0.746) (0.350,0.740) (0.375,0.710) (0.400,0.699) (0.425,0.692) (0.450,0.685) (0.475,0.670) (0.500,0.667) (0.525,0.666) (0.550,0.653) (0.575,0.641) (0.600,0.631) (0.625,0.624) (0.650,0.609) (0.675,0.598) (0.700,0.579) (0.725,0.568) (0.750,0.563) (0.775,0.556) (0.800,0.546) (0.825,0.541) (0.850,0.531) (0.875,0.524) (0.900,0.501) (0.925,0.493) (0.950,0.487) (0.975,0.477) (1.000,0.459)};
+\addlegendentry{Mô hình (AP 0,655)}
+\addplot[red!70!black, thick, dash dot] coordinates {(0.025,0.913) (0.050,0.847) (0.075,0.826) (0.100,0.781) (0.125,0.765) (0.150,0.765) (0.175,0.765) (0.200,0.765) (0.225,0.757) (0.250,0.754) (0.275,0.729) (0.300,0.728) (0.325,0.711) (0.350,0.687) (0.375,0.683) (0.400,0.681) (0.425,0.681) (0.450,0.669) (0.475,0.664) (0.500,0.659) (0.525,0.651) (0.550,0.635) (0.575,0.624) (0.600,0.619) (0.625,0.602) (0.650,0.589) (0.675,0.578) (0.700,0.575) (0.725,0.570) (0.750,0.560) (0.775,0.558) (0.800,0.544) (0.825,0.538) (0.850,0.529) (0.875,0.515) (0.900,0.505) (0.925,0.495) (0.950,0.477) (0.975,0.462) (1.000,0.451)};
+\addlegendentry{Recency (AP 0,650)}
+\addplot[only marks, mark=*, mark size=2.4pt, color=orange!85!black] coordinates {(0.922,0.492)};
+\addplot[only marks, mark=diamond*, mark size=2.8pt, color=orange!85!black] coordinates {(0.491,0.664)};
+\node[font=\tiny, anchor=south] at (axis cs:0.49,0.68) {$p \ge 0{,}50$};
+\node[font=\tiny, anchor=south] at (axis cs:0.88,0.51) {$p \ge 0{,}30$};
+\end{axis}
+\end{tikzpicture}
+\caption[ROC và Precision-Recall của \texttt{decline} tại 01/07/2018]{Đường cong ROC (a) và Precision-Recall (b) của mục tiêu \texttt{decline} tại mốc 01/07/2018; điểm cam là các ngưỡng cắt trên xác suất dự báo (precision trong hình (b) được nội suy theo cực đại bên phải)}
+\label{fig:roc_pr}
+\end{figure}
+
+Hình~\ref{fig:roc_pr} cho thấy hai đường ROC gần như chồng lên nhau, xác nhận ở cấp từng ngưỡng điều mà AUC trung bình đã chỉ ra: thông tin dự báo chủ yếu nằm ở độ tươi mới của giao dịch. Ở vùng đầu danh sách (recall dưới khoảng 7\%), recency còn cho precision cao hơn mô hình (0,78--0,91 so với 0,81); đến recall 10\% thì hai đường xấp xỉ nhau (0,781 so với 0,809).
+
+Ngưỡng $p \ge 0{,}30$ là một điểm làm việc thiên về độ phủ: 1.399/1.658 seller vượt ngưỡng, recall 92,2\% nhưng precision chỉ 49,2\%, gần tỷ lệ cơ sở. Điều này có chủ đích, vì ngưỡng 0,30 chỉ là bộ lọc thô để tạo tập ứng viên; việc chọn ai trong số đó do bộ tối ưu quyết định theo $p_i V_i$ dưới ràng buộc ngân sách. Nếu nâng ngưỡng lên 0,50, precision tăng lên 66,4\% nhưng recall giảm còn 49,1\%. Precision của mô hình giảm đơn điệu theo recall và luôn nằm trên tỷ lệ cơ sở 0,451, tức mô hình có giá trị xếp hạng ở mọi ngưỡng, dù không vượt trội so với quy tắc recency.
+
+Kết luận: giá trị của DSS \emph{không} nằm ở độ chính xác dự báo. Nếu nó tạo ra khác biệt, khác biệt đó phải đến từ cách chuyển xác suất thành lựa chọn dưới ràng buộc. Mục tiếp theo kiểm tra điều này.
+
+\subsection{Kiểm chứng ngược kế hoạch trên 5 tháng}
+Trên 5 mốc 03--07/2018 (không dùng để chọn tham số), so sánh hai danh sách \textbf{cùng số seller} $k$:
+\begin{itemize}
+    \item \textbf{Kế hoạch DSS:} các seller được MILP chọn \texttt{CALL} hoặc \texttt{OPS};
+    \item \textbf{Theo GMV:} $k$ seller có $\text{GMV}_{90}$ lớn nhất, đây là cách làm phổ biến khi không có mô hình.
+\end{itemize}
+Hai chỉ số dùng nhãn thật 45 ngày sau mốc:
+\begin{align}
+\text{Gọi trúng} &= \frac{|\{i \in L : \text{decline}_i = 1\}|}{|L|} \\
+\text{Bao phủ GMV mất} &= \frac{\sum_{i \in L} \text{loss}_i}{\sum_{i \in \text{mọi seller}} \text{loss}_i}
+\end{align}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Kế hoạch DSS và chọn theo GMV, cùng số seller (\texttt{dss.eval\_lists}, scope \texttt{plan})}
+\label{tab:backtest_comparison}
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}m{1.6cm}|>{\centering\arraybackslash}m{0.8cm}|>{\centering\arraybackslash}m{1.9cm}|C|C|C|C|}
+\hline
+\multirow{2}{*}{\textbf{Mốc}} & \multirow{2}{*}{$k$} & \multirow{2}{*}{\textbf{Tỷ lệ decline}} & \multicolumn{2}{c|}{\textbf{Gọi trúng}} & \multicolumn{2}{c|}{\textbf{Bao phủ GMV mất}} \\
+\cline{4-7}
+ & & & \textbf{DSS} & \textbf{GMV} & \textbf{DSS} & \textbf{GMV} \\
+\hline
+03/2018 & 24 & 44,2\% & 50,0\% & 20,8\% & 19,5\% & 23,7\% \\
+\hline
+04/2018 & 28 & 45,0\% & 64,3\% & 21,4\% & 17,0\% & 16,1\% \\
+\hline
+05/2018 & 32 & 48,5\% & 62,5\% & 31,3\% & 19,1\% & 24,4\% \\
+\hline
+06/2018 & 36 & 51,1\% & 44,4\% & 27,8\% & 15,7\% & 30,1\% \\
+\hline
+07/2018 & 32 & 45,1\% & 56,3\% & 28,1\% & 25,5\% & 31,0\% \\
+\hline
+\textbf{TB} & 30,4 & 46,8\% & \textbf{55,5\%} & 25,9\% & 19,3\% & \textbf{25,1\%} \\
+\hline
+\end{tabularx}
+\end{table}
+
+Bảng~\ref{tab:backtest_comparison} cho thấy DSS gọi trúng cao hơn chọn theo GMV ở cả 5 tháng, trung bình 55,5\% so với 25,9\%. Tuy vậy, so với tỷ lệ cơ sở 46,8\% — mức của một danh sách chọn ngẫu nhiên — DSS chỉ cao hơn 8,7 điểm \%; ở 06/2018, DSS (44,4\%) còn thấp hơn tỷ lệ cơ sở (51,1\%). Danh sách theo GMV thấp hơn tỷ lệ cơ sở vì seller lớn ít khi sụt.
+
+Về bao phủ GMV mất, chọn theo GMV cao hơn DSS ở 4/5 tháng (trung bình 25,1\% so với 19,3\%). Lý do là phần lớn tiền mất nằm ở vài seller rất lớn có xác suất sụt thấp; danh sách GMV gom hết các seller này, còn DSS loại họ vì $p_i < 0{,}30$. Vì vậy \textbf{không thể kết luận DSS tốt hơn chọn theo GMV}: hai cách chọn tối ưu cho hai mục tiêu khác nhau. DSS ít cuộc gọi phí hơn — khoảng 55\% cuộc gọi đến đúng seller đang sụt, so với khoảng 26\% — còn danh sách theo GMV chạm tới nhiều tiền đang mất hơn nhưng gần 3/4 cuộc gọi đến seller không sụt. Bên nào đáng giá hơn phụ thuộc hiệu quả thật của một cuộc gọi tới seller không sụt, và dữ liệu không có thông tin này.
+
+\subsubsection*{Biện luận kinh tế: đánh đổi giữa độ chính xác và độ bao phủ}
+Vì sao doanh nghiệp có thể chấp nhận hy sinh một phần độ bao phủ GMV mất (19,3\% so với 25,1\%) để đổi lấy tỷ lệ gọi trúng cao gấp hơn hai lần (55,5\% so với 25,9\%)? Có thể lập luận định lượng bằng chi phí cơ hội của nguồn lực khan hiếm. Gọi $k$ là số suất can thiệp mỗi tháng, $\pi$ là tỷ lệ gọi trúng và $\bar{\ell}$ là GMV mất bình quân của một seller \emph{đang sụt} được gọi. Phần GMV có thể cứu được xấp xỉ $k \cdot \pi \cdot \bar{\ell} \cdot e$, trong khi phần nguồn lực bị lãng phí là $k(1 - \pi)$ cuộc gọi. Với $k \approx 30$ seller mỗi tháng:
+\begin{itemize}
+    \item \textbf{Năng suất đội ngũ Seller Success:} danh sách theo GMV dành khoảng $30 \times (1 - 0{,}259) \approx 22$ suất mỗi tháng cho seller không sụt, so với khoảng $30 \times (1 - 0{,}555) \approx 13$ suất của DSS. Khoảng 9 suất chênh lệch mỗi tháng là năng lực nhân sự có thể dùng cho seller thực sự cần hỗ trợ. Khi số suất là ràng buộc chặt (Chương VII, ngân sách trên 3.000 BRL), giá trị của mỗi suất bị lãng phí chính là giá bóng (shadow price) của ràng buộc nhân sự.
+    \item \textbf{Chi phí quan hệ với seller lớn:} danh sách theo GMV liên tục gọi các seller lớn nhất, phần lớn đang kinh doanh bình thường (gọi trúng chỉ 25,9\%, thấp hơn tỷ lệ cơ sở 46,8\%). Các cuộc gọi ``giữ chân'' lặp lại với đối tác lớn không có vấn đề vừa không tạo giá trị, vừa có nguy cơ gây phiền hà và làm suy giảm uy tín của sàn với chính nhóm tạo ra 82,6\% GMV. Các seller lớn này phù hợp với kênh quản lý tài khoản (key account) thường xuyên hơn là kênh can thiệp khẩn cấp.
+    \item \textbf{Bao phủ GMV là cận trên, gọi trúng là điều kiện cần:} chỉ số bao phủ đo lượng tiền \emph{đang mất} nằm trong danh sách, nhưng tiền chỉ được cứu nếu seller đó thực sự đang sụt \emph{và} can thiệp có tác dụng. Một phần lớn ``tiền mất'' của danh sách GMV nằm ở vài seller rất lớn có biến động tự nhiên; can thiệp vào những biến động đó khó tạo khác biệt.
+\end{itemize}
+Tuy nhiên, lập luận trên không bác bỏ giá trị của danh sách GMV. Một cấu hình hợp lý cho R1 là \textbf{kết hợp hai kênh}: giữ một kênh quản lý tài khoản định kỳ cho nhóm seller lớn nhất, và dùng DSS để phân bổ ngân sách can thiệp còn lại cho các seller có rủi ro cao. Tham số ``top giá trị'' trên Bảng kế hoạch cho phép R3 dịch chuyển dọc theo đường đánh đổi này (Bảng~\ref{tab:threshold}).
+
+\subsubsection*{Năm cách xếp hạng 50 seller}
+Để tách vai trò của ngưỡng và của thứ tự xếp, Bảng~\ref{tab:top50} so 5 cách lấy top 50 seller \emph{không qua ngưỡng hay ràng buộc} (trung bình 5 mốc).
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Top 50 seller theo 5 cách xếp (\texttt{dss.eval\_lists}, scope \texttt{top50})}
+\label{tab:top50}
+\begin{tabularx}{\textwidth}{|L|>{\raggedright\arraybackslash}m{4.7cm}|>{\centering\arraybackslash}m{1.7cm}|>{\centering\arraybackslash}m{2cm}|}
+\hline
+\textbf{Cách xếp} & \textbf{Tiêu chí} & \textbf{Gọi trúng} & \textbf{Bao phủ GMV mất} \\
+\hline
+Theo số ngày không bán & recency giảm dần & 78,8\% & 0,9\% \\
+\hline
+Luật đơn giản & trend $< -50\%$ và recency $> 21$, rồi theo GMV & 66,0\% & 8,6\% \\
+\hline
+DSS (rủi ro $\times$ giá trị) & $p_i \times V_i$ giảm dần & 47,2\% & 31,1\% \\
+\hline
+Chọn ngẫu nhiên (kỳ vọng) & -- & 46,8\% & 3,4\% \\
+\hline
+Theo GMV & $\text{GMV}_{90}$ giảm dần & 29,2\% & 33,5\% \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.62\textwidth, height=5.6cm,
+    xmin=20, xmax=90, ymin=-2, ymax=40,
+    xlabel={Gọi trúng (\%)}, ylabel={Bao phủ GMV mất (\%)},
+    grid=major, grid style={gray!20},
+    nodes near coords, point meta=explicit symbolic,
+    every node near coord/.append style={font=\scriptsize, anchor=south},
+]
+\addplot[only marks, mark=*, mark size=2.2pt, color=hcmutnavy] coordinates {
+  (78.8,0.9) [Số ngày không bán]
+  (66.0,8.6) [Luật đơn giản]
+  (47.2,31.1) [DSS]
+  (46.8,3.4) [Ngẫu nhiên]
+  (29.2,33.5) [Theo GMV]
+};
+\end{axis}
+\end{tikzpicture}
+\caption{Đánh đổi giữa gọi trúng và bao phủ GMV mất của 5 cách xếp top 50}
+\label{fig:tradeoff}
+\end{figure}
+
+Hình~\ref{fig:tradeoff} cho thấy một đánh đổi rõ ràng:
+\begin{itemize}
+    \item Xếp theo số ngày không bán trúng nhiều nhất (78,8\%) nhưng gần như không chạm tới tiền (0,9\%): đó là các seller nhỏ đã ngừng bán.
+    \item Xếp theo GMV làm điều ngược lại.
+    \item Thứ tự xếp của DSS ($p_i V_i$) có \emph{gọi trúng bằng chọn ngẫu nhiên} (47,2\% so với 46,8\%), nhưng bao phủ 31,1\% GMV mất, gần mức của GMV (33,5\%) và gấp 9 lần ngẫu nhiên. So với GMV, DSS đổi 2,4 điểm \% bao phủ lấy 18 điểm \% gọi trúng.
+\end{itemize}
+Tỷ lệ gọi trúng 55,5\% của kế hoạch ở Bảng~\ref{tab:backtest_comparison} phần lớn đến từ \textbf{ngưỡng $p \ge 0{,}30$}, không đến từ thứ tự xếp $p_i V_i$. Điều này nhất quán với Bảng~\ref{tab:threshold}: tăng ngưỡng thì gọi trúng tăng, bao phủ giảm.
+
+\subsection{Độ nhạy theo giả định}
+\label{sec:sens}
+Giả định chi phí và hiệu quả không được kiểm chứng, nên cần biết kế hoạch đổi bao nhiêu khi giả định sai. Với mỗi thay đổi, \texttt{sensitivity} giải lại MILP tại 7 mốc (03--09/2018). Kết quả được đo bằng hai đại lượng:
+\begin{itemize}
+    \item độ trùng Jaccard của tập seller được chọn so với phương án gốc: $J = |A \cap A'| / |A \cup A'|$;
+    \item GMV giữ được kỳ vọng.
+\end{itemize}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Độ nhạy của kế hoạch (trung bình 7 mốc; phương án gốc chọn 31,1 seller, giữ được 25.450 BRL)}
+\label{tab:sens}
+\begin{tabularx}{\textwidth}{|L|>{\centering\arraybackslash}m{2.6cm}|>{\centering\arraybackslash}m{1.8cm}|>{\centering\arraybackslash}m{2.4cm}|}
+\hline
+\textbf{Thay đổi} & \textbf{Jaccard TB (min--max)} & \textbf{Seller chọn} & \textbf{GMV giữ được so với gốc} \\
+\hline
+Số suất 80 & 1,00 (1,00--1,00) & 31,1 & 0\% \\
+\hline
+Hiệu quả gọi điện 30\% (gốc 20\%) & 0,88 (0,77--1,00) & 33,1 & +26,1\% \\
+\hline
+Ngân sách 4.000 BRL & 0,87 (0,74--0,97) & 33,0 & +5,0\% \\
+\hline
+Chi phí \texttt{OPS} gấp đôi & 0,87 (0,78--0,97) & 30,0 & $-8{,}0\%$ \\
+\hline
+Hiệu quả \texttt{OPS} 45\% (gốc 30\%) & 0,83 (0,71--0,89) & 28,3 & +17,4\% \\
+\hline
+Hiệu quả \texttt{OPS} 15\% & 0,82 (0,69--1,00) & 37,1 & $-14{,}6\%$ \\
+\hline
+Hiệu quả gọi điện 10\% & 0,65 (0,54--0,88) & 25,1 & $-23{,}6\%$ \\
+\hline
+Số suất 20 & 0,51 (0,50--0,54) & 15,9 & $-18{,}5\%$ \\
+\hline
+Ngân sách 1.000 BRL & 0,47 (0,42--0,50) & 14,6 & $-23{,}4\%$ \\
+\hline
+\end{tabularx}
+\end{table}
+
+Bảng~\ref{tab:sens} cho thấy danh sách khá vững khi giả định hiệu quả \texttt{OPS} sai $\pm 50\%$ ($J \approx 0{,}82$--$0{,}83$), nhưng nhạy hơn khi hiệu quả gọi điện giảm một nửa ($J = 0{,}65$, bỏ 6 seller). Lý do là phần lớn seller được chọn là \texttt{CALL}, nên giả định về \texttt{CALL} quan trọng hơn; danh sách đổi mạnh nhất khi cắt nguồn lực ($J \approx 0{,}47$--$0{,}51$), hợp lý vì danh sách chỉ còn khoảng một nửa.
+
+Tăng gấp đôi ngân sách chỉ thêm 5,3\%, còn tăng gấp đôi số suất không đổi gì. Hai kết quả này đo hai điểm nghẽn khác nhau: ở 2.000 BRL ngân sách còn là ràng buộc chặt (36/40 suất); khi nới lên 4.000 BRL, 40 suất trở thành ràng buộc. Mức thay đổi GMV giữ được ($-24\%$ đến $+26\%$) chủ yếu phản ánh việc đổi chính con số hiệu quả trong hàm mục tiêu, không phải bằng chứng rằng kế hoạch đúng.
+
+\takeawaybox{Đánh giá tổng hợp}{
+\begin{itemize}
+    \item \textbf{Về kho:} đo được và đạt: 286/286 đối soát, 133 + 11 + 79 + 15 kiểm tra cổng phát hành, hai cách dựng độc lập khớp nhau.
+    \item \textbf{Về mô hình:} khả năng xếp hạng ở mức trung bình (AUC 0,71 cho sụt GMV, 0,83 cho tạm ngừng), chỉ hơn cách xếp theo số ngày chưa bán 0,01--0,04.
+    \item \textbf{Về kế hoạch:} gọi trúng cao hơn chọn theo GMV (55,5\% so với 25,9\%) nhưng bao phủ ít tiền đang mất hơn ở 4/5 tháng (19,3\% so với 25,1\%), và gọi trúng chỉ cao hơn tỷ lệ cơ sở 8,7 điểm \%.
+    \item \textbf{Điều chưa đo được:} can thiệp có thật sự giữ được GMV hay không. Đánh giá này chỉ đo việc chọn đúng seller \emph{sẽ sụt}, chưa đo hiệu quả của việc gọi họ.
+\end{itemize}
+}

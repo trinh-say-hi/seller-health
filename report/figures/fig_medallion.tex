@@ -1,0 +1,30 @@
+% Hình 2.1 -- Kiến trúc Medallion (mức lý thuyết)
+% Năm khối trên một hàng; số 1--4 trong tiêu đề chỉ thứ tự luồng.
+\begin{tikzpicture}[font=\erdfont\scriptsize]
+\kcard[minimum height=2.2cm]{src}{0,0}{ksrc}{2.5cm}{kfile}{\textbf{1} \textperiodcentered{} Nguồn}{%
+  \textbf{9 tệp CSV}\\ 126,2 MB\\ 1,55 triệu dòng}
+\kcard[minimum height=2.2cm]{brz}{3.15,0}{kbronze}{2.5cm}{kdb}{\textbf{2} \textperiodcentered{} Bronze}{%
+  \textbf{\texttt{raw}}\\ chỉ ghi thêm\\ 137.236 phiên bản}
+\kcard[minimum height=2.2cm]{slv}{6.3,0}{ksilver}{2.5cm}{kfilter}{\textbf{3} \textperiodcentered{} Silver}{%
+  \textbf{\texttt{stg}}\\ làm sạch, chuẩn hóa\\ cách ly 42 dòng}
+\kcard[minimum height=2.2cm]{gld}{9.45,0}{kgold}{2.5cm}{kstar}{\textbf{4} \textperiodcentered{} Gold}{%
+  \textbf{\texttt{core}} + \texttt{mart}\\ 8 dim $\times$ 6 fact\\ SCD2, mini-dim, KPI}
+\kcard[minimum height=2.2cm]{use}{12.6,0}{kdss}{2.5cm}{kchart}{Tiêu thụ}{%
+  \textbf{4 kênh}\\ Power BI, Streamlit\\ SQL, ML/MILP}
+
+\foreach \a/\b in {src/brz, brz/slv, slv/gld, gld/use} \draw[karrow] (\a.east) -- (\b.west);
+
+\kcard[anchor=north]{q}{6.3,-2.55}{kalert}{2.5cm}{kcross}{Vùng cách ly}{%
+  Bản ghi vi phạm\\ giữ mã lỗi và lý do\\ không bị xóa}
+\draw[kdash=kalert] (slv.south) -- (q.north);
+
+% Chân hình: giải thích mã màu và loại mũi tên
+\begin{scope}[yshift=-4.85cm]
+  \draw[karrow] (0,0) -- (0.55,0);
+  \node[anchor=west, font=\erdfont\tiny] at (0.6,0) {luồng dữ liệu};
+  \draw[kdash=kalert] (4.2,0) -- (4.75,0);
+  \node[anchor=west, font=\erdfont\tiny] at (4.8,0) {cách ly};
+  \node[anchor=west, font=\erdfont\tiny] at (7.7,0) {Màu nền: nguồn $\rightarrow$ Bronze $\rightarrow$ Silver $\rightarrow$ Gold $\rightarrow$ tiêu thụ};
+  \node[anchor=west, font=\erdfont\tiny] at (0,-0.38) {Thứ tự 1--4: nạp và băm $\rightarrow$ làm sạch $\rightarrow$ mô hình hóa $\rightarrow$ phục vụ};
+\end{scope}
+\end{tikzpicture}
