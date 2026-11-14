@@ -1,0 +1,56 @@
+% Hình 4.1 -- Kiến trúc tổng thể: nguồn -> ba lớp Medallion -> bốn kênh khai thác
+% Quy ước: nền màu = tầng; nét liền = luồng dữ liệu; nét đứt = kiểm tra/điều phối.
+\begin{tikzpicture}[font=\erdfont\scriptsize,
+  badge/.style={circle, fill=hcmutnavy, text=white, font=\erdfont\tiny\bfseries,
+                inner sep=0pt, minimum size=9pt}]
+% ---- nguồn + ba lớp, một hàng ngang ----
+\kcard[minimum height=3.2cm]{src}{0,0}{ksrc}{3.0cm}{kfile}{Nguồn}{%
+  \textbf{9 tệp CSV}\\ 126,2 MB\\ 1,55 triệu dòng\\ SHA-256 khớp}
+\draw[draw=ksrc!35, dashed, rounded corners=5pt] (3.55,0.4) rectangle (15.75,-3.4);
+\node[anchor=north west, font=\erdfont\footnotesize\bfseries, text=hcmutnavy, fill=white, inner sep=1pt]
+  at (3.7,0.35) {Kho DuckDB --- một bản phát hành};
+
+\kcard[minimum height=3.0cm]{brz}{4.12,0}{kbronze}{3.0cm}{kdb}{Bronze}{%
+  \textbf{\texttt{raw}} \textperiodcentered{} bảng thô\\ Nạp 26 đợt\\ chỉ ghi thêm}
+\kcard[minimum height=3.0cm]{slv}{8.24,0}{ksilver}{3.0cm}{kfilter}{Silver}{%
+  \textbf{\texttt{stg}} \textperiodcentered{} view + master\\ Làm sạch, chuẩn hóa\\ Cách ly 42 dòng lỗi}
+\kcard[minimum height=3.0cm]{gld}{12.36,0}{kgold}{3.0cm}{kstar}{Gold}{%
+  \textbf{\texttt{core}} + \texttt{mart}\\ Galaxy 8 dim $\times$ 6 fact\\ SCD2, mini-dim, KPI}
+
+\foreach \a/\b/\n in {src/brz/1, brz/slv/2, slv/gld/3} {
+  \draw[karrow] (\a.east) -- (\b.west);
+  \node[badge] at ($(\a.east)!0.5!(\b.west)+(0,0.34)$) {\n};
+}
+
+% ---- bốn kênh khai thác ----
+\draw[karrow] (9.65,-3.4) -- (9.65,-4.15);
+\node[badge] at (9.65,-3.7) {4};
+\draw[draw=hcmutnavy!55, line width=0.9pt] (0.2,-4.15) -- (15.3,-4.15);
+\foreach \xx in {2.1,5.9,9.7,13.5} \draw[karrow] (\xx,-4.15) -- (\xx,-4.55);
+
+\kcard[minimum height=1.55cm]{bi}{0.2,-4.55}{hcmutnavy}{3.3cm}{kchart}{Power BI}{%
+  MOLAP \textperiodcentered{} 4 trang\\ RLS theo vùng}
+\kcard[minimum height=1.55cm]{app}{4.0,-4.55}{hcmutnavy}{3.3cm}{kcode}{Streamlit}{%
+  5 màn \textperiodcentered{} 2 luồng\\ Kéo thả kế hoạch}
+\kcard[minimum height=1.55cm]{sql}{7.8,-4.55}{hcmutnavy}{3.3cm}{klens}{Truy vấn OLAP}{%
+  ROLLUP, CUBE\\ 8 truy vấn mẫu}
+\kcard[minimum height=1.55cm]{ml}{11.6,-4.55}{hcmutnavy}{3.3cm}{kgear}{Học máy \& tối ưu}{%
+  Logistic, HiGHS\\ Monte Carlo}
+
+% ---- ba cơ chế xuyên suốt ----
+\kcard[minimum height=1.9cm]{dag}{0,-7.0}{kops}{4.8cm}{kclock}{Điều phối}{%
+  Dagster: 6 asset, 3 job\\ lịch chạy 02:00 (mặc định tắt)}
+\kcard[minimum height=1.9cm]{gate}{5.1,-7.0}{kwarn}{4.8cm}{kshield}{Cổng chất lượng}{%
+  286/286 đối soát\\ 133 test hệ thống, dbt 79/79}
+\kcard[minimum height=1.9cm]{lake}{10.2,-7.0}{klake}{4.8cm}{klayers}{Lakehouse}{%
+  123 tệp Parquet ZSTD\\ 113 dòng sổ cái SHA-256}
+
+% ---- chân hình ----
+\begin{scope}[yshift=-9.45cm]
+  \draw[karrow] (0,0) -- (0.55,0);
+  \node[anchor=west, font=\erdfont\tiny] at (0.6,0) {luồng dữ liệu};
+  \draw[kdash=kwarn] (4.0,0) -- (4.55,0);
+  \node[anchor=west, font=\erdfont\tiny] at (4.6,0) {kiểm tra/điều phối};
+  \node[anchor=west, font=\erdfont\tiny] at (8.6,0) {Màu nền: tầng dữ liệu hoặc vai trò};
+\end{scope}
+\end{tikzpicture}

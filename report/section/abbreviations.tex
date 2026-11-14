@@ -1,0 +1,92 @@
+% !TEX root = ../main.tex
+\section*{DANH MỤC TỪ VIẾT TẮT VÀ THUẬT NGỮ}
+\markboth{DANH MỤC TỪ VIẾT TẮT VÀ THUẬT NGỮ}{DANH MỤC TỪ VIẾT TẮT VÀ THUẬT NGỮ}
+
+\subsection*{1. Danh mục từ viết tắt}
+\begin{xltabular}{\textwidth}{|>{\raggedright\arraybackslash}m{2.5cm}|>{\raggedright\arraybackslash}m{5cm}|L|}
+\hline
+\textbf{Từ viết tắt} & \textbf{Thuật ngữ tiếng Anh} & \textbf{Giải thích nghĩa tiếng Việt} \\
+\hline
+\endhead
+\textbf{DW / DWH} & Data Warehouse & Kho dữ liệu tích hợp, có lịch sử theo thời gian phục vụ phân tích. \\
+\hline
+\textbf{DSS} & Decision Support System & Hệ thống hỗ trợ ra quyết định kinh doanh dựa trên mô hình định lượng. \\
+\hline
+\textbf{ELT} & Extract -- Load -- Transform & Quy trình Trích xuất $\rightarrow$ Nạp nguyên bản $\rightarrow$ Biến đổi trong kho. \\
+\hline
+\textbf{OLAP} & Online Analytical Processing & Kỹ thuật xử lý và phân tích dữ liệu đa chiều (Roll-up, Drill-down, Cube). \\
+\hline
+\textbf{SCD} & Slowly Changing Dimension & Kỹ thuật quản lý dimension biến đổi chậm (hệ thống áp dụng SCD Type 2). \\
+\hline
+\textbf{GMV} & Gross Merchandise Value & Tổng giá trị giao dịch hàng hóa (tổng tiền hàng của các đơn hợp lệ). \\
+\hline
+\textbf{MILP} & Mixed-Integer Linear Programming & Quy hoạch tuyến tính nguyên hỗn hợp (bài toán Knapsack phân bổ nguồn lực). \\
+\hline
+\textbf{HiGHS} & (tên riêng) & Bộ giải mã nguồn mở cho bài toán LP và MILP, dùng qua \texttt{scipy.optimize.milp}. \\
+\hline
+\textbf{ROC-AUC} & Area Under Receiver Operating Characteristic & Diện tích dưới đường cong ROC đánh giá khả năng phân loại của mô hình. \\
+\hline
+\textbf{BRL} & Brazilian Real & Đơn vị tiền tệ chính thức của Brazil (ký hiệu: R\$). \\
+\hline
+\textbf{RLS} & Row-Level Security & Phân quyền theo dòng: người dùng Power BI chỉ thấy dữ liệu của vùng mình. \\
+\hline
+\textbf{ROLAP / MOLAP} & Relational / Multidimensional OLAP & OLAP bằng truy vấn SQL trên bảng quan hệ / bằng cấu trúc đa chiều nạp sẵn trong bộ nhớ. \\
+\hline
+\textbf{ZSTD} & Zstandard & Thuật toán nén dùng cho các tệp Parquet của Lakehouse. \\
+\hline
+\textbf{CSV} & Comma-Separated Values & Định dạng tệp văn bản dạng bảng của 9 tệp nguồn Olist. \\
+\hline
+\textbf{DAG} & Directed Acyclic Graph & Đồ thị có hướng không chu trình mô tả thứ tự phụ thuộc giữa các bước của pipeline (Dagster). \\
+\hline
+\textbf{KPI} & Key Performance Indicator & Chỉ số đo lường hiệu quả hoạt động (GMV, số đơn, tỷ lệ trễ, review). \\
+\hline
+\textbf{LP} & Linear Programming & Quy hoạch tuyến tính liên tục; dùng làm bài toán nới lỏng trong thuật toán Nhánh-và-Cắt. \\
+\hline
+\textbf{MKP} & Multi-dimensional Knapsack Problem & Bài toán cái túi đa chiều: chọn tập phương án dưới nhiều ràng buộc tài nguyên. \\
+\hline
+\textbf{PR / AP} & Precision-Recall / Average Precision & Đường cong độ chính xác theo độ phủ và diện tích dưới đường cong đó. \\
+\hline
+\textbf{SHA-256} & Secure Hash Algorithm 256-bit & Hàm băm dùng để kiểm tra tệp nguồn và tệp Parquet không bị thay đổi. \\
+\hline
+\textbf{dbt} & data build tool & Công cụ mô tả phép biến đổi dữ liệu bằng các model SQL có phụ thuộc và test. \\
+\hline
+\end{xltabular}
+
+\vspace{0.8cm}
+\subsection*{2. Giải thích thuật ngữ nghiệp vụ và kỹ thuật cốt lõi}
+\begin{xltabular}{\textwidth}{|>{\raggedright\arraybackslash}m{4cm}|L|}
+\hline
+\textbf{Thuật ngữ} & \textbf{Định nghĩa và ý nghĩa trong hệ thống} \\
+\hline
+\endhead
+\textbf{Olist} & Nền tảng trung gian thương mại điện tử giúp các cửa hàng nhỏ lẻ tại Brazil kết nối và bán hàng trên các sàn lớn. \\
+\hline
+\textbf{Seller / Seller Success} & \textbf{Seller} là đối tượng trọng tâm của mọi can thiệp. \textbf{Seller Success} là đội ngũ chuyên viên chăm sóc đối tác, người dùng chính của hệ thống DSS. \\
+\hline
+\textbf{Đơn hàng hợp lệ} & Đơn hàng có trạng thái khác \texttt{canceled} và \texttt{unavailable}; GMV hợp lệ chỉ tính trên các đơn này. \\
+\hline
+\textbf{Seller trễ (\texttt{seller\_late})} & Người bán bàn giao kiện hàng cho bưu cục sau hạn chót cam kết (\texttt{shipping\_limit\_date}). Đây là lỗi phát sinh từ khâu nội bộ của người bán. \\
+\hline
+\textbf{Khách nhận trễ (\texttt{customer\_late})} & Đơn hàng được giao đến tay khách sau ngày hẹn dự kiến (\texttt{order\_estimated\_delivery\_date}). Lỗi có thể do người bán hoặc do bưu cục vận chuyển. \\
+\hline
+\textbf{Tuyến vận chuyển} & Cặp định danh Bang người bán $\rightarrow$ Bang người nhận (ví dụ: \texttt{SP -> RJ}). \\
+\hline
+\textbf{Tạm ngừng (\texttt{dormant})} & Trạng thái người bán không phát sinh bất kỳ đơn hàng nào trong 45 ngày tiếp theo. \\
+\hline
+\textbf{Sụt giảm GMV (\texttt{decline})} & GMV 45 ngày sau mốc nhỏ hơn 50\% mức bình thường $\text{GMV}_{90}/2$. \\
+\hline
+\textbf{Gọi trúng (Hit Rate)} & Tỷ lệ seller trong một danh sách thực tế bị sụt GMV trong 45 ngày sau mốc. \\
+\hline
+\textbf{Bao phủ GMV mất} & Phần GMV mất (loss) của toàn sàn nằm ở các seller trong danh sách. \\
+\hline
+\textbf{Jaccard} & $|A \cap B| / |A \cup B|$: độ trùng giữa hai danh sách seller. \\
+\hline
+\textbf{Medallion Architecture} & Kiến trúc hồ dữ liệu chia 3 tầng: \textbf{Bronze} (Dữ liệu thô \texttt{raw}), \textbf{Silver} (Làm sạch \texttt{stg}), và \textbf{Gold} (Lược đồ sao/thiên hà \texttt{core} và \texttt{mart}). \\
+\hline
+\textbf{Quarantine (Vùng cách ly)} & Bảng chứa bản ghi vi phạm luật chất lượng, giữ kèm mã lỗi và lý do, không dùng khi tính toán (ở đây là 42 dòng tọa độ ngoài khung lãnh thổ, trong đó 11 dòng hải đảo hợp lệ bị loại nhầm). \\
+\hline
+\textbf{As-of Date} & Mốc giả lập ``hôm nay''; mọi feature và màn hình tại mốc này chỉ dùng dữ liệu xảy ra trước mốc. \\
+\hline
+\textbf{What-if Analysis} & Đổi tham số (ngân sách, giả định hiệu quả, số ngày hứa thêm) rồi tính lại kết quả để so sánh phương án. \\
+\hline
+\end{xltabular}

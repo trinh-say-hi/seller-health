@@ -1,0 +1,189 @@
+% !TEX root = ../main.tex
+\section{THIẾT KẾ MÔ HÌNH KHO DỮ LIỆU}
+\suppressfloats[t]
+
+Sau khi biết dữ liệu sạch đến đâu, câu hỏi tiếp theo là tổ chức nó thành một kho có thể trả lời nhiều câu hỏi mà không đếm trùng. Chương này chốt tám dimension và sáu fact, giải thích grain của từng fact, và dùng Bus Matrix để chứng minh rằng mọi phép drill-across trong báo cáo đều hợp lệ.
+
+\subsection{Kiến trúc tổng thể}
+Hình~\ref{fig:arch_overview} trình bày kiến trúc tổng thể theo một luồng ngang: \emph{nguồn} (9 tệp CSV Olist) đi vào \emph{kho dữ liệu} tổ chức theo ba lớp Medallion trên DuckDB, rồi được \emph{khai thác} qua bốn kênh (Power BI, Streamlit, truy vấn OLAP, học máy và tối ưu). Màu nền chỉ tầng dữ liệu, số 1--4 chỉ thứ tự luồng; ba cơ chế xuyên suốt — điều phối, cổng chất lượng, Lakehouse — nằm ở hàng dưới cùng.
+
+\begin{figure}[tbp]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/arch_overview}}
+\caption{Kiến trúc tổng thể: nguồn $\rightarrow$ Bronze $\rightarrow$ Silver $\rightarrow$ Gold $\rightarrow$ bốn kênh khai thác. Màu nền chỉ tầng; số 1--4 chỉ thứ tự luồng; nét đứt chỉ kiểm tra/điều phối}
+\label{fig:arch_overview}
+\end{figure}
+
+
+
+\subsection{Các lớp dữ liệu}
+Hình~\ref{fig:arch} cho thấy một bản phát hành kho (một tệp DuckDB) được chia thành các schema theo lớp Medallion, kèm số dòng của các bảng chính sau khi nạp đủ 26 đợt.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/fig_layers}}
+\caption{Bố trí schema trong một bản phát hành kho và quy mô các bảng chính sau 26 đợt. Mũi tên liền là biến đổi dữ liệu; nét đứt là thành phần hỗ trợ}
+\label{fig:arch}
+\end{figure}
+
+
+
+Tệp DuckDB của một bản phát hành nặng 206,1 MB, lớn hơn 126,2 MB của 9 tệp CSV. Phần tăng thêm chủ yếu do kho lưu thêm 137.236 phiên bản đơn ở Bronze, các bảng Gold, bảng chốt theo đợt và kết quả DSS.
+
+\subsection{Ma trận Bus của kho}
+Bảng~\ref{tab:bus_matrix} là ma trận Bus theo Kimball \cite{kimball2013} của lớp \texttt{core}: mỗi hàng là một quy trình nghiệp vụ (một fact) kèm hạt dữ liệu, mỗi cột là một dimension dùng chung. Dấu $\bullet$ nghĩa là fact có khóa ngoại tới dimension đó; số trong ngoặc ở cột \texttt{dim\_date} là số vai trò ngày (role-playing) mà fact sử dụng. Ma trận được lập trực tiếp từ các cột khóa ngoại trong kho, không vẽ tay.
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.45}
+\caption{Ma trận Bus: 6 fact $\times$ 8 dimension dùng chung}
+\label{tab:bus_matrix}
+\newcommand{\busx}{\cellcolor{hcmutnavy!14}\textcolor{hcmutnavy}{$\bullet$}}
+\begin{tabular}{|>{\raggedright\arraybackslash\footnotesize}p{3.2cm}|>{\raggedright\arraybackslash\footnotesize}p{2.2cm}|c|c|c|c|c|c|c|c|}
+\hline
+\rowcolor{hcmutnavy}
+\textcolor{white}{\textbf{Fact}} & \textcolor{white}{\textbf{Hạt dữ liệu}} &
+\textcolor{white}{\rotatebox{90}{~\footnotesize\textbf{\texttt{dim\_date}}~}} &
+\textcolor{white}{\rotatebox{90}{~\footnotesize\textbf{\texttt{dim\_customer}}~}} &
+\textcolor{white}{\rotatebox{90}{~\footnotesize\textbf{\texttt{dim\_location}}~}} &
+\textcolor{white}{\rotatebox{90}{~\footnotesize\textbf{\texttt{dim\_product}}~}} &
+\textcolor{white}{\rotatebox{90}{~\footnotesize\textbf{\texttt{dim\_route}}~}} &
+\textcolor{white}{\rotatebox{90}{~\footnotesize\textbf{\texttt{dim\_order\_status}}~}} &
+\textcolor{white}{\rotatebox{90}{~\footnotesize\textbf{\texttt{dim\_seller}} (SCD2)~}} &
+\textcolor{white}{\rotatebox{90}{~\footnotesize\textbf{\texttt{dim\_seller\_health}}~}} \\
+\hline
+\texttt{fact\_sales\_item} \newline {\scriptsize Transaction} & 1 dòng hàng & \busx\,(2) & \busx & \busx & \busx & \busx & & \busx & \\
+\hline
+\texttt{fact\_order} \newline {\scriptsize Accumulating} & 1 đơn hàng & \busx\,(5) & \busx & \busx & & & \busx & & \\
+\hline
+\texttt{fact\_order\_seller} \newline {\scriptsize Accumulating} & 1 đơn $\times$ 1 seller & \busx\,(5) & \busx & \busx & & \busx & & \busx & \\
+\hline
+\texttt{fact\_payment} \newline {\scriptsize Transaction} & 1 lượt thanh toán & \busx\,(1) & \busx & & & & & & \\
+\hline
+\texttt{fact\_review} \newline {\scriptsize Transaction} & 1 review $\times$ 1 đơn & \busx\,(2) & \busx & & & & & & \\
+\hline
+\texttt{fact\_seller\_monthly} \newline {\scriptsize Periodic snapshot} & 1 seller $\times$ 1 tháng & \busx\,(1) & & & & & & \busx & \busx \\
+\hline
+\rowcolor{softbg}
+\multicolumn{2}{|r|}{\textit{Số fact dùng dimension}} & 6 & 5 & 3 & 1 & 2 & 1 & 3 & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+Ma trận Bus cho thấy \texttt{dim\_date} và \texttt{dim\_customer} là hai dimension dùng chung rộng nhất (6 và 5 fact), nên mọi phép so sánh chéo giữa doanh số, thanh toán và đánh giá theo thời gian hoặc theo khách hàng (drill-across) đều hợp lệ; \texttt{dim\_location} đóng hai vai — vị trí khách và vị trí seller. \texttt{dim\_seller} chỉ xuất hiện ở ba bảng có hạt chứa seller. \texttt{fact\_order}, \texttt{fact\_payment} và \texttt{fact\_review} đều gắn với đơn hàng nhưng không có hạt seller, nên cố ý không gắn dimension này để tránh đếm trùng khi một đơn có nhiều seller; phân tích review theo seller phải đi qua \texttt{fact\_order\_seller}.
+
+Cuối cùng, \texttt{dim\_seller\_health} chỉ gắn với fact định kỳ, đúng vai trò mini-dimension: hồ sơ sức khỏe thay đổi theo tháng nên chỉ có nghĩa ở hạt seller $\times$ tháng. Ba nhận xét này không phải trang trí — chúng quyết định những câu hỏi nào kho trả lời được và những câu nào phải chuyển sang bảng khác.
+
+\subsection{Tám dimension}
+\begin{table}[htbp]
+\centering
+\small
+\caption{Tám dimension trong lớp \texttt{core} (một số bảng có thêm dòng \texttt{Unknown} với khóa $-1$)}
+\label{tab:schema_summary}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash\ttfamily}m{3.9cm}|>{\raggedright\arraybackslash}m{2.5cm}|>{\raggedleft\arraybackslash}m{1.5cm}|L|}
+\hline
+\textbf{\rmfamily Bảng} & \textbf{\rmfamily Loại} & \textbf{\rmfamily Số dòng} & \textbf{\rmfamily Grain} \\
+\hline
+dim\_date & Conformed, nhiều vai & 1.827 & 1 ngày, 01/01/2016--31/12/2020 \\
+\hline
+dim\_customer & Conformed & 96.097 & 1 \texttt{customer\_unique\_id} \\
+\hline
+dim\_location & Conformed & 19.178 & 1 ZIP (dùng cho cả khách và seller) \\
+\hline
+dim\_product & Conformed & 32.952 & 1 sản phẩm \\
+\hline
+dim\_route & Conformed & 622 & 1 cặp bang seller $\rightarrow$ bang khách \\
+\hline
+dim\_order\_status & Conformed & 8 & 1 trạng thái đơn \\
+\hline
+dim\_seller & SCD Type 2 & 11.209 & 1 phiên bản của 1 seller \\
+\hline
+dim\_seller\_health & Mini-dimension & 361 & 1 tổ hợp hạng $\times$ dải \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{enumerate}
+    \item \textbf{\texttt{dim\_date}:} khóa \texttt{date\_key} dạng YYYYMMDD; có cờ cuối tuần (522 ngày), ngày lễ Brazil (50 ngày trong 5 năm) và Black Friday (5 ngày). Một bảng đóng nhiều vai: ngày mua, ngày duyệt, ngày giao vận chuyển, ngày nhận, ngày hẹn.
+    \item \textbf{\texttt{dim\_customer}:} khóa theo \texttt{customer\_unique\_id}. Nguồn cấp một \texttt{customer\_id} mới cho mỗi đơn (99.441 mã) nhưng chỉ có 96.096 khách thật; nối theo \texttt{customer\_id} sẽ đếm một khách mua 2 lần thành 2 khách, và tỷ lệ mua lại ở Chương I sẽ ra 0\%.
+    \item \textbf{\texttt{dim\_location}:} 19.177 ZIP, tọa độ trung vị, vùng địa lý: Sudeste 9.962, Nordeste 3.697, Sul 2.812, Centro-Oeste 1.859, Norte 847. Có 279 dòng khách (270 khách, 158 ZIP) và 7 ZIP của seller không có tọa độ (\texttt{has\_coordinates = FALSE}).
+    \item \textbf{\texttt{dim\_product}:} 32.951 sản phẩm, 74 danh mục tiếng Anh (kể cả \texttt{Unknown}); nhóm kích thước theo thể tích: Nhỏ $< 2.000$ cm$^3$, Vừa $< 15.000$ cm$^3$, Lớn còn lại.
+    \item \textbf{\texttt{dim\_route}:} tích chéo 23 bang có seller $\times$ 27 bang có khách $= 621$ tuyến, trong đó 23 tuyến nội bang. Khoảng cách là công thức Haversine giữa tâm hai bang:
+    \begin{equation}
+    d = 2R \arcsin\sqrt{\sin^2\!\tfrac{\Delta\varphi}{2} + \cos\varphi_1 \cos\varphi_2 \sin^2\!\tfrac{\Delta\lambda}{2}}, \quad R = 6.371 \text{ km}
+    \end{equation}
+    Khoảng cách nằm trong 0--3.676 km, trung vị 1.623 km. Đây là xấp xỉ đường chim bay giữa tâm bang, không phải quãng đường giao thật; nó chỉ dùng để xếp các tuyến theo độ xa.
+    \item \textbf{\texttt{dim\_order\_status}:} 8 trạng thái (\texttt{created}, \texttt{approved}, \texttt{invoiced}, \texttt{processing}, \texttt{shipped}, \texttt{delivered}, \texttt{canceled}, \texttt{unavailable}).
+    \item \textbf{\texttt{dim\_seller} (SCD2):} 3.095 seller với 11.208 phiên bản, trung bình 3,62 và nhiều nhất 10 phiên bản mỗi seller. Thuộc tính theo dõi là \emph{hạng ổn định}. Hạng ổn định chỉ đổi khi hạng tháng giữ nguyên \textbf{2 kỳ liên tiếp} (trừ lần đầu seller bắt đầu bán), để một tháng xấu ngẫu nhiên không làm seller đổi hạng. Qua 26 đợt, hạng tháng đổi 14.709 lần trong khi hạng ổn định đổi 8.113 lần (đúng bằng $11.208 - 3.095$ phiên bản mới). Mỗi seller có đúng 1 dòng \texttt{is\_current} (3.095 dòng).
+    \item \textbf{\texttt{dim\_seller\_health} (mini-dimension):} mọi tổ hợp của 4 thuộc tính đổi nhanh: 6 hạng $\times$ 3 dải số đơn (dưới 6, 6--30, trên 30) $\times$ 5 dải trễ bàn giao (đến 5\%, 5--15\%, 15--30\%, trên 30\%, chưa rõ) $\times$ 4 dải review (dưới 3,5; 3,5--4,2; trên 4,2; chưa rõ) $= 360$ tổ hợp. \texttt{fact\_seller\_monthly} trỏ tới tổ hợp của seller trong tháng đó. Nhờ vậy câu hỏi ``seller hạng Vàng có trễ trên 15\% thì GMV ra sao'' chỉ cần một phép nối, không phải tăng số phiên bản SCD2 theo từng tháng.
+\end{enumerate}
+
+\subsubsection*{Luật phân hạng seller}
+Tại mỗi mốc, mỗi seller có bán trong 90 ngày được xét lần lượt từ trên xuống và dừng ở luật đầu tiên đúng (\texttt{src/sql/12\_batch\_close.sql}). Ký hiệu xu hướng:
+\begin{equation}
+\text{trend} = \frac{\text{GMV}_{30}}{\text{GMV}_{90}/3} - 1
+\end{equation}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Luật phân hạng seller (hạng tháng)}
+\label{tab:tier_rules}
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}m{0.6cm}|>{\raggedright\arraybackslash}m{2.1cm}|L|}
+\hline
+\textbf{\#} & \textbf{Hạng} & \textbf{Điều kiện} \\
+\hline
+1 & Tạm ngừng & Quá 45 ngày không có đơn \\
+\hline
+2 & Ít đơn & Dưới 6 đơn trong 90 ngày \\
+\hline
+3 & Nguy cơ & (trend $< -50\%$ và quá 21 ngày không bán) hoặc (trễ bàn giao $\ge 30\%$ với ít nhất 5 đơn đã tới hạn) \\
+\hline
+4 & Theo dõi & trend $< -40\%$, hoặc trễ bàn giao $\ge 15\%$ (ít nhất 5 đơn), hoặc review trung bình $< 3{,}5$ \\
+\hline
+5 & Vàng & GMV 90 ngày thuộc top 20\% seller đang bán \\
+\hline
+6 & Ổn định & Còn lại \\
+\hline
+\end{tabularx}
+\end{table}
+
+Hạng sức khỏe đóng vai trò là một thuộc tính phân loại trực quan (Descriptive Heuristic Rule) hỗ trợ cán bộ quản trị nắm bắt nhanh hiện trạng đối tác. Việc lựa chọn đối tượng can thiệp do mô hình dự báo và bộ tối ưu ở Chương VII quyết định. Tại mốc cuối (sau đợt 10/2018), hạng ổn định hiện hành phân bố: Tạm ngừng 2.323, Ít đơn 366, Vàng 149, Ổn định 117, Theo dõi 85, Nguy cơ 13; 42 seller chưa từng có đơn hợp lệ được gán ``Chưa hoạt động''. Tỷ lệ Tạm ngừng cao (75\%) ở mốc này chủ yếu do dữ liệu kết thúc: sau 09/2018 gần như không còn đơn mới, nên không dùng mốc này để đánh giá sức khỏe sàn.
+
+\subsection{Sáu fact}
+Sáu fact cùng tám dimension tạo thành lược đồ thiên hà (Galaxy Schema) của kho (Hình~\ref{fig:galaxy}). Mỗi đường nối là một khóa ngoại, tô màu theo fact; các giao điểm fact $\times$ dimension trên hình đúng bằng các ô được đánh dấu trong ma trận Bus (Bảng~\ref{tab:bus_matrix}). Lược đồ chi tiết ở mức cột, gồm kiểu dữ liệu và ký hiệu bản số, được sinh tự động từ kho và trình bày ở Phụ lục A (Hình~\ref{fig:erd_sales} và Hình~\ref{fig:erd_order}).
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/fig_galaxy}}
+\caption{Lược đồ thiên hà mức khái niệm: 6 fact dùng chung 8 dimension; màu đường nối phân biệt theo fact}
+\label{fig:galaxy}
+\end{figure}
+
+\begin{enumerate}
+    \item \textbf{\texttt{fact\_sales\_item}} (transaction, 112.650 dòng). Số đo: \texttt{price}, \texttt{freight\_value}, \texttt{qty}; cờ \texttt{is\_valid\_sale}. Khóa: sản phẩm, seller (dòng SCD2 có hiệu lực lúc mua), khách, tuyến, ngày mua, hạn bàn giao.
+    \item \textbf{\texttt{fact\_order}} (accumulating, 99.441 dòng). Các mốc mua, duyệt, giao vận chuyển, nhận, hẹn; số đo thời lượng \texttt{days\_to\_carrier}, \texttt{days\_in\_transit}, \texttt{delay\_days}; tổng tiền hàng, phí, thanh toán; các cờ bất thường ở Bảng~\ref{tab:dq}.
+    \item \textbf{\texttt{fact\_order\_seller}} (accumulating, 100.785 dòng). Thêm hạn bàn giao của từng seller và hai cờ \texttt{seller\_late}, \texttt{customer\_late} dùng ở Chương I.
+    \item \textbf{\texttt{fact\_payment}} (transaction, 103.886 dòng): phương thức và số kỳ trả góp.
+    \item \textbf{\texttt{fact\_}\allowbreak\texttt{review}} (transaction, 99.224 dòng): điểm, có bình luận hay không, cờ \texttt{is\_before\_delivery}.
+    \item \textbf{\texttt{fact\_seller\_monthly}} (periodic snapshot, 25.487 dòng): mỗi seller có bán trong 90 ngày, mỗi tháng một dòng, chốt lúc đóng đợt.
+\end{enumerate}
+
+\subsection{Lớp mart}
+\begin{itemize}
+    \item \textbf{\texttt{mart.kpi\_monthly}:} KPI toàn sàn tính bằng \texttt{CUBE(region, category\_en)} cho mỗi tháng, gồm cả dòng tổng (\texttt{is\_all\_region}, \texttt{is\_all\_category}). Mỗi tháng chỉ được ghi khi đóng đợt của tháng đó, nên đây là \emph{số chốt sổ}. Số chốt khớp số mới nhất ở GMV, số đơn và số đơn trễ; chỉ lệch ở review, vì 547 đơn có nhiều review và một phần review đến ở tháng sau.
+    \item \textbf{\texttt{mart.seller\_features}:} 12 feature của mỗi seller tại mỗi mốc as-of (Chương VII), cộng hạng tháng. Mỗi mốc chỉ dùng dữ liệu trước mốc đó.
+    \item \textbf{\texttt{mart.route\_delivery}:} số đơn, trung vị và P90 số ngày giao, tỷ lệ trễ, tỷ lệ đơn trễ mà seller đúng hạn, theo tuyến trong 180 ngày trước mỗi mốc.
+\end{itemize}
+
+\takeawaybox{Tóm tắt Chương IV}{
+Mỗi lựa chọn mô hình trả lời một vấn đề đo được trong dữ liệu:
+\begin{itemize}
+    \item Tách \texttt{fact\_order} và \texttt{fact\_order\_seller} vì có 1.278 đơn nhiều seller.
+    \item Khóa khách theo \texttt{customer\_unique\_id} vì nguồn có 99.441 mã cho 96.096 khách.
+    \item SCD2 kèm luật 2 kỳ vì hạng tháng dao động: qua 26 đợt, hạng tháng đổi 14.709 lần (\texttt{mart.seller\_tier\_monthly}), còn hạng ổn định chỉ đổi 8.113 lần, tức số phiên bản SCD2 mới giảm 44,8\%.
+    \item Mini-dimension để số phiên bản \texttt{dim\_seller} giữ ở mức trung bình 3,62 thay vì tăng theo từng tháng.
+\end{itemize}
+}

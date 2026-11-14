@@ -1,0 +1,39 @@
+% Hình -- Lược đồ thiên hà mức khái niệm: 6 fact dùng chung 8 dimension (khớp ma trận Bus)
+\colorlet{kfact}{kgold!85!orange}
+\colorlet{kdim}{hcmutnavy!85}
+\begin{tikzpicture}[font=\erdfont\scriptsize,
+  fk/.style={line width=0.9pt, draw=#1, opacity=0.8}]
+% ---- dimension phía trên ----
+\foreach \nn/\xx/\ti/\de in {date/0/dim\_date/{Nhiều vai trò ngày},
+                             cust/4.6/dim\_customer/{1 khách thật},
+                             loc/9.2/dim\_location/{1 ZIP, khách và seller},
+                             stat/13.8/dim\_order\_status/{8 trạng thái}}
+  {\kcard[minimum height=1.25cm]{\nn}{\xx,0}{kdim}{3.0cm}{kdb}{\ti}{\de}}
+% ---- fact ở giữa ----
+\foreach \nn/\xx/\ti/\de in {si/0/sales\_item/{Transaction\\1 dòng hàng},
+                             os/3.0/order\_seller/{Accumulating\\1 đơn $\times$ 1 seller},
+                             fo/6.0/order/{Accumulating\\1 đơn},
+                             rv/9.0/review/{Transaction\\1 review $\times$ 1 đơn},
+                             py/12.0/payment/{Transaction\\1 lượt thanh toán},
+                             sm/15.0/seller\_monthly/{Periodic snapshot\\1 seller $\times$ 1 tháng}}
+  {\kcard[minimum height=1.55cm]{\nn}{\xx,-3.0}{kfact}{2.33cm}{knone}{{\scriptsize\bfseries fact\_\ti}}{\de}}
+% ---- dimension phía dưới ----
+\foreach \nn/\xx/\ti/\de in {prod/0/dim\_product/{Danh mục, kích thước},
+                             route/4.6/dim\_route/{Bang seller $\rightarrow$ bang khách},
+                             sel/9.2/dim\_seller/{SCD Type 2, hạng ổn định},
+                             hl/13.8/dim\_seller\_health/{Mini-dimension}}
+  {\kcard[minimum height=1.25cm]{\nn}{\xx,-6.4}{kdim}{3.0cm}{kdb}{\ti}{\de}}
+
+% ---- khóa ngoại (màu theo fact, đúng các ô của ma trận Bus) ----
+\begin{scope}[on background layer]
+\foreach \dd in {date,cust,loc} \draw[fk=kbronze] (si.north) -- (\dd.south);
+\foreach \dd in {prod,route,sel} \draw[fk=kbronze] (si.south) -- (\dd.north);
+\foreach \dd in {date,cust,loc} \draw[fk=kdbt] (os.north) -- (\dd.south);
+\foreach \dd in {route,sel} \draw[fk=kdbt] (os.south) -- (\dd.north);
+\foreach \dd in {date,cust,loc,stat} \draw[fk=kops] (fo.north) -- (\dd.south);
+\foreach \dd in {date,cust} \draw[fk=ksrc] (rv.north) -- (\dd.south);
+\foreach \dd in {date,cust} \draw[fk=kwarn] (py.north) -- (\dd.south);
+\draw[fk=kdss] (sm.north) -- (date.south);
+\foreach \dd in {sel,hl} \draw[fk=kdss] (sm.south) -- (\dd.north);
+\end{scope}
+\end{tikzpicture}

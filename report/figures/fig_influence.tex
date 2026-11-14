@@ -1,0 +1,38 @@
+% Hình 7.1 -- Sơ đồ ảnh hưởng của bài toán phân bổ can thiệp
+\begin{tikzpicture}[
+  font=\erdfont\scriptsize,
+  dec/.style={rectangle, draw=kdss, fill=kdss!9, line width=1pt, minimum height=0.95cm, align=center, inner sep=5pt, kshadow},
+  unc/.style={ellipse, draw=kwarn, fill=kwarn!9, line width=1pt, align=center, inner sep=2pt, kshadow},
+  res/.style={rectangle, rounded corners=9pt, draw=klake, fill=klake!9, line width=1pt, minimum height=0.95cm, align=center, inner sep=5pt, kshadow},
+  par/.style={rectangle, rounded corners=2pt, draw=ksrc!55, fill=ksrc!6, line width=0.7pt, align=center, inner sep=5pt, kshadow},
+  arr/.style={-{Stealth[length=5pt,width=4.5pt]}, line width=0.9pt, draw=ksrc!75}
+]
+\node[par] (feat) at (0,0) {\textbf{Feature tại as-of}\\\texttt{mart.seller\_features}};
+\node[unc] (p) at (3.7,0) {\textbf{Khả năng sụt} $p_i$\\(hồi quy logistic)};
+\node[par] (val) at (0,-1.7) {\textbf{Giá trị} $V_i = \text{GMV}_{90}/2$};
+\node[par] (thr) at (0,1.7) {\textbf{Ngưỡng} rủi ro 0,30\\top 20\% giá trị};
+\node[dec] (cand) at (3.7,1.7) {\textbf{Tập ứng viên} $C$};
+\node[par] (res) at (7.4,2.8) {\textbf{Nguồn lực}: ngân sách $B$, số suất $S$\\chi phí, số suất mỗi hành động};
+\node[dec] (act) at (7.4,1.05) {\textbf{Hành động} $x_{i,a}$\\(MILP)};
+\node[unc] (eff) at (7.4,-1.05) {\textbf{Hiệu quả} $e(a)$\\(tham số giả định)};
+\node[res] (out) at (11.2,0) {\textbf{GMV giữ được}\\$\sum p_i V_i\, e(a)\, x_{i,a}$};
+\node[res] (cost) at (11.2,2.0) {\textbf{Tiền dùng, suất dùng}};
+\draw[arr] (feat) -- (p);
+\draw[arr] (thr) -- (cand); \draw[arr] (p) -- (cand); \draw[arr] (val) -- (cand);
+\draw[arr] (cand) -- (act); \draw[arr] (res) -- (act);
+\draw[arr] (act) -- (out); \draw[arr] (eff) -- (out); \draw[arr] (p) -- (out);
+\draw[arr] (val.east) -- ++(0.4,0) |- ($(eff.south)+(0,-0.5)$) -| (out.south);
+\draw[arr] (act) -- (cost);
+
+% chú giải
+\begin{scope}[shift={(0.3,-3.35)}, every node/.style={font=\erdfont\scriptsize}]
+  \node[dec, minimum height=0.4cm, minimum width=0.7cm, inner sep=1pt] at (0,0) {};
+  \node[anchor=west] at (0.5,0) {quyết định};
+  \node[unc, minimum height=0.4cm, minimum width=0.8cm, inner sep=1pt] at (2.6,0) {};
+  \node[anchor=west] at (3.1,0) {bất định};
+  \node[res, minimum height=0.4cm, minimum width=0.7cm, inner sep=1pt, rounded corners=5pt] at (5.1,0) {};
+  \node[anchor=west] at (5.6,0) {kết quả};
+  \node[par, minimum height=0.4cm, minimum width=0.7cm, inner sep=1pt] at (7.5,0) {};
+  \node[anchor=west] at (8.0,0) {tham số, dữ liệu};
+\end{scope}
+\end{tikzpicture}

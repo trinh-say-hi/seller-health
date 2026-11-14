@@ -1,0 +1,41 @@
+% Hình 3.1 -- Luồng chất lượng dữ liệu (tọa độ)
+\begin{tikzpicture}[font=\erdfont\scriptsize]
+% ---- hàng trên: các thẻ số liệu ----
+\kcard[minimum height=2.2cm, align=center]{s}{0,0}{ksrc}{2.55cm}{kfile}{Nguồn}{%
+  {\erdfont\Large\bfseries\color{ksrc} 9 tệp}\\[3pt] 126,2 MB, SHA-256\\ khớp manifest}
+\kcard[minimum height=2.2cm, align=center]{b}{4.1,0}{kbronze}{2.55cm}{kdb}{Bronze}{%
+  {\erdfont\Large\bfseries\color{kbronze} 1.000.163}\\[3pt] dòng tọa độ thô\\ \texttt{raw.geolocation}}
+\kcard[minimum height=2.2cm, align=center]{v}{8.2,0}{ksilver}{2.55cm}{kfilter}{Silver}{%
+  {\erdfont\Large\bfseries\color{ksilver} 1.000.121}\\[3pt] dòng tọa độ hợp lệ\\ sau luật cách ly}
+\kcard[minimum height=2.2cm, align=center]{g}{12.3,0}{kgold}{2.55cm}{kstar}{Gold}{%
+  {\erdfont\Large\bfseries\color{kgold} 19.015}\\[3pt] ZIP, tọa độ trung vị\\ \texttt{dim\_location}}
+
+\draw[karrow] (s.east) -- (b.west);
+\draw[karrow] (b.east) -- (v.west);
+\draw[karrow] (v.east) -- (g.west);
+\node[kpill=ksrc] at ($(s.east)!0.5!(b.west)+(0,-0.42)$) {nạp init};
+\node[kpill=kalert] at ($(b.east)!0.5!(v.west)+(0,-0.42)$) {$-42$ dòng};
+\node[kpill=kgold, align=center] at ($(v.east)!0.5!(g.west)+(0,-0.52)$) {gộp 981.148\\dòng trùng};
+
+% ---- hàng dưới: ba nhánh xử lý ----
+\kcard[minimum height=3.0cm]{ok}{0,-3.1}{klake}{3.75cm}{kcheck}{Luật giao dịch: 0 dòng}{%
+  \texttt{INVALID\_PRICE}\\ \texttt{INVALID\_PAYMENT}\\ \texttt{INVALID\_REVIEW}\\[2pt]
+  Không bản ghi nào vi phạm}
+\kcard[minimum height=3.0cm]{q}{5.0,-3.1}{kalert}{3.85cm}{kcross}{Cách ly: 42 dòng}{%
+  \textcolor{kalert}{$\blacksquare$} 31 dòng ngoài lãnh thổ Brazil\\[1pt]
+  \textcolor{kwarn}{$\blacksquare$} 11 dòng Fernando de Noronha\\ \hspace*{9pt}(hợp lệ, dương tính giả)\\[5.5mm]\mbox{}}
+\kcard[minimum height=3.0cm]{f}{10.1,-3.1}{kwarn}{4.2cm}{kflag}{Giữ và gắn cờ: 18 loại}{%
+  1.278 đơn nhiều seller\\ 775 đơn không có dòng hàng\\ 166 đơn sai thứ tự thời gian\\[2pt]
+  \textbf{Không xóa, không sửa}}
+
+% thanh tỷ lệ 31/11 ở đáy thẻ cách ly
+\path ($(q.south west)+(0.22,0.22)$) coordinate (bar0) ($(q.south east)+(-0.22,0.22)$) coordinate (bar1);
+\fill[kalert, rounded corners=1.5pt] (bar0) rectangle ($(bar0)!0.738!(bar1)+(0,0.18)$);
+\fill[kwarn, rounded corners=1.5pt] ($(bar0)!0.738!(bar1)$) rectangle ($(bar1)+(0,0.18)$);
+\node[font=\erdfont\tiny\bfseries, text=white] at ($(bar0)!0.37!(bar1)+(0,0.09)$) {31};
+\node[font=\erdfont\tiny\bfseries, text=white] at ($(bar0)!0.87!(bar1)+(0,0.09)$) {11};
+
+\draw[kdash=klake] (s.south) -- (s.south |- ok.north);
+\draw[kdash=kalert] ($(b.east)!0.5!(v.west)+(0,-0.62)$) |- ($(q.north)+(0,0.4)$) -- (q.north);
+\draw[kdash=kwarn] (v.south) -- ++(0,-0.45) -| (f.north);
+\end{tikzpicture}
