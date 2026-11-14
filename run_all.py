@@ -6,10 +6,10 @@ Neu dat OLIST_DB (vi du trong Docker) thi dung thang vao file do nhu truoc, khon
 Muon xem tung buoc, lich su chay va lineage thi dung Dagster: .\run_pipeline.ps1
 """
 import os
-import shutil
 import subprocess
 import sys
 
+from src.pipeline import dbt_runner
 from src.pipeline.release import new_release_path, publish
 
 MODULES = [
@@ -36,16 +36,14 @@ for module in MODULES:
     if code:
         stop(module, code)
 
-# dbt doc OLIST_DB trong profiles.yml nen chay tren chinh ban dang dung, truoc khi phat hanh.
-if shutil.which("dbt"):
-    print("\n=== dbt staging & test ===", flush=True)
-    dbt_args = ["--project-dir", "dbt", "--profiles-dir", "dbt"]
-    code = subprocess.call(["dbt", "run", "--select", "staging", *dbt_args], env=env)
+# dbt dung lai kho tu raw vao schema dbt_* va doi chieu voi kho chinh, tren chinh ban dang dung, truoc khi phat hanh.
+if dbt_runner.available():
+    print("\n=== dbt build ===", flush=True)
+    code = dbt_runner.build(target)
     if code:
-        stop("dbt run", code)
-    code = subprocess.call(["dbt", "test", *dbt_args], env=env)
-    if code:
-        stop("dbt test", code)
+        stop("dbt build", code)
+else:
+    print("\n(Bo qua dbt: chua cai dbt-duckdb, xem requirements-dev.txt)")
 
 if not fixed:
     info = publish(target, note="run_all.py")

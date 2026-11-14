@@ -13,7 +13,7 @@ SELECT
     zip_prefix,
     median(lat) FILTER (WHERE lat BETWEEN -34 AND 6 AND lng BETWEEN -74 AND -34) AS lat,
     median(lng) FILTER (WHERE lat BETWEEN -34 AND 6 AND lng BETWEEN -74 AND -34) AS lng,
-    mode(city) AS city,
-    mode(state) AS state
+    mode(city ORDER BY city) AS city,
+    mode(state ORDER BY state) AS state
 FROM geo
 GROUP BY zip_prefix

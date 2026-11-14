@@ -24,7 +24,8 @@ JOIN {{ ref('stg_orders') }} o USING (order_id)
 LEFT JOIN {{ ref('stg_customers') }} c ON c.customer_id = o.customer_id
 LEFT JOIN {{ ref('dim_customer') }} dc ON dc.customer_unique_id = c.customer_unique_id
 LEFT JOIN {{ ref('dim_product') }} p ON p.product_id = i.product_id
-LEFT JOIN {{ ref('dim_seller') }} s ON s.seller_id = i.seller_id
+-- dim_seller la SCD2: lay dong co hieu luc luc mua (giong src/sql/11_batch_core.sql), khong thi moi dong hang nhan theo so phien ban seller.
+LEFT JOIN {{ ref('dim_seller') }} s ON s.seller_id = i.seller_id AND o.purchase_ts >= s.valid_from AND o.purchase_ts < s.valid_to
 LEFT JOIN {{ ref('dim_route') }} r ON r.seller_state = s.state AND r.customer_state = c.state
 LEFT JOIN {{ ref('dim_location') }} lc ON lc.zip_prefix = c.zip_prefix
 LEFT JOIN {{ ref('dim_location') }} ls ON ls.zip_prefix = s.zip_prefix

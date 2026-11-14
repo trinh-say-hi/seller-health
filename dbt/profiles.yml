@@ -3,5 +3,6 @@ seller_health:
   outputs:
     dev:
       type: duckdb
-      path: "{{ env_var('OLIST_DB', env_var('LOCALAPPDATA', '.') ~ '/seller_health/olist.duckdb') }}"
+      # Ban kho do src.pipeline.dbt_runner truyen vao. Chay tay: python -m src.pipeline.dbt_runner
+      path: "{{ env_var('OLIST_DB') }}"
       threads: 4

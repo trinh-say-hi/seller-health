@@ -460,8 +460,8 @@ tables:
     description: Sổ cái theo dõi các mẻ nạp Parquet ZSTD bất biến của tầng Bronze Lakehouse.
     columns:
       batch_id: Mã đợt nạp hoặc init.
-      source_file: Tên file Parquet nén.
-      file_hash: Mã băm fingerprint kiểm soát toàn vẹn.
+      source_file: File nguồn của mẻ, là tên CSV với mẻ init, đường dẫn Parquet trong thư mục lake với các đợt tháng.
+      file_hash: SHA-256 của chính file đó (CSV hoặc Parquet vừa ghi), dùng để phát hiện file bị sửa sau khi nạp.
       row_count: Số dòng dữ liệu trong mẻ.
       ingested_at: Thời điểm nạp vào Lakehouse.
       status: Trạng thái mẻ nạp (COMMITTED).

@@ -17,16 +17,17 @@ clean-targets:
 
 models:
   seller_health:
+    # Schema rieng dbt_*: dbt dung lai kho tu raw de doi chieu, khong ghi de core/mart ma app va Power BI doc.
     staging:
       +materialized: view
-      +schema: stg
+      +schema: dbt_stg
     intermediate:
       +materialized: view
-      +schema: stg
+      +schema: dbt_stg
     marts:
       core:
         +materialized: table
-        +schema: core
+        +schema: dbt_core
       analytics:
         +materialized: table
-        +schema: mart
+        +schema: dbt_mart

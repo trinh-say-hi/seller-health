@@ -34,7 +34,8 @@ monthly AS (
         avg(review_score) AS avg_review,
         avg(date_sub('second', ts, carrier_ts) / 86400.0) AS avg_days_to_carrier,
         avg(days_in_transit) AS avg_days_in_transit,
-        date_sub('second', max(ts), date_trunc('month', ts) + INTERVAL 1 MONTH) / 86400.0 AS days_since_last_sale,
+        -- So ngay tu lan ban cuoi toi moc chot dot (dau thang sau), nhu recency o src/sql/12_batch_close.sql.
+        date_sub('second', max(ts), date_trunc('month', min(ts)) + INTERVAL 1 MONTH) / 86400.0 AS days_since_last_sale,
         count(DISTINCT category_en) AS n_categories
     FROM _w
     WHERE is_valid_sale

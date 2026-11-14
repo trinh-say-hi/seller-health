@@ -5,8 +5,8 @@ WITH z AS (
     UNION SELECT zip_prefix FROM {{ ref('stg_customers') }}
     UNION SELECT zip_prefix FROM {{ ref('stg_sellers') }}
 ),
-c AS (SELECT zip_prefix, mode(city) AS city, mode(state) AS state FROM {{ ref('stg_customers') }} GROUP BY 1),
-s AS (SELECT zip_prefix, mode(city) AS city, mode(state) AS state FROM {{ ref('stg_sellers') }} GROUP BY 1)
+c AS (SELECT zip_prefix, mode(city ORDER BY city) AS city, mode(state ORDER BY state) AS state FROM {{ ref('stg_customers') }} GROUP BY 1),
+s AS (SELECT zip_prefix, mode(city ORDER BY city) AS city, mode(state ORDER BY state) AS state FROM {{ ref('stg_sellers') }} GROUP BY 1)
 SELECT -1 AS location_key, 'UNKNOWN' AS zip_prefix, 'khong ro' AS city, NULL AS state, 'Khong ro' AS region,
        NULL::DOUBLE AS lat, NULL::DOUBLE AS lng, FALSE AS has_coordinates
 UNION ALL

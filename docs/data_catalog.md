@@ -642,8 +642,8 @@ Sổ cái theo dõi các mẻ nạp Parquet ZSTD bất biến của tầng Bronz
 | Cột | Kiểu | Mô tả |
 |---|---|---|
 | `batch_id` | VARCHAR | Mã đợt nạp hoặc init. |
-| `source_file` | VARCHAR | Tên file Parquet nén. |
-| `file_hash` | VARCHAR | Mã băm fingerprint kiểm soát toàn vẹn. |
+| `source_file` | VARCHAR | File nguồn của mẻ, là tên CSV với mẻ init, đường dẫn Parquet trong thư mục lake với các đợt tháng. |
+| `file_hash` | VARCHAR | SHA-256 của chính file đó (CSV hoặc Parquet vừa ghi), dùng để phát hiện file bị sửa sau khi nạp. |
 | `row_count` | BIGINT | Số dòng dữ liệu trong mẻ. |
 | `ingested_at` | TIMESTAMP | Thời điểm nạp vào Lakehouse. |
 | `status` | VARCHAR | Trạng thái mẻ nạp (COMMITTED). |
