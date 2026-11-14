@@ -1,5 +1,5 @@
-/// Thư mục chứa Parquet do asset xuat_parquet ghi ra (%LOCALAPPDATA%\seller_health\powerbi\). Đổi ở Transform data > Edit parameters.
-expression ThuMucParquet = "C:\Users\ASUS ExpertBook\AppData\Local\seller_health\powerbi\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+/// Thư mục Parquet do xuat_parquet ghi ra. Đây là giá trị mẫu tương đối; powerbi_export tự trỏ về warehouse\powerbi của máy đang chạy trước khi mở Power BI.
+expression ThuMucParquet = "warehouse\powerbi\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: f70cc2a6-24be-5eb0-8c12-e50e2eb4850c
 
 	annotation PBI_ResultType = Text

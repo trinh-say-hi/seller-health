@@ -13,7 +13,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from src.config import POINTER, RELEASES_DIR, current_db
+from src.config import POINTER, RELEASES_DIR, current_db, lake_dir
 
 KEEP = 2  # ban dang dung va ban truoc do
 
@@ -76,6 +76,7 @@ def cleanup(protect: tuple[str, ...] = ()) -> list[str]:
             wal = f.with_name(f.name + ".wal")
             if wal.exists():
                 wal.unlink()
+            shutil.rmtree(lake_dir(f), ignore_errors=True)
             removed.append(f.name)
         except OSError:
             pass
@@ -89,6 +90,8 @@ def seed_from_current(target: Path) -> Path:
         raise FileNotFoundError(f"Chua co kho de chep: {src}. Chay toan bo pipeline truoc.")
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, target)
+    if lake_dir(src).exists():
+        shutil.copytree(lake_dir(src), lake_dir(target), dirs_exist_ok=True)
     return src
 
 

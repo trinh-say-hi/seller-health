@@ -8,6 +8,7 @@ Khong dung giao dich vi DuckDB 2.0 bi crash khi COMMIT mot giao dich lon nhu vay
 import datetime as dt
 import hashlib
 import json
+import shutil
 import time
 
 import duckdb
@@ -192,6 +193,7 @@ def build():
         path = DB_PATH.with_name(DB_PATH.name + suffix)
         if path.exists():
             path.unlink()
+    shutil.rmtree(LAKE_DIR, ignore_errors=True)
     con = duckdb.connect(str(DB_PATH))
     start = time.time()
     init(con)

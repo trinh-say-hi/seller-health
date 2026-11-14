@@ -68,16 +68,16 @@ def export_bronze_lake(con, batch: str = None):
             out_file = (BRONZE_LAKE / f"{t}.parquet").as_posix()
             con.execute(f"COPY raw.{t} TO '{out_file}' (FORMAT PARQUET, COMPRESSION ZSTD)")
     if batch and batch != "init":
-        # Export monthly transaction slice to bronze partitioned folder
+        from src.etl.build import sha256_of  # import trong ham: build.py cung import module nay
+        # Chay lai mot dot (force) thi ghi de file va dong so cai cua dot do, khong cong don.
+        con.execute("DELETE FROM ops.ingestion_batches WHERE batch_id = ?", [batch])
         for t in ["orders", "order_items", "order_payments", "order_reviews"]:
-            out_file = (BRONZE_LAKE / t / f"{batch}.parquet").as_posix()
-            con.execute(f"COPY (SELECT * FROM raw.{t} WHERE dwh_batch = '{batch}') TO '{out_file}' (FORMAT PARQUET, COMPRESSION ZSTD)")
-            
-            # Ghi nhan so cai
+            out_path = BRONZE_LAKE / t / f"{batch}.parquet"
+            con.execute(f"COPY (SELECT * FROM raw.{t} WHERE dwh_batch = '{batch}') TO '{out_path.as_posix()}' (FORMAT PARQUET, COMPRESSION ZSTD)")
             row_count = con.execute(f"SELECT count(*) FROM raw.{t} WHERE dwh_batch = '{batch}'").fetchone()[0]
             con.execute(
-                "INSERT INTO ops.ingestion_batches VALUES (?, ?, md5(CAST(? AS VARCHAR)), ?, CURRENT_TIMESTAMP, 'COMMITTED')",
-                [batch, f"{t}_{batch}.parquet", batch, row_count]
+                "INSERT INTO ops.ingestion_batches VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, 'COMMITTED')",
+                [batch, f"bronze/{t}/{batch}.parquet", sha256_of(out_path), row_count]
             )
 
 
@@ -101,7 +101,7 @@ def update_silver_batch_metrics(con, batch: str):
 
 
 def export_gold_lake(con):
-    """Xuat toan bo Gold Dimensions va Fact tables ra data/lake/gold/ Parquet ZSTD."""
+    """Xuat toan bo Gold Dimensions va Fact tables ra <kho>_lake/gold/ Parquet ZSTD."""
     ensure_lake_dirs()
     summary = []
     for t in TABLES_GOLD_FACTS + TABLES_GOLD_DIMS:

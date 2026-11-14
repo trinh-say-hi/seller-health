@@ -7,8 +7,9 @@ if (-not (Test-Path $py)) {
     Write-Host "Chua co moi truong. Hay chay .\setup.ps1 truoc."
     exit 1
 }
-# Lich su chay cua Dagster nam ngoai OneDrive, canh kho du lieu
-$env:DAGSTER_HOME = Join-Path $local "dagster"
+# Lich su chay cua Dagster nam canh kho du lieu: warehouse\dagster trong repo, hoac OLIST_HOME neu da dat (giong src/config.py)
+$home_dir = if ($env:OLIST_HOME) { $env:OLIST_HOME } else { Join-Path $PSScriptRoot "warehouse" }
+$env:DAGSTER_HOME = Join-Path $home_dir "dagster"
 New-Item -ItemType Directory -Force -Path $env:DAGSTER_HOME | Out-Null
 $cfg = Join-Path $env:DAGSTER_HOME "dagster.yaml"
 if (-not (Test-Path $cfg)) {
