@@ -43,7 +43,9 @@ def goto(page, name):
     if opener.count() and opener.first.is_visible():
         opener.first.click()
         page.wait_for_timeout(500)
-    page.locator('[data-testid="stSidebar"] div[data-testid="stRadio"] label').filter(has_text=name).first.click()
+    # Nhan tren sidebar khac ten man hinh o mot cho (LABELS trong src/app/app.py)
+    label = {"What-if tuyến": "What-if hẹn giao theo tuyến"}.get(name, name)
+    page.locator('[data-testid="stSidebar"] div[data-testid="stRadio"] label').filter(has_text=label).first.click()
     settle(page)
     closer = page.locator('[data-testid="stSidebarCollapseButton"] button, [data-testid="stSidebarCollapseButton"]')
     if closer.count():
@@ -105,7 +107,8 @@ with sync_playwright() as p:
     columns = frame.locator(".sortable-container")
     check("Bang co 4 cot", columns.count() == 4, columns.count())
     headers = [columns.nth(i).locator(".column-title").inner_text() for i in range(columns.count())]
-    check("Dung ten cac cot", headers == ["Gọi ngay", "Hỗ trợ vận hành", "Email tự động", "Chưa xử lý"], headers)
+    # Tieu de cot co them "(tong N)"
+    check("Dung ten cac cot", [h.split(" (")[0] for h in headers] == ["Gọi ngay", "Hỗ trợ vận hành", "Email tự động", "Chưa xử lý"], headers)
     boxes = [columns.nth(i).bounding_box() for i in range(4)]
     check("Cac cot nam ngang hang nhau", len({round(b["y"]) for b in boxes}) == 1 and boxes[0]["x"] < boxes[3]["x"], [round(b["x"]) for b in boxes])
     counts = [columns.nth(i).locator(".sortable-item").count() for i in range(4)]
@@ -152,13 +155,13 @@ with sync_playwright() as p:
     header_counts = [columns.nth(i).locator(".count").inner_text() for i in range(4)]
     check("So the tren tieu de cot cap nhat", header_counts == [str(c) for c in counts2], header_counts)
     with page.expect_download() as dl:
-        page.get_by_role("button", name="Xuất kế hoạch ra CSV").click()
+        page.get_by_role("button", name="Xuất CSV").click()
     csv_path = OUT.parent / "_export_test.csv"
     dl.value.save_as(csv_path)
     exported = pd.read_csv(csv_path, encoding="utf-8-sig")
-    row = exported[exported.seller_id.str.startswith(moved_label)]
+    row = exported[exported["Seller"].str.startswith(moved_label)]  # CSV dung ten cot tieng Viet
     check("CSV phan anh thao tac keo tay", len(row) == 1 and row["Hành động"].iloc[0] == "Chưa xử lý", row["Hành động"].tolist())
-    check("CSV co ly do cho moi dong", exported.reason.notna().all() and len(exported) == sum(counts), len(exported))
+    check("CSV co ly do cho moi dong", exported["Lý do"].notna().all() and len(exported) == sum(counts), len(exported))
     csv_path.unlink()
 
     moves = 0
@@ -194,7 +197,7 @@ with sync_playwright() as p:
 
     # Giai thich du bao o Chi tiet seller
     goto(page, "Chi tiết seller")
-    why = page.locator(".ct").filter(has_text="Vì sao rủi ro")
+    why = page.locator(".ct").filter(has_text="Vì sao")  # "Vì sao khả năng sụt GMV ...", hoặc "Vì sao mô hình chấm như vậy" khi mốc chưa có giải thích
     check("Chi tiet seller co bieu do giai thich du bao", why.count() == 1, why.first.inner_text() if why.count() else "")
 
     # Luu va so sanh kich ban o Bang ke hoach
