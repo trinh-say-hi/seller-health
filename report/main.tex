@@ -1,9 +1,13 @@
 %!TEX program = xelatex
 \documentclass[a4paper,11pt]{article}
-\usepackage{fontspec}
+\usepackage{amsmath}
+\usepackage[no-math]{fontspec}
 \setmainfont{Times New Roman}
-\usepackage[paperheight=29.7cm,paperwidth=21cm,right=2.5cm,left=3cm,top=2.5cm,bottom=2.5cm,headheight=16pt,footskip=22pt]{geometry}
-\usepackage{amsmath,amssymb}
+% Ma nguon: Courier (giong Springer), thu nho de cung do cao chu thuong voi Times
+\setmonofont{Courier New}[Scale=MatchLowercase]
+% Cong thuc toan cung kieu Times voi than bai
+\usepackage{newtxmath}
+\usepackage[paperheight=29.7cm,paperwidth=21cm,right=2.5cm,left=3cm,top=2.5cm,bottom=2.5cm,headheight=34pt,headsep=12pt,footskip=26pt]{geometry}
 \usepackage{graphicx}
 \usepackage{tabularx,array,indentfirst,xltabular}
 \usepackage{booktabs}
@@ -16,7 +20,8 @@
 \usepackage{colortbl}
 \usepackage{pdflscape}
 \usetikzlibrary{shapes.arrows}
-\newfontfamily\erdfont{Arial}
+% So do dung chung font voi than bai
+\newfontfamily\erdfont{Times New Roman}
 % =====================================================================
 % BỘ SƠ ĐỒ THỐNG NHẤT (card có dải tiêu đề, biểu tượng, đổ bóng)
 % Màu theo vai trò, dùng chung cho mọi sơ đồ kiến trúc của báo cáo
@@ -116,6 +121,12 @@
 \definecolor{erdred}{HTML}{B91C1C}
 \definecolor{erdtbl}{HTML}{002D62}
 \definecolor{erdwire}{HTML}{4B6584}
+\usepackage{lastpage}
+% Ten bang, ten cot dai (core.fact_sales_item...) duoc ngat dong sau dau _ thay vi tran le
+\AtBeginDocument{\let\bkus\_\renewcommand{\_}{\bkus\penalty 100\relax}}
+\setlength{\emergencystretch}{2.5em}
+% Chu thich hinh, bang: co small, nhan dam, dau cham sau so (kieu Springer)
+\usepackage[font=small,labelfont=bf,labelsep=period]{caption}
 \usepackage[hidelinks]{hyperref}
 
 % Cấu hình khoảng cách ô và bảng chuyên nghiệp
@@ -132,14 +143,15 @@
 \definecolor{subtleborder}{HTML}{CBD5E1}
 \colorlet{hcmutblue}{hcmutnavy}
 
-% Thiết lập Header & Footer chuẩn báo cáo kỹ thuật
+% Dau trang: logo va ten truong, mot gach duoi. Chan trang: mot gach tren, ten de tai ben trai, Trang X/Y ben phai.
+\newcommand{\bkhead}{\vbox{\hbox to \textwidth{%
+    \raisebox{-0.32\height}{\includegraphics[height=0.95cm]{image/HCMUT_official_logo.png}}\hspace{8pt}%
+    \parbox[c]{0.8\textwidth}{\footnotesize Trường Đại học Bách Khoa -- ĐHQG-HCM\\ Khoa Khoa học và Kỹ thuật Máy tính}\hfill}%
+  \vskip 4pt\hrule height 0.6pt width \textwidth}}
+\newcommand{\bkfoot}{\vbox{\hrule height 0.4pt width \textwidth\vskip 4pt
+  \hbox to \textwidth{\footnotesize Seller Health -- Kho dữ liệu \& DSS (CO4031)\hfill Trang \thepage/\pageref*{LastPage}}}}
 \makeatletter
-\def\ps@bkreports{%
-  \def\@oddhead{\vbox{\hbox to \textwidth{{\footnotesize\color{slateaccent}Seller Health -- Kho dữ liệu \& DSS (CO4031)\hfill\textbf{\color{hcmutnavy}\leftmark}}}\vskip 3pt\hrule height 0.6pt width \textwidth}}%
-  \def\@evenhead{\vbox{\hbox to \textwidth{{\footnotesize\color{slateaccent}Seller Health -- Kho dữ liệu \& DSS (CO4031)\hfill\textbf{\color{hcmutnavy}\leftmark}}}\vskip 3pt\hrule height 0.6pt width \textwidth}}%
-  \def\@oddfoot{\vbox{\hrule height 0.3pt width \textwidth\vskip 4pt\hbox to \textwidth{{\footnotesize\color{slateaccent}Trường Đại học Bách Khoa -- ĐHQG-HCM\hfill Trang \thepage}}}}%
-  \def\@evenfoot{\vbox{\hrule height 0.3pt width \textwidth\vskip 4pt\hbox to \textwidth{{\footnotesize\color{slateaccent}Trường Đại học Bách Khoa -- ĐHQG-HCM\hfill Trang \thepage}}}}%
-}
+\def\ps@bkreports{\def\@oddhead{\bkhead}\def\@evenhead{\bkhead}\def\@oddfoot{\bkfoot}\def\@evenfoot{\bkfoot}}
 \makeatother
 
 % Định dạng tiêu đề chương mục đồng bộ
@@ -147,15 +159,15 @@
 \renewcommand\section{\@startsection {section}{1}{\z@}%
                                    {-3.5ex \@plus -1ex \@minus -.2ex}%
                                    {2.3ex \@plus.2ex}%
-                                   {\normalfont\Large\bfseries\color{hcmutnavy}}}
+                                   {\normalfont\large\bfseries}}
 \renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
                                      {-3.25ex\@plus -1ex \@minus -.2ex}%
                                      {1.5ex \@plus .2ex}%
-                                     {\normalfont\large\bfseries\color{hcmutnavy}}}
+                                     {\normalfont\normalsize\bfseries}}
 \renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
                                      {-3.25ex\@plus -1ex \@minus -.2ex}%
                                      {1.5ex \@plus .2ex}%
-                                     {\normalfont\normalsize\bfseries\color{slateaccent}}}
+                                     {\normalfont\normalsize\bfseries\itshape}}
 \renewcommand\sectionmark[1]{\markboth{Chương \thesection}{Chương \thesection}}
 
 % Sửa lỗi Mục lục: Mở rộng khoảng cách số La Mã VII. và VIII. không bị dính chữ
@@ -178,47 +190,14 @@
 \makeatother
 
 % Hộp điểm nhấn điều hành đồng nhất (Unified Executive Callout Box)
-\newcommand{\takeawaybox}[2]{%
-    \begin{center}
-    \begin{tikzpicture}
-        \node[
-            rectangle, 
-            rounded corners=3pt, 
-            fill=softbg, 
-            draw=subtleborder, 
-            line width=0.7pt, 
-            inner sep=9pt, 
-            text width=0.92\textwidth,
-            align=left
-        ] (box) {
-            {\fontsize{10.5pt}{12pt}\selectfont \textbf{\color{hcmutnavy} $\blacksquare$ \ #1}}\\[4pt]
-            {\fontsize{9.5pt}{13.5pt}\selectfont #2}
-        };
-        \draw[hcmutnavy, line width=3.2pt, line cap=round] 
-            ([xshift=1.5pt]box.north west) -- ([xshift=1.5pt]box.south west);
-    \end{tikzpicture}
-    \end{center}
-}
+\newcommand{\takeawaybox}[2]{\par\medskip\noindent\textbf{#1.}\enspace #2\par\medskip}
 \let\calloutbox\takeawaybox
 
 % Thẻ chỉ số nổi bật (KPI Hero Card)
 \newcommand{\kpicard}[3]{%
     \begin{tikzpicture}
-        \node[
-            rectangle,
-            rounded corners=4pt,
-            fill=softbg,
-            draw=hcmutnavy!30!white,
-            line width=0.8pt,
-            inner sep=7pt,
-            text width=3.35cm,
-            align=center,
-            minimum height=1.7cm
-        ] {
-            {\fontsize{13.5pt}{15.5pt}\selectfont \textbf{\color{hcmutnavy} #1}}\\[3pt]
-            {\fontsize{8.5pt}{10.5pt}\selectfont \textbf{\color{slateaccent} #2}}\\[2pt]
-            {\fontsize{7.5pt}{9pt}\selectfont \color{gray} #3}
-        };
+        \node[rectangle, draw=black!45, line width=0.5pt, inner sep=6pt, text width=3.35cm, align=center, minimum height=1.7cm]
+        {{\large\textbf{#1}}\\[3pt]{\small\textbf{#2}}\\[2pt]{\footnotesize #3}};
     \end{tikzpicture}%
 }
 
@@ -268,15 +247,15 @@
   \tikz\node[draw=subtleborder, dashed, line width=0.8pt, rounded corners=2pt, fill=softbg,
     minimum width=0.92\textwidth, minimum height=7.2cm, align=center, font=\small\color{slateaccent}] {#1};}
 
-\renewcommand{\figurename}{\bfseries Hình}
-\renewcommand{\tablename}{\bfseries Bảng}
+\renewcommand{\figurename}{Hình}
+\renewcommand{\tablename}{Bảng}
 \renewcommand{\contentsname}{MỤC LỤC}
 \renewcommand{\listfigurename}{DANH MỤC HÌNH ẢNH}
 \renewcommand{\listtablename}{DANH MỤC BẢNG}
 
-\renewcommand\thesection{\Roman{section}.}
-\renewcommand\thesubsection{\arabic{subsection})}
-\renewcommand\thesubsubsection{\alph{subsubsection}/}
+\renewcommand\thesection{\arabic{section}}
+\renewcommand\thesubsection{\thesection.\arabic{subsection}}
+\renewcommand\thesubsubsection{\thesubsection.\arabic{subsubsection}}
 
 \makeatletter
 \renewcommand{\thefigure}{\arabic{section}.\arabic{figure}}
@@ -328,51 +307,45 @@
     \centering
         \begin{tabular}{rl}
         \hspace{2cm}\textbf{Giảng viên hướng dẫn}: & Đỗ Thanh Thái\\
-        \textbf{Nhóm}: & Seller Health\\
         \textbf{Sinh viên thực hiện}: 
-        &  Nguyễn Khánh Trinh -- MSSV: \makebox[2.6cm]{\dotfill}\\[4pt]
-        &  \makebox[4.2cm]{\dotfill} -- MSSV: \makebox[2.6cm]{\dotfill}\\[4pt]
-        &  \makebox[4.2cm]{\dotfill} -- MSSV: \makebox[2.6cm]{\dotfill}\\
+        &  Nguyễn Tấn Lộc -- MSSV: 2311957\\[4pt]
+        &  Nguyễn Khánh Trinh -- MSSV: 2313579\\
         \end{tabular}
     \end{table}
+    \begin{center}
+        \textbf{Tổng hợp tài liệu (mã nguồn, slide):} \href{https://drive.google.com/drive/folders/1PC9ZJv1ki-5rkdg5CC4EHuTj9ypR3O3c?usp=sharing}{\textcolor{blue}{\underline{nhấn vào đây}}}
+    \end{center}
         \vfill
         \begin{center}
 			\fontsize{12pt}{0pt}\selectfont Thành phố Hồ Chí Minh, tháng 11 - 2026\\
 		\end{center}
     \end{titlepage}
     \cleardoublepage
-    \pagenumbering{roman}
+    \pagestyle{bkreports}
 
     \begin{center}
-        \fontsize{14pt}{0pt}\selectfont \textbf{DANH SÁCH THÀNH VIÊN VÀ ĐÓNG GÓP} \\
+        \fontsize{14pt}{0pt}\selectfont \textbf{DANH SÁCH THÀNH VIÊN VÀ NHIỆM VỤ} \\
 		\vspace{0.8cm}
     \end{center}
     \noindent
-    \begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}m{0.9cm}|>{\centering\arraybackslash}m{2.1cm}|>{\raggedright\arraybackslash}m{3.1cm}|L|>{\centering\arraybackslash}m{1.7cm}|}
+    \begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}m{0.9cm}|>{\centering\arraybackslash}m{2.1cm}|>{\raggedright\arraybackslash}m{3.1cm}|L|}
 		\hline
-		\textbf{STT} & \textbf{MSSV} & \textbf{Họ và tên} & \textbf{Nhiệm vụ chính} & \textbf{Tỷ lệ đóng góp}\\
+		\textbf{STT} & \textbf{MSSV} & \textbf{Họ và tên} & \textbf{Nhiệm vụ chính}\\
 		\hline
-		1 &  & Nguyễn Khánh Trinh &
-        $\bullet$ Thiết kế Galaxy Schema (8 dimension, 6 fact)\newline
-        $\bullet$ Pipeline ELT 26 đợt nạp trên DuckDB, 11 phép đối soát mỗi đợt\newline
-        $\bullet$ Lakehouse Parquet, dbt (27 model) và đối chiếu chéo với kho & \ldots\ \%\\
+		1 & 2311957 & Nguyễn Tấn Lộc &
+        $\bullet$ Kho dữ liệu: thiết kế Galaxy Schema (8 dimension, 6 fact), SCD2, mini-dimension\newline
+        $\bullet$ Pipeline ELT 26 đợt nạp trên DuckDB, đối soát giữa các lớp, Lakehouse Parquet, dbt\newline
+        $\bullet$ Power BI: semantic model, 4 trang báo cáo, RLS theo vùng, đối chiếu số với DuckDB\newline
+        $\bullet$ Viết báo cáo (Chương 3, 4, 5 và phần Power BI của Chương 6), làm slide\\
 		\hline
-		2 &  &  &
-        $\bullet$ Xây dựng mô hình phân loại rủi ro Logistic Regression\newline
-        $\bullet$ Thiết lập ma trận luật hành động (Action Engine)\newline
-        $\bullet$ Tối ưu hóa phân bổ nguồn lực MILP Knapsack (HiGHS) & \ldots\ \%\\
-		\hline
-		3 &  &  &
-        $\bullet$ Giao diện Streamlit (5 màn, 2 luồng) và Power BI (4 trang, RLS)\newline
-        $\bullet$ Bộ kiểm thử: 133 test hệ thống, 65 test biên, 45 test trình duyệt\newline
-        $\bullet$ Kiểm chứng ngược 5 mốc 03--07/2018 và tổng hợp báo cáo & \ldots\ \%\\
-		\hline
-		\multicolumn{4}{|r|}{\textbf{Tổng}} & \textbf{100\%}\\
+		2 & 2313579 & Nguyễn Khánh Trinh &
+        $\bullet$ DSS: luật xếp hạng, ma trận hành động, tối ưu MILP (HiGHS), mô phỏng Monte Carlo\newline
+        $\bullet$ Học máy: hồi quy logistic dự báo sụt GMV, phân rã đóng góp, đánh giá ROC và PR\newline
+        $\bullet$ Streamlit (5 màn, 2 luồng), kiểm chứng ngược 03--07/2018, bộ kiểm thử\newline
+        $\bullet$ Viết báo cáo (Chương 7, 8 và phần Streamlit của Chương 6), làm slide\\
 		\hline
 	\end{tabularx}
 
-    \vspace{0.3cm}
-    \noindent{\small\textit{Ghi chú:} cột ``Tỷ lệ đóng góp'' là phần trăm khối lượng công việc của từng thành viên trên toàn đề tài; tổng ba thành viên bằng 100\%.}
     \cleardoublepage
 
     \tableofcontents
@@ -393,8 +366,6 @@
     \input{section/abbreviations}
     \cleardoublepage
 
-    \pagenumbering{arabic}
-    \pagestyle{bkreports}
 
     \input{section/ch1_business}
     \newpage

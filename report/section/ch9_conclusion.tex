@@ -22,7 +22,7 @@ Lakehouse, dbt & 123 tệp Parquet đi kèm bản kho, sổ cái SHA-256; dbt d�
 \hline
 Vận hành & Phát hành theo bản sau 4 cổng kiểm tra; quay lui được; Dagster cùng tiêu chuẩn với \texttt{run\_all.py} & DuckDB không chạy được giao dịch lớn, nên đợt lỗi không tự rollback mà dừng và chạy lại \\
 \hline
-OLAP & ROLAP (8 truy vấn, 1,8--90,8 ms) và MOLAP (Power BI 4 trang, 50 measure, RLS) & RLS mới có 1 vùng; Power BI phải bấm Làm mới \\
+OLAP & ROLAP (8 truy vấn, 1,8--90,8 ms) và MOLAP (Power BI 4 trang, 50 measure, RLS) & RLS chưa gán người dùng thật; Power BI phải bấm Làm mới \\
 \hline
 Mô hình & AUC 0,711 (sụt GMV), 0,826 (tạm ngừng) & Chỉ hơn xếp theo số ngày chưa bán 0,012 và 0,041 \\
 \hline
@@ -33,6 +33,43 @@ Giao diện & 5 màn Streamlit cho 2 luồng; 45/45 test trình duyệt & Stream
 \end{tabularx}
 \end{table}
 
+\subsection{Đối chiếu với user story}
+Bảng~\ref{tab:us_status} đối chiếu từng user story ở Chương 1 với hiện trạng hệ thống. ``Đạt'' nghĩa là mọi tiêu chí chấp nhận đã có bằng chứng (số đối chiếu, ảnh chụp hoặc test); ``Một phần'' nghĩa là còn tiêu chí chưa làm hoặc dựa trên giả định chưa kiểm chứng.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Mức đáp ứng user story}
+\label{tab:us_status}
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}m{0.9cm}|>{\centering\arraybackslash}m{1.6cm}|L|}
+\hline
+\textbf{Mã} & \textbf{Mức} & \textbf{Bằng chứng và phần còn thiếu} \\
+\hline
+US1 & Đạt & Trang KPI tháng và Kế hoạch; số Power BI khớp DuckDB 26/26 tháng. \\
+\hline
+US2 & Đạt & Cây phân rã chạy đúng; 5 role theo vùng, số seller và GMV dưới mỗi role khớp DuckDB. Còn gán người dùng thật khi đưa lên Power BI Service. \\
+\hline
+US3 & Đạt & Màn Cần chú ý: 70 seller mới vào Nguy cơ ở mốc 01/07/2018, mỗi seller ngoài kế hoạch có lý do. \\
+\hline
+US4 & Đạt & Màn Chi tiết seller: chẩn đoán khâu seller hay vận chuyển, đóng góp từng feature lưu ở \texttt{dss.explain}. \\
+\hline
+US5 & Đạt & Bảng kế hoạch: giải lại MILP khi đổi ràng buộc, kéo thả, khóa chốt khi vượt ràng buộc, kế hoạch chốt hiện ở Power BI. Kịch bản chỉ lưu theo máy. \\
+\hline
+US6 & Đạt & Màn Kiểm chứng trên 03--07/2018, có cả chỉ số DSS thua cách chọn theo GMV. \\
+\hline
+US7 & Đạt & Nút Xuất CSV có seller, hành động và lý do. \\
+\hline
+US8 & Đạt & Trang Giao hàng: 72,27\% đơn trễ có seller đúng hạn trong kỳ 01/2017--08/2018, trễ theo bang. \\
+\hline
+US9 & Một phần & Màn What-if tính được số ngày cần hứa thêm; giả định thời gian giao không đổi và chưa đo được đơn mất khi hứa lâu hơn. \\
+\hline
+US10 & Đạt & Đối soát 286/286 giữa các lớp, cổng chất lượng trước khi phát hành, quay lui bản kho bằng \texttt{current.json}. \\
+\hline
+\end{tabularx}
+\end{table}
+
+Không user story nào đòi hỏi ``giữ được bao nhiêu GMV thật'': đó là kết quả của can thiệp ngoài đời, cần thí nghiệm có nhóm đối chứng để đo (mục Hạn chế).
+
 \subsection{Hạn chế}
 \begin{enumerate}
     \item \textbf{Chưa đo được hiệu quả can thiệp.} Olist không có dữ liệu về các lần gọi hoặc hỗ trợ seller. Mọi con số ``GMV giữ được'' dựa trên giả định hiệu quả ở Bảng~\ref{tab:assume}. Kiểm chứng ngược chỉ cho biết DSS chọn đúng seller \emph{sẽ sụt}, không cho biết gọi họ có giúp gì.
@@ -40,9 +77,9 @@ Giao diện & 5 màn Streamlit cho 2 luồng; 45/45 test trình duyệt & Stream
     \item \textbf{Dữ liệu cuối kỳ bị cắt.} Từ 08/2018 gần như không còn đơn mới; \texttt{dss.labels} vì vậy kết thúc ở 07/2018. Tỷ lệ seller tạm ngừng quay lại ở các mốc cuối bị đánh giá thấp. Hạng hiện hành ở mốc cuối (75\% Tạm ngừng) không phản ánh sức khỏe thật của sàn.
     \item \textbf{Giả lập nguồn.} Trạng thái trung gian của đơn được tái dựng từ các mốc thời gian trong bản CSV cuối. Nguồn không có ngày hủy, nên đơn hủy được coi như hủy từ tháng mua.
     \item \textbf{What-if hẹn giao} giả định thời gian giao không đổi khi lời hẹn đổi, và không đo được việc hứa lâu hơn làm mất bao nhiêu đơn.
-    \item \textbf{Sổ cái xử lý của Silver chưa có nội dung.} Với \texttt{orders} và \texttt{order\_items}, \texttt{silver.processing\_}\allowbreak\texttt{batches} ghi số dòng nhận bằng số dòng vào, nên phép kiểm tra ``vào = nhận + cách ly + trùng'' luôn đúng và chưa có giá trị kiểm tra.
-    \item \textbf{Phân quyền chưa đầy đủ.} Streamlit không có đăng nhập. RLS của Power BI mới có role Sudeste. Kịch bản đã lưu nằm ở máy cục bộ, không chia sẻ giữa người dùng.
-    \item \textbf{Luật cách ly tọa độ chưa tính tới hải đảo.} Khung chữ nhật $[-34; 6] \times [-74; -34]$ chỉ bao phần đất liền, nên 11 dòng hợp lệ của đảo Fernando de Noronha (ZIP 53990) bị cách ly nhầm (Chương III). Sai sót này không ảnh hưởng tới các bảng fact vì không có khách hay seller nào ở ZIP này, nhưng cần được khắc phục bằng danh sách hộp tọa độ ngoại lệ cho các quần đảo Fernando de Noronha, Trindade--Martim Vaz và São Pedro e São Paulo.
+    \item \textbf{Sổ cái chất lượng chưa bị thử thách.} Bảng \texttt{silver.}\allowbreak\texttt{processing\_batches} đếm thật số dòng vào, cách ly và trùng của bốn bảng giao dịch ở mỗi đợt (đẳng thức ``vào = nhận + cách ly + trùng'' đạt ở mọi đợt). Nhưng dữ liệu Olist sạch: qua 26 đợt không có dòng trùng hay vi phạm nào ở các bảng giao dịch, chỉ 42 dòng tọa độ bị cách ly. Các luật kiểm tra vì vậy mới được chứng minh là không báo sai, chưa được chứng minh là bắt đúng lỗi thật; cần thử bằng dữ liệu bẩn cố ý.
+    \item \textbf{Phân quyền chưa đầy đủ.} Streamlit không có đăng nhập. RLS của Power BI có đủ 5 vùng nhưng chưa gán người dùng thật (cần Power BI Service). Kịch bản đã lưu nằm ở máy cục bộ, không chia sẻ giữa người dùng.
+    \item \textbf{Luật cách ly tọa độ chưa tính tới hải đảo.} Khung chữ nhật $[-34; 6] \times [-74; -34]$ chỉ bao phần đất liền, nên 11 dòng hợp lệ của đảo Fernando de Noronha (ZIP 53990) bị cách ly nhầm (Chương 3). Sai sót này không ảnh hưởng tới các bảng fact vì không có khách hay seller nào ở ZIP này, nhưng cần được khắc phục bằng danh sách hộp tọa độ ngoại lệ cho các quần đảo Fernando de Noronha, Trindade--Martim Vaz và São Pedro e São Paulo.
     \item \textbf{Power BI cần đường dẫn tuyệt đối.} Bước xuất Parquet tự trỏ tham số \texttt{ThuMucParquet} về máy đang chạy, nên tệp \texttt{.tmdl} đổi theo từng máy.
 \end{enumerate}
 

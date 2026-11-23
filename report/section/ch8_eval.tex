@@ -2,10 +2,10 @@
 \section{KIỂM THỬ VÀ ĐÁNH GIÁ}
 \suppressfloats[t]
 
-Chương VII đã trình bày cách hệ thống ra quyết định; câu hỏi còn lại là nó đúng đến đâu. Chương này kiểm thử hệ thống, đo khả năng xếp hạng của mô hình, kiểm chứng ngược kế hoạch trên năm tháng, và đo độ nhạy của kế hoạch trước các giả định.
+Chương 7 đã trình bày cách hệ thống ra quyết định; câu hỏi còn lại là nó đúng đến đâu. Chương này kiểm thử hệ thống, đo khả năng xếp hạng của mô hình, kiểm chứng ngược kế hoạch trên năm tháng, và đo độ nhạy của kế hoạch trước các giả định.
 
 \subsection{Kiểm thử tự động}
-Bảng~\ref{tab:tests} tổng hợp các bộ kiểm thử trên bản kho đang phát hành. Ba bộ đầu và dbt là \emph{cổng phát hành}: chỉ cần một bộ hỏng là bản kho mới không được dùng (Chương V).
+Bảng~\ref{tab:tests} tổng hợp các bộ kiểm thử trên bản kho đang phát hành. Ba bộ đầu và dbt là \emph{cổng phát hành}: chỉ cần một bộ hỏng là bản kho mới không được dùng (Chương 5).
 
 \begin{table}[htbp]
 \centering
@@ -98,6 +98,8 @@ Mô hình được đánh giá trên 11 mốc có nhãn đầy đủ (09/2017--0
 Hình~\ref{fig:auc} và Bảng~\ref{tab:auc} cho thấy mô hình dự báo tạm ngừng tốt hơn rõ rệt so với dự báo sụt GMV: AUC trung bình 0,826 so với 0,711. Điều này có lý: không có đơn nào trong 45 ngày tới là hiện tượng gần với “đã lâu không bán”, còn sụt dưới 50\% phụ thuộc biến động nhu cầu khó đoán hơn. Tuy vậy, so với quy tắc đơn biến theo độ tươi mới giao dịch, mô hình 12 biến chỉ hơn 0,012 AUC ở mục tiêu \texttt{decline} — và còn thua ở 01/2018 (0,703 so với 0,708); với \texttt{dormant}, khoảng cách là 0,041 và mô hình hơn ở cả 11 mốc.
 
 Bốn biến vận hành gần như không giúp dự báo: bỏ chúng đi, AUC chỉ giảm 0,003 (\texttt{decline}) và 0,004 (\texttt{dormant}). AUC cũng ổn định theo thời gian (độ lệch giữa các mốc dưới 0,07) dù tập huấn luyện tăng gấp 5 lần, từ 2.982 lên 14.835 dòng. Thêm dữ liệu không làm mô hình tốt lên rõ — giới hạn nằm ở feature, không ở cỡ mẫu.
+
+Để kiểm tra giới hạn này nằm ở dữ liệu hay ở dạng mô hình, nhóm thử thay hồi quy logistic bằng gradient boosting (\texttt{HistGradientBoostingClassifier}, 200 cây), mô hình phi tuyến bắt được tương tác giữa các feature, với cùng 12 feature và cùng cách huấn luyện theo thời gian trên 11 mốc 09/2017--07/2018 (\texttt{scripts/compare\_models.py}). Gradient boosting đạt AUC trung bình 0,703, thấp hơn logistic (0,711), và Brier score kém hơn (0,220 so với 0,215). Xác suất của logistic cũng gần đúng mức: trung bình xác suất dự báo 0,39--0,45 so với tỷ lệ sụt thật 0,36--0,51. Vì vậy nhóm giữ logistic: mô hình phức tạp hơn không thêm khả năng xếp hạng, còn logistic cho phép tách chính xác đóng góp của từng feature để giải thích cho người dùng (Chương 7). Muốn dự báo tốt hơn thì cần feature mới (lượt xem, tồn kho, giá so với đối thủ), mà tập dữ liệu Olist không có.
 \subsubsection*{Đường cong ROC và Precision-Recall tại mốc 01/07/2018}
 AUC trung bình che mất hành vi của mô hình ở từng ngưỡng cắt. Hình~\ref{fig:roc_pr} vẽ đường cong ROC và Precision-Recall của mục tiêu \texttt{decline} tại mốc chuẩn 01/07/2018 (1.658 seller đang bán, tỷ lệ sụt thật 45,1\%), cho cả mô hình và quy tắc recency. Các điểm được tính trực tiếp từ \texttt{dss.scores}, \texttt{dss.labels} và \texttt{mart.seller\_features}; AUC tại mốc này là 0,707 (mô hình) và 0,697 (recency), độ chính xác trung bình (average precision) là 0,655 và 0,650.
 
@@ -203,7 +205,7 @@ Về bao phủ GMV mất, chọn theo GMV cao hơn DSS ở 4/5 tháng (trung bì
 \subsubsection*{Biện luận kinh tế: đánh đổi giữa độ chính xác và độ bao phủ}
 Vì sao doanh nghiệp có thể chấp nhận hy sinh một phần độ bao phủ GMV mất (19,3\% so với 25,1\%) để đổi lấy tỷ lệ gọi trúng cao gấp hơn hai lần (55,5\% so với 25,9\%)? Có thể lập luận định lượng bằng chi phí cơ hội của nguồn lực khan hiếm. Gọi $k$ là số suất can thiệp mỗi tháng, $\pi$ là tỷ lệ gọi trúng và $\bar{\ell}$ là GMV mất bình quân của một seller \emph{đang sụt} được gọi. Phần GMV có thể cứu được xấp xỉ $k \cdot \pi \cdot \bar{\ell} \cdot e$, trong khi phần nguồn lực bị lãng phí là $k(1 - \pi)$ cuộc gọi. Với $k \approx 30$ seller mỗi tháng:
 \begin{itemize}
-    \item \textbf{Năng suất đội ngũ Seller Success:} danh sách theo GMV dành khoảng $30 \times (1 - 0{,}259) \approx 22$ suất mỗi tháng cho seller không sụt, so với khoảng $30 \times (1 - 0{,}555) \approx 13$ suất của DSS. Khoảng 9 suất chênh lệch mỗi tháng là năng lực nhân sự có thể dùng cho seller thực sự cần hỗ trợ. Khi số suất là ràng buộc chặt (Chương VII, ngân sách trên 3.000 BRL), giá trị của mỗi suất bị lãng phí chính là giá bóng (shadow price) của ràng buộc nhân sự.
+    \item \textbf{Năng suất đội ngũ Seller Success:} danh sách theo GMV dành khoảng $30 \times (1 - 0{,}259) \approx 22$ suất mỗi tháng cho seller không sụt, so với khoảng $30 \times (1 - 0{,}555) \approx 13$ suất của DSS. Khoảng 9 suất chênh lệch mỗi tháng là năng lực nhân sự có thể dùng cho seller thực sự cần hỗ trợ. Khi số suất là ràng buộc chặt (Chương 7, ngân sách trên 3.000 BRL), giá trị của mỗi suất bị lãng phí chính là giá bóng (shadow price) của ràng buộc nhân sự.
     \item \textbf{Chi phí quan hệ với seller lớn:} danh sách theo GMV liên tục gọi các seller lớn nhất, phần lớn đang kinh doanh bình thường (gọi trúng chỉ 25,9\%, thấp hơn tỷ lệ cơ sở 46,8\%). Các cuộc gọi ``giữ chân'' lặp lại với đối tác lớn không có vấn đề vừa không tạo giá trị, vừa có nguy cơ gây phiền hà và làm suy giảm uy tín của sàn với chính nhóm tạo ra 82,6\% GMV. Các seller lớn này phù hợp với kênh quản lý tài khoản (key account) thường xuyên hơn là kênh can thiệp khẩn cấp.
     \item \textbf{Bao phủ GMV là cận trên, gọi trúng là điều kiện cần:} chỉ số bao phủ đo lượng tiền \emph{đang mất} nằm trong danh sách, nhưng tiền chỉ được cứu nếu seller đó thực sự đang sụt \emph{và} can thiệp có tác dụng. Một phần lớn ``tiền mất'' của danh sách GMV nằm ở vài seller rất lớn có biến động tự nhiên; can thiệp vào những biến động đó khó tạo khác biệt.
 \end{itemize}

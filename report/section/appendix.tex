@@ -14,27 +14,23 @@
 \section{LƯỢC ĐỒ THIÊN HÀ MỨC CỘT}
 Phụ lục này trình bày chi tiết ở mức cột của lược đồ thiên hà ở Hình~\ref{fig:galaxy}, chia theo hai nhóm quy trình. Hai sơ đồ được sinh tự động từ \texttt{information\_schema} của bản kho đang phát hành (\texttt{scripts/make\_erd\_tikz.py}), nên tên cột và kiểu dữ liệu khớp đúng với kho. Ký hiệu: \tikz\fill[erdkey] (0,0) circle (0.075) ++(0.06,-0.02) rectangle ++(0.14,0.04); khóa chính (khóa thay thế), vòng tròn rỗng là khóa ngoại, \tikz\fill[erdnk] (0,0) circle (0.09); khóa tự nhiên từ nguồn, \tikz\fill[erdcol, rounded corners=0.5pt] (0,-0.1) rectangle (0.09,0.1); thuộc tính hoặc số đo. Đầu ``chân chim'' ở phía fact biểu diễn bản số nhiều, hai vạch ở phía dimension biểu diễn bản số đúng một. Với các fact nhiều cột, sơ đồ giữ đủ mọi khóa và lược bớt một phần số đo (ghi chú ``+ $n$ cột khác'').
 
-\begin{landscape}
 \begin{figure}[p]
 \centering
-\resizebox{!}{14.6cm}{\input{figures/erd_sales}}
+\resizebox{\textwidth}{!}{\input{figures/erd_sales}}
 \caption[Lược đồ thiên hà mức cột (1/2)]{Lược đồ thiên hà mức cột (1/2) -- nhóm bán hàng và giao nhận: \texttt{fact\_sales\_item}, \texttt{fact\_order\_seller} và 6 dimension (sinh từ kho)}
 \label{fig:erd_sales}
 \end{figure}
-\end{landscape}
 
-\begin{landscape}
 \begin{figure}[p]
 \centering
-\resizebox{!}{14.4cm}{\input{figures/erd_order}}
+\resizebox{\textwidth}{!}{\input{figures/erd_order}}
 \caption[Lược đồ thiên hà mức cột (2/2)]{Lược đồ thiên hà mức cột (2/2) -- nhóm đơn hàng, thanh toán, đánh giá và ảnh chụp tháng: 4 fact và 6 dimension (sinh từ kho)}
 \label{fig:erd_order}
 \end{figure}
-\end{landscape}
 
 \newpage
 \section{GIAO DIỆN BỔ SUNG}
-Phụ lục này gồm các màn hình Streamlit được dẫn chiếu trong Chương VI: thao tác kéo thả và kiểm tra ràng buộc trên Bảng kế hoạch, màn Kiểm chứng và màn What-if hẹn giao theo tuyến.
+Phụ lục này gồm các màn hình Streamlit được dẫn chiếu trong Chương 6: thao tác kéo thả và kiểm tra ràng buộc trên Bảng kế hoạch, màn Kiểm chứng và màn What-if hẹn giao theo tuyến.
 
 \begin{figure}[htbp]
 \centering

@@ -2,14 +2,14 @@
 \section{THIẾT KẾ VÀ HIỆN THỰC HỆ HỖ TRỢ QUYẾT ĐỊNH}
 \suppressfloats[t]
 
-Chương VI đã chỉ ra nơi người dùng ra quyết định; chương này mô tả điều gì xảy ra phía sau nút bấm. Bốn phân hệ — dữ liệu, mô hình, giao diện, tri thức — được nối theo bốn pha của Simon, từ chấm điểm seller đến kế hoạch tối ưu và vòng kiểm chứng.
+Chương 6 đã chỉ ra nơi người dùng ra quyết định; chương này mô tả điều gì xảy ra phía sau nút bấm. Bốn phân hệ — dữ liệu, mô hình, giao diện, tri thức — được nối theo bốn pha của Simon, từ chấm điểm seller đến kế hoạch tối ưu và vòng kiểm chứng.
 
 \subsection{Cấu trúc DSS và bốn pha Simon}
 DSS gồm bốn phân hệ:
 \begin{itemize}
-    \item \textbf{Dữ liệu:} kho ở Chương IV--V;
+    \item \textbf{Dữ liệu:} kho ở Chương 4--5;
     \item \textbf{Mô hình:} \texttt{src/dss/} gồm hồi quy logistic, bảng luật, MILP và Monte Carlo;
-    \item \textbf{Giao diện:} Chương VI;
+    \item \textbf{Giao diện:} Chương 6;
     \item \textbf{Tri thức:} luật phân hạng, lý do bằng chữ, định nghĩa KPI trong \texttt{metrics.yml}.
 \end{itemize}
 Bảng~\ref{tab:simon} gắn từng pha của Simon với dữ liệu và kết quả của luồng A.
@@ -97,7 +97,7 @@ Mô hình tại mốc $t$ chỉ học từ các mốc $t' \le t - 45$ ngày, đ�
 
 \textbf{Đọc hệ số (Bảng~\ref{tab:features}).} Ba biến mạnh nhất cho \texttt{decline} là \texttt{orders\_30} ($-1{,}27$), \texttt{orders\_90} ($+0{,}70$) và \texttt{recency} ($+0{,}60$). Khi giữ số đơn 90 ngày cố định, ít đơn trong 30 ngày gần nhất làm tăng rủi ro. Dấu dương của \texttt{orders\_90} không có nghĩa ``bán nhiều thì dễ sụt'': nó xuất hiện vì \texttt{orders\_90} và \texttt{orders\_30} tương quan mạnh, và mô hình đang đo \emph{độ giảm} từ 90 ngày về 30 ngày. Vì các biến tương quan với nhau, từng hệ số không được diễn giải như tác động nhân quả.
 
-Các biến vận hành (\texttt{seller\_late\_rate}, \texttt{cust\_late\_rate}, \texttt{avg\_review}, \texttt{days\_to\_carrier}) có hệ số nhỏ. Chương VIII cho thấy bỏ chúng ra, AUC chỉ giảm 0,003--0,004. Hệ thống vẫn dùng các biến này, nhưng để \emph{chọn hành động} (\texttt{OPS} hay \texttt{CALL}), không phải để dự báo.
+Các biến vận hành (\texttt{seller\_late\_rate}, \texttt{cust\_late\_rate}, \texttt{avg\_review}, \texttt{days\_to\_carrier}) có hệ số nhỏ. Chương 8 cho thấy bỏ chúng ra, AUC chỉ giảm 0,003--0,004. Hệ thống vẫn dùng các biến này, nhưng để \emph{chọn hành động} (\texttt{OPS} hay \texttt{CALL}), không phải để dự báo.
 
 \subsubsection*{Giải thích từng dự báo}
 Vì mô hình là tuyến tính trong log-odds, có thể tách đúng từng phần:
@@ -165,9 +165,9 @@ Logic của bảng giả định: nếu seller trễ bàn giao, gọi điện k�
 Do bộ dữ liệu Olist không lưu trữ lịch sử can thiệp đối với seller, và trong phạm vi khảo sát tài liệu của đề tài chưa xác định được công bố nào cung cấp hệ số giữ chân seller cho sàn thương mại điện tử trung gian ở Brazil với định nghĩa ``sụt 50\% GMV trong 45 ngày'', các tham số hiệu quả 20\% (\texttt{CALL}) và 30\% (\texttt{OPS}) được thiết lập dưới dạng \textbf{tham số tiên nghiệm} (heuristic prior) do nhà quản trị xác định, không phải ước lượng thống kê. Theo đó, bài toán DSS đóng vai trò một \emph{khung phân tích độ nhạy} (sensitivity analysis framework) chứ không phải công cụ dự báo doanh thu. Cách tiếp cận này được bảo đảm bởi bốn cơ chế:
 \begin{enumerate}
     \item \textbf{Tham số hóa minh bạch:} các giá trị nằm trong \texttt{Params} (\texttt{src/dss/rules.py}), hiển thị trên giao diện (nút Giả định) và người dùng R3 có thể thay bằng số liệu của chính tổ chức.
-    \item \textbf{Chỉ có thứ tự tương đối là quan trọng với việc chọn seller:} khi mọi hiệu quả cùng nhân với một hệ số $\lambda > 0$, hàm mục tiêu (\ref{eq:milp_obj}) nhân với $\lambda$ nên tập seller tối ưu không đổi. Danh sách chỉ thay đổi khi \emph{tỷ lệ} hiệu quả giữa \texttt{CALL} và \texttt{OPS} thay đổi, và Chương VIII (Bảng~\ref{tab:sens}) đo mức thay đổi đó: khi hiệu quả \texttt{OPS} sai $\pm 50\%$, độ trùng Jaccard của danh sách vẫn đạt 0,82--0,83.
+    \item \textbf{Chỉ có thứ tự tương đối là quan trọng với việc chọn seller:} khi mọi hiệu quả cùng nhân với một hệ số $\lambda > 0$, hàm mục tiêu (\ref{eq:milp_obj}) nhân với $\lambda$ nên tập seller tối ưu không đổi. Danh sách chỉ thay đổi khi \emph{tỷ lệ} hiệu quả giữa \texttt{CALL} và \texttt{OPS} thay đổi, và Chương 8 (Bảng~\ref{tab:sens}) đo mức thay đổi đó: khi hiệu quả \texttt{OPS} sai $\pm 50\%$, độ trùng Jaccard của danh sách vẫn đạt 0,82--0,83.
     \item \textbf{Định lượng bất định:} mô phỏng Monte Carlo (Mục 5) lan truyền sai số $\pm 25\%$ đến $\pm 75\%$ của tham số hiệu quả thành khoảng P10--P90 của GMV giữ được.
-    \item \textbf{Lộ trình thay giả định bằng số đo:} thử nghiệm có nhóm đối chứng (Chương IX) cho phép ước lượng trực tiếp $e(a)$ sau khi hệ thống được vận hành.
+    \item \textbf{Lộ trình thay giả định bằng số đo:} thử nghiệm có nhóm đối chứng (Chương 9) cho phép ước lượng trực tiếp $e(a)$ sau khi hệ thống được vận hành.
 \end{enumerate}
 Do đó, mọi con số ``GMV giữ được'' trong báo cáo chỉ dùng để \emph{so sánh các phương án dưới cùng một bộ giả định}, không dùng để báo cáo doanh thu kỳ vọng tuyệt đối.
 
@@ -180,7 +180,7 @@ Gọi $C$ là tập seller \texttt{risk\_high} $\land$ \texttt{value\_high}, $A 
 & \sum_{a \in A} x_{i,a} \le 1 \qquad \forall i \in C \label{eq:milp_one} \\
 & x_{i,a} \in \{0, 1\} \qquad \forall i \in C,\; a \in A \label{eq:milp_bin}
 \end{align}
-Ràng buộc (\ref{eq:milp_bin}) là điều kiện nguyên nhị phân; thiếu nó, bài toán suy biến thành quy hoạch tuyến tính liên tục (LP) với nghiệm có thể ``gọi 0,4 seller''. Ràng buộc (\ref{eq:milp_budget}) và (\ref{eq:milp_slot}) là hai chiều tài nguyên, (\ref{eq:milp_one}) là ràng buộc chọn một. Đây là bài toán cái túi đa chiều (multi-dimensional knapsack) có ràng buộc chọn một, thuộc lớp NP-khó (Chương II). Tại 01/07/2018, $|C| = 187$, nên bài toán có 374 biến nhị phân và $2 + 187 = 189$ ràng buộc. Bài toán được giải bằng HiGHS qua \texttt{scipy.optimize.milp} với giới hạn 10 giây; nếu bộ giải không chứng minh được tối ưu, \texttt{src/dss/optimize.py} phát cảnh báo kèm trạng thái và gap. Kiểm tra bằng \texttt{scripts/audit\_milp.py}, kết quả lưu ở \texttt{evidence/}\allowbreak\texttt{milp\_audit.json}, cho thấy cả 13 kế hoạch mặc định (114--502 biến) và 70 kế hoạch của phân tích độ nhạy đều kết thúc ở trạng thái \emph{Optimal}, gap bằng 0, lần giải lâu nhất dưới 0,15 giây. Như vậy giới hạn 10 giây chưa bao giờ bị chạm và mọi kế hoạch trong báo cáo là nghiệm tối ưu đã được chứng minh. Seller trong phân khúc Email tự động và Cảnh báo vận hành nhận \texttt{EMAIL}, vì hành động này có chi phí 0 nên không cần đưa vào bài toán.
+Ràng buộc (\ref{eq:milp_bin}) là điều kiện nguyên nhị phân; thiếu nó, bài toán suy biến thành quy hoạch tuyến tính liên tục (LP) với nghiệm có thể ``gọi 0,4 seller''. Ràng buộc (\ref{eq:milp_budget}) và (\ref{eq:milp_slot}) là hai chiều tài nguyên, (\ref{eq:milp_one}) là ràng buộc chọn một. Đây là bài toán cái túi đa chiều (multi-dimensional knapsack) có ràng buộc chọn một, thuộc lớp NP-khó (Chương 2). Tại 01/07/2018, $|C| = 187$, nên bài toán có 374 biến nhị phân và $2 + 187 = 189$ ràng buộc. Bài toán được giải bằng HiGHS qua \texttt{scipy.optimize.milp} với giới hạn 10 giây; nếu bộ giải không chứng minh được tối ưu, \texttt{src/dss/optimize.py} phát cảnh báo kèm trạng thái và gap. Kiểm tra bằng \texttt{scripts/audit\_milp.py}, kết quả lưu ở \texttt{evidence/}\allowbreak\texttt{milp\_audit.json}, cho thấy cả 13 kế hoạch mặc định (114--502 biến) và 70 kế hoạch của phân tích độ nhạy đều kết thúc ở trạng thái \emph{Optimal}, gap bằng 0, lần giải lâu nhất dưới 0,15 giây. Như vậy giới hạn 10 giây chưa bao giờ bị chạm và mọi kế hoạch trong báo cáo là nghiệm tối ưu đã được chứng minh. Seller trong phân khúc Email tự động và Cảnh báo vận hành nhận \texttt{EMAIL}, vì hành động này có chi phí 0 nên không cần đưa vào bài toán.
 
 \subsubsection*{Kết quả tại một mốc}
 Tại 01/07/2018, nghiệm tối ưu chọn 28 \texttt{CALL} và 4 \texttt{OPS}. Chi phí là $28 \times 50 + 4 \times 150 = 2.000$ BRL, tức \textbf{ngân sách bị chặn}; số suất là $28 \times 1 + 4 \times 2 = 36 \le 40$, còn dư 4 suất. 32 seller được chọn đại diện cho 137.855 BRL GMV rủi ro ($p_i V_i$), bằng 36,5\% tổng GMV rủi ro của 1.399 seller vượt ngưỡng (377.524 BRL). GMV giữ được kỳ vọng là 32.459 BRL từ \texttt{CALL}/\texttt{OPS}, cộng 4.225 BRL từ 1.233 email, tổng \textbf{36.683 BRL}.
@@ -234,7 +234,7 @@ Giải lại bài toán với $B$ từ 0 đến 8.000 BRL, giữ nguyên mọi t
 Lợi ích biên giảm nhanh (Hình~\ref{fig:budget_curve}). 1.000 BRL đầu tiên giữ được 26.294 BRL (26,3 BRL cho mỗi BRL chi) vì bộ tối ưu chọn các seller có $g_{i,a}/c_a$ cao nhất trước; 1.000 BRL thứ hai chỉ thêm 6.165 BRL (6,2 BRL/BRL); 1.000 BRL thứ ba thêm 1.116 BRL (1,1 BRL/BRL). Từ 3.000 BRL trở lên không thêm gì, vì 35 seller được chọn đã dùng hết 40 suất và số suất trở thành ràng buộc chặt. Kết luận cho R1: việc mở rộng hạn mức ngân sách vượt quá ngưỡng 3.000 BRL mang lại hiệu suất biên tế tiệm cận 0 do vướng phải điểm nghẽn năng lực nhân sự; kết luận này phụ thuộc vào giả định hiệu quả ở Bảng~\ref{tab:assume}.
 
 \subsubsection*{Chọn ngưỡng rủi ro}
-Ngưỡng $0{,}30$ được chọn trên giai đoạn 09/2017--02/2018, tách biệt với giai đoạn kiểm chứng 03--07/2018 ở Chương VIII. Bảng~\ref{tab:threshold} là kết quả chạy lại \texttt{scripts/tune\_threshold.py} trên kho hiện tại (trung bình 6 mốc).
+Ngưỡng $0{,}30$ được chọn trên giai đoạn 09/2017--02/2018, tách biệt với giai đoạn kiểm chứng 03--07/2018 ở Chương 8. Bảng~\ref{tab:threshold} là kết quả chạy lại \texttt{scripts/tune\_threshold.py} trên kho hiện tại (trung bình 6 mốc).
 
 \begin{table}[htbp]
 \centering
@@ -297,9 +297,9 @@ Trung bình mẫu ở $\delta = 0{,}5$ là 36.745 BRL, lệch 0,2\% so với k�
 \subsection{Implementation: chốt, khép vòng và What-if}
 Kế hoạch được chỉnh trên Bảng kế hoạch (Hình~\ref{fig:ui_board}), lưu thành kịch bản để so sánh, rồi chốt. Khi chốt, \texttt{src/app/decisions.py} ghi kế hoạch kèm thao tác tay ra \texttt{ke\_hoach\_da\_chot.parquet}. Power BI nối tệp này với \texttt{dim\_seller} và \texttt{dim\_date}, nên RLS theo vùng vẫn áp dụng; các measure ``(áp dụng)'' dùng bản đã chốt nếu mốc đó đã chốt, nếu không thì dùng đề xuất của MILP. Cơ chế này đưa quyết định thật của R3 tới R1 và R2. Đây là bước ``thực hiện và theo dõi'' của Simon. Power BI chỉ cập nhật khi bấm Làm mới, không phải thời gian thực.
 
-Luồng B dùng công thức $\text{late}(n)$ ở Chương VI. Hai luồng gặp nhau ở màn Chi tiết seller: nếu \texttt{ops\_poor}, đề xuất \texttt{OPS} (luồng A); nếu trễ nằm ở vận chuyển, màn hình dẫn sang What-if tuyến (luồng B).
+Luồng B dùng công thức $\text{late}(n)$ ở Chương 6. Hai luồng gặp nhau ở màn Chi tiết seller: nếu \texttt{ops\_poor}, đề xuất \texttt{OPS} (luồng A); nếu trễ nằm ở vận chuyển, màn hình dẫn sang What-if tuyến (luồng B).
 
-\takeawaybox{Tóm tắt Chương VII}{
+\takeawaybox{Tóm tắt Chương 7}{
 \begin{itemize}
     \item DSS chuyển xác suất dự báo thành một kế hoạch cụ thể dưới hai ràng buộc. Ở cấu hình mặc định, ngân sách là ràng buộc chặt ở cả 13 mốc; quá khoảng 3.000 BRL thì số suất chặn.
     \item Mọi con số ``GMV giữ được'' (ví dụ 36.683 BRL, P10--P90 27.584--46.207 BRL tại 01/07/2018) phụ thuộc vào giả định hiệu quả chưa được kiểm chứng. Chúng dùng để \emph{so sánh phương án}, không dùng để báo cáo doanh thu.

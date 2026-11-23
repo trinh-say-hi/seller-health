@@ -2,7 +2,7 @@
 \section{CƠ SỞ LÝ THUYẾT}
 \suppressfloats[t]
 
-Chương này trình bày nền tảng lý thuyết cho bốn thành phần của hệ thống: (i) mô hình hóa kho dữ liệu theo hướng đa chiều, (ii) kiến trúc phân tầng Medallion/Lakehouse, (iii) phân tích trực tuyến OLAP và (iv) hệ hỗ trợ quyết định, bao gồm cơ sở toán học của bài toán tối ưu tổ hợp, mô hình phân loại và các phương pháp đánh giá được sử dụng ở Chương VII--VIII.
+Chương này trình bày nền tảng lý thuyết cho bốn thành phần của hệ thống: (i) mô hình hóa kho dữ liệu theo hướng đa chiều, (ii) kiến trúc phân tầng Medallion/Lakehouse, (iii) phân tích trực tuyến OLAP và (iv) hệ hỗ trợ quyết định, bao gồm cơ sở toán học của bài toán tối ưu tổ hợp, mô hình phân loại và các phương pháp đánh giá được sử dụng ở Chương 7--8.
 
 \subsection{Kho dữ liệu và hai trường phái thiết kế}
 Theo định nghĩa kinh điển của Inmon \cite{inmon2005}, kho dữ liệu là một tập dữ liệu \emph{hướng chủ đề, tích hợp, không biến động và gắn với thời gian}, phục vụ quá trình ra quyết định của nhà quản lý. Có hai trường phái chính để hiện thực định nghĩa này:
@@ -17,7 +17,7 @@ Theo định nghĩa kinh điển của Inmon \cite{inmon2005}, kho dữ liệu l
     \item \textbf{Bảng sự kiện (Fact):} lưu các số đo định lượng của một sự kiện nghiệp vụ, kèm khóa ngoại tới các bảng chiều. Mỗi bảng sự kiện bắt buộc phải khai báo \emph{hạt dữ liệu} (grain), tức ý nghĩa chính xác của một dòng. Mọi số đo trong cùng bảng phải nhất quán với hạt đã khai báo.
     \item \textbf{Bảng chiều (Dimension):} cung cấp ngữ cảnh mô tả cho sự kiện (ai, cái gì, ở đâu, khi nào) và là nguồn của các thao tác lọc, nhóm.
 \end{itemize}
-Từ Chương III trở đi, báo cáo dùng nguyên hai thuật ngữ \emph{fact} và \emph{dimension}. Kimball phân biệt ba loại bảng sự kiện, cả ba đều được sử dụng trong hệ thống:
+Từ Chương 3 trở đi, báo cáo dùng nguyên hai thuật ngữ \emph{fact} và \emph{dimension}. Kimball phân biệt ba loại bảng sự kiện, cả ba đều được sử dụng trong hệ thống:
 \begin{enumerate}
     \item \textbf{Giao dịch (Transaction):} một dòng ứng với một sự kiện tức thời, ví dụ \texttt{core.fact\_sales\_item} (một dòng hàng) và \texttt{core.fact\_payment} (một lượt thanh toán).
     \item \textbf{Ảnh chụp tích lũy (Accumulating snapshot):} một dòng ứng với một tiến trình có nhiều mốc và được cập nhật khi tiến trình tiến triển, ví dụ \texttt{core.fact\_order}: mua $\rightarrow$ duyệt $\rightarrow$ bàn giao vận chuyển $\rightarrow$ khách nhận.
@@ -25,7 +25,7 @@ Từ Chương III trở đi, báo cáo dùng nguyên hai thuật ngữ \emph{fac
 \end{enumerate}
 
 \subsubsection*{Kiến trúc Bus và ma trận Bus}
-Để các lược đồ hình sao xây dựng ở các thời điểm khác nhau vẫn kết hợp được, Kimball đề xuất \emph{kiến trúc Bus} (Data Warehouse Bus Architecture): mọi bảng sự kiện phải dùng chung một tập chiều đã được chuẩn hóa ngữ nghĩa. Công cụ thiết kế trung tâm của kiến trúc này là \textbf{ma trận Bus} (Bus Matrix), trong đó mỗi hàng là một quy trình nghiệp vụ (tương ứng một bảng sự kiện), mỗi cột là một chiều dùng chung, và ô giao được đánh dấu khi quy trình sử dụng chiều đó. Ma trận Bus cho phép kiểm tra ngay ở giai đoạn thiết kế hai tính chất: (i) phép \emph{drill-across} giữa hai bảng sự kiện chỉ hợp lệ trên các chiều mà cả hai cùng đánh dấu; (ii) một chiều xuất hiện ở nhiều hàng phải có định nghĩa và khóa thống nhất. Ma trận Bus của đề tài được trình bày ở Chương IV.
+Để các lược đồ hình sao xây dựng ở các thời điểm khác nhau vẫn kết hợp được, Kimball đề xuất \emph{kiến trúc Bus} (Data Warehouse Bus Architecture): mọi bảng sự kiện phải dùng chung một tập chiều đã được chuẩn hóa ngữ nghĩa. Công cụ thiết kế trung tâm của kiến trúc này là \textbf{ma trận Bus} (Bus Matrix), trong đó mỗi hàng là một quy trình nghiệp vụ (tương ứng một bảng sự kiện), mỗi cột là một chiều dùng chung, và ô giao được đánh dấu khi quy trình sử dụng chiều đó. Ma trận Bus cho phép kiểm tra ngay ở giai đoạn thiết kế hai tính chất: (i) phép \emph{drill-across} giữa hai bảng sự kiện chỉ hợp lệ trên các chiều mà cả hai cùng đánh dấu; (ii) một chiều xuất hiện ở nhiều hàng phải có định nghĩa và khóa thống nhất. Ma trận Bus của đề tài được trình bày ở Chương 4.
 
 \subsubsection*{Chiều biến đổi chậm loại 2 và mini-dimension}
 \begin{itemize}
@@ -36,8 +36,8 @@ Từ Chương III trở đi, báo cáo dùng nguyên hai thuật ngữ \emph{fac
 \subsection{Kiến trúc phân tầng Medallion và Lakehouse}
 Kiến trúc Medallion tổ chức dữ liệu thành các tầng theo mức độ tinh chế tăng dần (Hình~\ref{fig:medallion_theory}). Mỗi tầng có một hợp đồng chất lượng riêng, và dữ liệu chỉ được chuyển lên tầng trên sau khi vượt qua các kiểm tra của tầng dưới:
 \begin{itemize}
-    \item \textbf{Bronze (thô):} lưu nguyên trạng dữ liệu nguồn, chỉ bổ sung siêu dữ liệu nạp (mã đợt, thời điểm nạp, giá trị băm của dòng). Tầng này chỉ cho phép ghi thêm (append-only), do đó luôn có thể tái dựng các tầng trên từ đây.
-    \item \textbf{Silver (đã làm sạch):} ép kiểu, chuẩn hóa giá trị, loại trùng và \emph{cách ly} (quarantine) các bản ghi vi phạm quy tắc chất lượng thay vì xóa chúng.
+    \item \textbf{Bronze (thô):} lưu nguyên trạng dữ liệu nguồn dưới dạng chuỗi, chỉ bổ sung mã đợt nạp (\texttt{dwh\_batch}). Mỗi đợt chỉ ghi thêm dòng của đợt đó; chạy lại một đợt thì xóa đúng các dòng của đợt ấy rồi nạp lại, nên không sinh trùng và luôn tái dựng được các tầng trên từ đây.
+    \item \textbf{Silver (đã làm sạch):} ép kiểu, chuẩn hóa giá trị, giữ phiên bản mới nhất của mỗi đơn và \emph{cách ly} (quarantine) các bản ghi vi phạm quy tắc chất lượng thay vì xóa chúng.
     \item \textbf{Gold (phục vụ):} mô hình hóa theo nghiệp vụ để phục vụ phân tích, ở đề tài này là lược đồ thiên hà theo Kimball và các bảng mart tổng hợp.
 \end{itemize}
 Medallion quy định \emph{cách tổ chức các tầng}, còn Kimball quy định \emph{cách mô hình hóa bên trong tầng Gold}; hai khái niệm này bổ sung chứ không thay thế nhau.
@@ -49,7 +49,7 @@ Medallion quy định \emph{cách tổ chức các tầng}, còn Kimball quy đ�
 \label{fig:medallion_theory}
 \end{figure}
 
-\textbf{Lakehouse} \cite{armbrust2021} là mô hình lưu trữ dữ liệu ở định dạng cột mở (ví dụ Parquet) để nhiều công cụ cùng đọc trực tiếp mà không cần thông qua một hệ quản trị cơ sở dữ liệu duy nhất, đồng thời vẫn giữ các đặc tính quản trị của kho dữ liệu. Trong hệ thống, kho chính là một tệp DuckDB; Lakehouse là bản xuất Parquet (nén ZSTD) của tầng Bronze theo từng đợt và của tầng Gold, gắn liền với từng bản phát hành kho.
+\textbf{Lakehouse} \cite{armbrust2021} là mô hình lưu trữ dữ liệu ở định dạng cột mở (ví dụ Parquet) để nhiều công cụ cùng đọc trực tiếp mà không cần thông qua một hệ quản trị cơ sở dữ liệu duy nhất, đồng thời vẫn giữ các đặc tính quản trị của kho dữ liệu. Hệ thống chỉ áp dụng phần lưu trữ ở định dạng cột mở: kho chính là một tệp DuckDB, còn Lakehouse là bản xuất Parquet (nén ZSTD) của tầng Bronze theo từng đợt và của tầng Gold, gắn với từng bản phát hành kho. Không có lớp giao dịch kiểu Delta Lake, nên các tệp Parquet là bản chỉ đọc đi kèm một bản kho, không phải nơi ghi dữ liệu.
 
 \subsection{Phân tích trực tuyến OLAP: ROLAP và MOLAP}
 OLAP (Online Analytical Processing) là phân tích đa chiều với năm thao tác cơ bản: cuộn lên (roll-up), khoan xuống (drill-down), cắt lát (slice), cắt khối (dice) và xoay (pivot). Có hai phương thức hiện thực chính:
@@ -81,7 +81,7 @@ Tiến trình ra quyết định trong hệ thống được chuẩn hóa theo m
 \label{fig:simon}
 \end{figure}
 
-Cách hệ thống hiện thực từng pha (màn hình, dữ liệu, kết quả đầu ra) được trình bày ở Bảng~\ref{tab:simon}, Chương VII.
+Cách hệ thống hiện thực từng pha (màn hình, dữ liệu, kết quả đầu ra) được trình bày ở Bảng~\ref{tab:simon}, Chương 7.
 
 \subsubsection*{Ra quyết định dưới rủi ro}
 Một quyết định được đưa ra dưới rủi ro khi kết quả của mỗi phương án là một biến ngẫu nhiên có phân phối đã biết hoặc ước lượng được. Kết quả của việc can thiệp một seller phụ thuộc hai đại lượng bất định: seller đó có thực sự sụt giảm hay không (xác suất do mô hình dự báo), và hiệu quả của biện pháp can thiệp (tham số giả định). Hệ thống tối ưu theo \emph{giá trị kỳ vọng}, sau đó sử dụng mô phỏng Monte Carlo để báo cáo khoảng giá trị có thể xảy ra thay vì một ước lượng điểm duy nhất.
@@ -96,10 +96,10 @@ Khi có $m$ tài nguyên cùng bị giới hạn (ví dụ đồng thời ngân 
 \begin{equation}
 \max \sum_{j=1}^{n} g_j x_j \quad \text{với} \quad \sum_{j=1}^{n} w_{kj} x_j \le B_k \;\; (k = 1, \dots, m), \qquad x_j \in \{0, 1\}
 \end{equation}
-Nếu các vật phẩm được chia thành các nhóm rời nhau và mỗi nhóm chỉ được chọn tối đa một phương án, ta có thêm ràng buộc \emph{chọn một} (multiple-choice): $\sum_{j \in N_i} x_j \le 1$ cho mỗi nhóm $N_i$. Bài toán ở Chương VII thuộc đúng dạng này: mỗi seller là một nhóm gồm hai phương án (\texttt{CALL}, \texttt{OPS}), và có hai tài nguyên (ngân sách, số suất).
+Nếu các vật phẩm được chia thành các nhóm rời nhau và mỗi nhóm chỉ được chọn tối đa một phương án, ta có thêm ràng buộc \emph{chọn một} (multiple-choice): $\sum_{j \in N_i} x_j \le 1$ cho mỗi nhóm $N_i$. Bài toán ở Chương 7 thuộc đúng dạng này: mỗi seller là một nhóm gồm hai phương án (\texttt{CALL}, \texttt{OPS}), và có hai tài nguyên (ngân sách, số suất).
 
 \subsubsection*{Độ phức tạp tính toán}
-Phiên bản quyết định của bài toán cái túi 0--1 là \textbf{NP-đầy đủ} \cite{gareyjohnson1979}, nên MKP và biến thể chọn một là \textbf{NP-khó}. Bài toán cái túi một chiều có thuật toán quy hoạch động giả đa thức $O(nB)$, nhưng với $m \ge 2$ ràng buộc, độ phức tạp của quy hoạch động tăng theo tích các sức chứa $O(n \prod_k B_k)$ và nhanh chóng trở nên không khả thi; hơn nữa MKP với $m \ge 2$ không có lược đồ xấp xỉ thời gian đa thức hoàn toàn (FPTAS) trừ khi P $=$ NP \cite{kellerer2004}. Duyệt cạn $2^n$ tổ hợp cũng không khả thi: với 374 biến nhị phân ở Chương VII, không gian nghiệm có $2^{374} \approx 10^{112}$ phần tử. Vì vậy cần một phương pháp chính xác nhưng cắt tỉa được không gian tìm kiếm.
+Phiên bản quyết định của bài toán cái túi 0--1 là \textbf{NP-đầy đủ} \cite{gareyjohnson1979}, nên MKP và biến thể chọn một là \textbf{NP-khó}. Bài toán cái túi một chiều có thuật toán quy hoạch động giả đa thức $O(nB)$, nhưng với $m \ge 2$ ràng buộc, độ phức tạp của quy hoạch động tăng theo tích các sức chứa $O(n \prod_k B_k)$ và nhanh chóng trở nên không khả thi; hơn nữa MKP với $m \ge 2$ không có lược đồ xấp xỉ thời gian đa thức hoàn toàn (FPTAS) trừ khi P $=$ NP \cite{kellerer2004}. Duyệt cạn $2^n$ tổ hợp cũng không khả thi: với 374 biến nhị phân ở Chương 7, không gian nghiệm có $2^{374} \approx 10^{112}$ phần tử. Vì vậy cần một phương pháp chính xác nhưng cắt tỉa được không gian tìm kiếm.
 
 \subsubsection*{Nới lỏng tuyến tính và thuật toán Nhánh-và-Cắt}
 \textbf{Nới lỏng tuyến tính} (LP relaxation) thay ràng buộc $x_j \in \{0,1\}$ bằng $0 \le x_j \le 1$. Bài toán LP thu được giải được trong thời gian đa thức, và giá trị tối ưu của nó $z_{\text{LP}}$ là một \emph{cận trên} của giá trị tối ưu nguyên $z_{\text{IP}}$. Ngược lại, bất kỳ nghiệm nguyên khả thi nào cũng cho một \emph{cận dưới} $\underline{z}$. Khoảng cách tương đối
@@ -108,14 +108,10 @@ Phiên bản quyết định của bài toán cái túi 0--1 là \textbf{NP-đ�
 \end{equation}
 đo mức độ còn chưa chắc chắn về tính tối ưu; khi gap $= 0$, nghiệm hiện có được chứng minh là tối ưu.
 
-Thuật toán \textbf{Nhánh-và-Cận} (Branch-and-Bound) \cite{wolsey1998} giải LP nới lỏng tại mỗi nút của cây tìm kiếm. Nếu nghiệm LP có biến $x_j$ nhận giá trị phân số, thuật toán \emph{phân nhánh} thành hai bài toán con với $x_j = 0$ và $x_j = 1$. Một nút bị \emph{cắt tỉa} khi (i) LP vô nghiệm, (ii) cận trên của nút không vượt cận dưới tốt nhất hiện có, hoặc (iii) nghiệm LP đã nguyên. \textbf{Nhánh-và-Cắt} (Branch-and-Cut) bổ sung bước sinh \emph{mặt cắt} (cutting plane): các bất đẳng thức hợp lệ với mọi nghiệm nguyên nhưng loại bỏ nghiệm LP phân số hiện tại, làm cận trên chặt hơn và cây tìm kiếm nhỏ hơn. Với ràng buộc dạng cái túi, một họ mặt cắt kinh điển là \emph{bất đẳng thức phủ} (cover inequality): nếu tập $C$ thỏa $\sum_{j \in C} w_j > B$ thì không thể chọn toàn bộ $C$, do đó
-\begin{equation}
-\sum_{j \in C} x_j \le |C| - 1
-\end{equation}
-là một bất đẳng thức hợp lệ.
+Thuật toán \textbf{Nhánh-và-Cận} (Branch-and-Bound) \cite{wolsey1998} giải LP nới lỏng tại mỗi nút của cây tìm kiếm. Nếu nghiệm LP có biến $x_j$ nhận giá trị phân số, thuật toán \emph{phân nhánh} thành hai bài toán con với $x_j = 0$ và $x_j = 1$. Một nút bị \emph{cắt tỉa} khi (i) LP vô nghiệm, (ii) cận trên của nút không vượt cận dưới tốt nhất hiện có, hoặc (iii) nghiệm LP đã nguyên. \textbf{Nhánh-và-Cắt} (Branch-and-Cut) bổ sung bước sinh \emph{mặt cắt} (cutting plane): các bất đẳng thức hợp lệ với mọi nghiệm nguyên nhưng loại bỏ nghiệm LP phân số hiện tại, làm cận trên chặt hơn và cây tìm kiếm nhỏ hơn. Hệ thống không tự cài đặt các bước này mà giao cho bộ giải HiGHS; phần việc của hệ thống là mô hình hóa đúng bài toán và kiểm tra trạng thái, gap mà bộ giải trả về.
 
 \subsubsection*{Bộ giải HiGHS}
-HiGHS là bộ giải mã nguồn mở cho LP và MILP, được tích hợp trong SciPy qua hàm \texttt{scipy.\allowbreak optimize.\allowbreak milp}. Bộ giải LP của HiGHS dựa trên phương pháp đơn hình đối ngẫu hiệu chỉnh (dual revised simplex) được song song hóa \cite{huangfu2018}; bộ giải MILP áp dụng sơ đồ Nhánh-và-Cắt nói trên, kèm tiền xử lý (presolve) để rút gọn bài toán, các heuristic tìm nghiệm khả thi sớm và các bộ sinh mặt cắt. Bộ giải dừng khi gap đạt ngưỡng hoặc hết giới hạn thời gian; kết quả trả về kèm trạng thái cho biết nghiệm đã được chứng minh tối ưu hay chưa. Vì vậy, muốn khẳng định một kế hoạch là \emph{nghiệm tối ưu chính xác} chứ không phải nghiệm heuristic, phải kiểm tra trạng thái và gap mà bộ giải trả về; Chương VII trình bày kết quả kiểm tra này cho đề tài.
+HiGHS là bộ giải mã nguồn mở cho LP và MILP, được tích hợp trong SciPy qua hàm \texttt{scipy.\allowbreak optimize.\allowbreak milp}. Bộ giải LP của HiGHS dựa trên phương pháp đơn hình đối ngẫu hiệu chỉnh (dual revised simplex) được song song hóa \cite{huangfu2018}; bộ giải MILP áp dụng sơ đồ Nhánh-và-Cắt nói trên, kèm tiền xử lý (presolve) để rút gọn bài toán, các heuristic tìm nghiệm khả thi sớm và các bộ sinh mặt cắt. Bộ giải dừng khi gap đạt ngưỡng hoặc hết giới hạn thời gian; kết quả trả về kèm trạng thái cho biết nghiệm đã được chứng minh tối ưu hay chưa. Vì vậy, muốn khẳng định một kế hoạch là \emph{nghiệm tối ưu chính xác} chứ không phải nghiệm heuristic, phải kiểm tra trạng thái và gap mà bộ giải trả về; Chương 7 trình bày kết quả kiểm tra này cho đề tài.
 
 \subsection{Mô hình phân loại và phương pháp đánh giá}
 \subsubsection*{Hồi quy logistic}
@@ -123,7 +119,7 @@ Hồi quy logistic \cite{hosmer2013} mô hình hóa xác suất của một bi�
 \begin{equation}
 P(y = 1 \mid z) = \sigma(\beta_0 + \beta^\top z), \qquad \sigma(u) = \frac{1}{1 + e^{-u}}
 \end{equation}
-Tham số $\beta$ được ước lượng bằng cực đại hợp lý (maximum likelihood). Ưu điểm chính của mô hình trong bối cảnh DSS là tính \emph{diễn giải được}: log-odds là hàm tuyến tính của các đặc trưng, nên mỗi dự báo có thể tách chính xác thành đóng góp của từng đặc trưng.
+Tham số $\beta$ được ước lượng bằng cực đại hợp lý có phạt L2 (penalized maximum likelihood; mặc định của scikit-learn, $C = 1$) trên các đặc trưng đã chuẩn hóa. Ưu điểm chính của mô hình trong bối cảnh DSS là tính \emph{diễn giải được}: log-odds là hàm tuyến tính của các đặc trưng, nên mỗi dự báo có thể tách chính xác thành đóng góp của từng đặc trưng; hệ thống lưu các đóng góp này trong bảng \texttt{dss.explain}.
 
 \subsubsection*{ROC-AUC và đường cong Precision-Recall}
 Với một điểm số $s$ và ngưỡng cắt $\theta$, ta có tỷ lệ dương thật $\text{TPR}(\theta) = \text{TP}/(\text{TP} + \text{FN})$ (độ phủ, recall) và tỷ lệ dương giả $\text{FPR}(\theta) = \text{FP}/(\text{FP} + \text{TN})$. \textbf{Đường cong ROC} vẽ $\text{TPR}$ theo $\text{FPR}$ khi $\theta$ chạy qua mọi giá trị; diện tích dưới đường cong bằng xác suất một mẫu dương ngẫu nhiên có điểm cao hơn một mẫu âm ngẫu nhiên \cite{fawcett2006}:
@@ -135,4 +131,59 @@ AUC $= 0{,}5$ tương đương chọn ngẫu nhiên; AUC chỉ đo khả năng \
 \textbf{Đường cong Precision-Recall} vẽ độ chính xác $\text{Precision}(\theta) = \text{TP}/(\text{TP} + \text{FP})$ theo độ phủ. Khác với ROC, đường cơ sở của đường cong PR là \emph{tỷ lệ dương} của tập dữ liệu chứ không phải đường chéo, nên PR phản ánh trực tiếp tỷ lệ ``gọi trúng'' mà nhà quản lý quan tâm và nhạy hơn ROC khi các lớp mất cân bằng \cite{saito2015}. Trong ngữ cảnh DSS, precision tương ứng với tỷ lệ cuộc gọi đến đúng seller đang sụt, còn recall tương ứng với tỷ lệ seller sụt được phát hiện.
 
 \subsection{Mô phỏng Monte Carlo và phân tích độ nhạy}
-Khi đầu ra $Y = f(X_1, \dots, X_k)$ phụ thuộc các biến đầu vào bất định, \textbf{mô phỏng Monte Carlo} rút $N$ mẫu độc lập của đầu vào theo phân phối giả định, tính $Y^{(r)}$ cho từng mẫu và ước lượng phân phối của $Y$ bằng phân phối thực nghiệm. Sai số chuẩn của trung bình mẫu giảm theo $1/\sqrt{N}$, độc lập với số chiều đầu vào. Khác với Monte Carlo (lan truyền bất định), \textbf{phân tích độ nhạy} \cite{saltelli2008} trả lời câu hỏi ngược: kết luận thay đổi bao nhiêu khi từng giả định thay đổi. Phân tích độ nhạy theo từng tham số (one-at-a-time) được dùng ở Chương VIII để đánh giá mức độ vững của kế hoạch khi các tham số chi phí và hiệu quả, vốn không ước lượng được từ dữ liệu, bị sai lệch.
+Khi đầu ra $Y = f(X_1, \dots, X_k)$ phụ thuộc các biến đầu vào bất định, \textbf{mô phỏng Monte Carlo} rút $N$ mẫu độc lập của đầu vào theo phân phối giả định (ở đề tài là phân phối tam giác quanh hiệu quả giả định, \texttt{src/dss/simulate.py}), tính $Y^{(r)}$ cho từng mẫu và ước lượng phân phối của $Y$ bằng phân phối thực nghiệm. Sai số chuẩn của trung bình mẫu giảm theo $1/\sqrt{N}$, độc lập với số chiều đầu vào. Khác với Monte Carlo (lan truyền bất định), \textbf{phân tích độ nhạy} \cite{saltelli2008} trả lời câu hỏi ngược: kết luận thay đổi bao nhiêu khi từng giả định thay đổi. Phân tích độ nhạy theo từng tham số (one-at-a-time) được dùng ở Chương 8 để đánh giá mức độ vững của kế hoạch khi các tham số chi phí và hiệu quả, vốn không ước lượng được từ dữ liệu, bị sai lệch.
+
+\subsection{Lý thuyết và nơi hiện thực trong hệ thống}
+Bảng~\ref{tab:theory_code} đối chiếu từng khái niệm của chương này với nơi nó được hiện thực trong mã nguồn và chương trình bày chi tiết. Chương này chỉ giữ những khái niệm có trong bảng.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Khái niệm lý thuyết và nơi hiện thực}
+\label{tab:theory_code}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}m{3.4cm}|L|>{\centering\arraybackslash}m{1.3cm}|}
+\hline
+\textbf{Khái niệm} & \textbf{Hiện thực (bảng, tệp)} & \textbf{Chương} \\
+\hline
+Fact giao dịch & \texttt{core.fact\_sales\_item}, \texttt{core.fact\_payment}; \texttt{src/sql/11\_batch\_core.sql} & 4 \\
+\hline
+Fact ảnh chụp tích lũy & \texttt{core.fact\_order}, \texttt{core.fact\_order\_seller}, cập nhật mỗi đợt; \texttt{11\_batch\_core.sql} & 4, 5 \\
+\hline
+Fact ảnh chụp định kỳ & \texttt{core.fact\_seller\_monthly}; \texttt{12\_batch\_close.sql} & 4 \\
+\hline
+Ma trận Bus, dimension dùng chung & 8 dimension dùng chung cho 6 fact; \texttt{02\_dimensions.sql} & 4 \\
+\hline
+SCD loại 2 & \texttt{core.dim\_seller} (\texttt{valid\_from}, \texttt{valid\_to}, \texttt{is\_current}); \texttt{12\_batch\_close.sql}; test ``mỗi seller đúng 1 dòng \texttt{is\_current}'' & 4 \\
+\hline
+Mini-dimension & \texttt{core.dim\_seller\_health}; \texttt{02\_dimensions.sql} & 4 \\
+\hline
+Medallion: Bronze, Silver, Gold & Schema \texttt{raw}, \texttt{stg}, \texttt{core}/\texttt{mart}; \texttt{10\_batch\_raw.sql}, \texttt{01\_staging.sql} & 3, 5 \\
+\hline
+Cách ly & \texttt{ops.quarantine}; \texttt{01\_staging.sql} & 3 \\
+\hline
+Lakehouse Parquet & \texttt{src/etl/lakehouse.py}, thư mục \texttt{*\_lake/} đi kèm mỗi bản kho & 5 \\
+\hline
+ROLAP & \texttt{src/sql/olap\_examples.sql} (8 truy vấn \texttt{ROLLUP}, \texttt{CUBE} trên DuckDB); các màn Streamlit truy vấn thẳng kho & 6 \\
+\hline
+MOLAP & Semantic model Power BI ở chế độ Import, thư mục \texttt{powerbi/} & 6 \\
+\hline
+DSS phức hợp (dữ liệu, bộ giải, luật) & DuckDB; \texttt{src/dss/optimize.py}, \texttt{simulate.py}; \texttt{src/dss/rules.py} & 7 \\
+\hline
+Bốn pha của Simon & Các màn Streamlit và trang Power BI theo từng pha & 7 \\
+\hline
+Cái túi đa chiều chọn một, MILP & \texttt{src/dss/optimize.py} (\texttt{scipy.optimize.milp}, HiGHS) & 7 \\
+\hline
+Gap và tính tối ưu & Cảnh báo trong \texttt{optimize.py}; \texttt{scripts/audit\_milp.py} & 7 \\
+\hline
+Hồi quy logistic, phân rã đóng góp & \texttt{src/dss/run.py}; bảng \texttt{dss.explain} & 7 \\
+\hline
+ROC-AUC & Bảng \texttt{dss.eval\_auc} (\texttt{run.py}) & 8 \\
+\hline
+Đường cong Precision-Recall & \texttt{scripts/eval\_roc\_pr.py}, kết quả \texttt{evidence/roc\_pr.json} & 8 \\
+\hline
+Mô phỏng Monte Carlo & \texttt{src/dss/simulate.py} & 7 \\
+\hline
+Độ nhạy từng tham số & Bảng \texttt{dss.sensitivity} (\texttt{run.py}) & 8 \\
+\hline
+\end{tabularx}
+\end{table}

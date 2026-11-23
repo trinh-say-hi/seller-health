@@ -2,7 +2,7 @@
 \section{QUY TRÌNH ELT, LAKEHOUSE, DBT VÀ PHÁT HÀNH KHO}
 \suppressfloats[t]
 
-Chương IV đã cố định mô hình; còn thiếu cơ chế biến chín tệp CSV thành mô hình đó, theo cách có thể chạy lại và kiểm tra. Chương này mô tả 26 đợt nạp, 11 phép đối soát mỗi đợt, đường dựng thứ hai bằng dbt, và quy trình phát hành kho theo bản.
+Chương 4 đã cố định mô hình; còn thiếu cơ chế biến chín tệp CSV thành mô hình đó, theo cách có thể chạy lại và kiểm tra. Chương này mô tả 26 đợt nạp, 11 phép đối soát mỗi đợt, đường dựng thứ hai bằng dbt, và quy trình phát hành kho theo bản.
 
 \subsection{Nạp theo 26 đợt tháng}
 Tệp \texttt{orders} của Olist chỉ có trạng thái cuối cùng. Để kho có lịch sử như một hệ thống chạy thật, \texttt{src/etl/build.py} giả lập nguồn gửi dữ liệu theo tháng:
@@ -19,7 +19,7 @@ Tại mốc $c$ của mỗi đợt:
     \item Một phiên bản đơn mới chỉ được thêm vào \texttt{raw.orders} khi trạng thái hoặc một mốc thời gian đổi so với phiên bản trước. Kết quả là 137.236 phiên bản cho 99.441 đơn (1,38 phiên bản mỗi đơn).
     \item Review được nạp vào tháng khách trả lời (không sớm hơn tháng của đơn); dòng hàng và thanh toán được nạp vào tháng mua.
 \end{enumerate}
-Nhờ đó, mọi bảng chốt (\texttt{mart.*}, \texttt{fact\_seller\_monthly}) và mọi feature của DSS tại mốc $c$ chỉ dùng thông tin có trước $c$. Test hệ thống có một nhóm kiểm tra riêng cho điều này (Chương VIII).
+Nhờ đó, mọi bảng chốt (\texttt{mart.*}, \texttt{fact\_seller\_monthly}) và mọi feature của DSS tại mốc $c$ chỉ dùng thông tin có trước $c$. Test hệ thống có một nhóm kiểm tra riêng cho điều này (Chương 8).
 
 \subsubsection*{Nhật ký đợt}
 \begin{figure}[htbp]
@@ -95,7 +95,7 @@ Cuối mỗi đợt, \texttt{13\_batch\_}\allowbreak\texttt{checks.sql} so số 
 \end{tabularx}
 \end{table}
 
-Qua 26 đợt có $11 \times 26 = 286$ dòng đối soát, \textbf{286/286 khớp}. GMV tháng ở đợt 10/2018 bằng 0 vì tháng đó không có đơn hợp lệ. Cổng này có kiểm tra ngược: test hệ thống xóa 1 dòng ở \texttt{fact\_sales\_item} trên một bản sao kho rồi chạy lại đợt cuối, và đợt bị dừng với thông báo lệch ``số dòng hàng'' (Chương VIII).
+Qua 26 đợt có $11 \times 26 = 286$ dòng đối soát, \textbf{286/286 khớp}. GMV tháng ở đợt 10/2018 bằng 0 vì tháng đó không có đơn hợp lệ. Cổng này có kiểm tra ngược: test hệ thống xóa 1 dòng ở \texttt{fact\_sales\_item} trên một bản sao kho rồi chạy lại đợt cuối, và đợt bị dừng với thông báo lệch ``số dòng hàng'' (Chương 8).
 
 Các kiểm tra về cấu trúc (khóa chính, khóa ngoại mồ côi, SCD2 không chồng khoảng, mỗi seller một dòng \texttt{is\_current}) không nằm trong cổng đợt mà nằm trong \texttt{tests/test\_system.py}, chạy một lần sau khi dựng xong.
 
@@ -253,7 +253,7 @@ Có ba job:
     \item \texttt{xuat\_power\_bi}: chỉ xuất lại Parquet.
 \end{itemize}
 
-\takeawaybox{Tóm tắt Chương V}{
+\takeawaybox{Tóm tắt Chương 5}{
 Ba lớp kiểm tra bổ sung cho nhau:
 \begin{itemize}
     \item Đối soát theo đợt (286/286) bảo đảm không mất dòng, không lệch tiền giữa các lớp.

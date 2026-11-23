@@ -2,7 +2,7 @@
 \section{DỮ LIỆU NGUỒN, LÀM SẠCH VÀ CÁCH LY}
 \suppressfloats[t]
 
-Chương II đã đặt khung lý thuyết; câu hỏi còn lại là dữ liệu Olist có đủ sạch để nuôi khung đó không. Chương này kiểm kê chín tệp nguồn, chỉ ra ba loại lỗi có thể làm sai phép tính (tên thành phố, tọa độ, đơn thiếu dòng hàng), và biện minh cho quyết định chỉ cách ly đúng 42 dòng tọa độ.
+Chương 2 đã đặt khung lý thuyết; câu hỏi còn lại là dữ liệu Olist có đủ sạch để nuôi khung đó không. Chương này kiểm kê chín tệp nguồn, chỉ ra ba loại lỗi có thể làm sai phép tính (tên thành phố, tọa độ, đơn thiếu dòng hàng), và biện minh cho quyết định chỉ cách ly đúng 42 dòng tọa độ.
 
 \subsection{Chín tệp nguồn và grain}
 Trước khi nạp, mỗi tệp được tính giá trị băm SHA-256 và đối chiếu với \texttt{data/manifest.json}. Hệ thống áp dụng cơ chế Fail-Fast nghiêm ngặt: mọi bất thường về giá trị băm SHA-256, thiếu tệp hoặc sai lệch số lượng bản ghi đều lập tức ngắt tiến trình để cô lập rủi ro cho kho dữ liệu. Kết quả kiểm tra được ghi vào \texttt{ops.source\_manifest}.
@@ -37,7 +37,7 @@ product\_category\_name\_\allowbreak translation.csv & 71 & 1 danh mục (Bồ �
 \end{tabularx}
 \end{table}
 
-Tổng dung lượng 9 tệp là 126,2 MB. Tệp \texttt{orders} chỉ chứa \emph{trạng thái cuối} của mỗi đơn. Chương V trình bày cách kho tái dựng các trạng thái trung gian khi nạp theo tháng.
+Tổng dung lượng 9 tệp là 126,2 MB. Tệp \texttt{orders} chỉ chứa \emph{trạng thái cuối} của mỗi đơn. Chương 5 trình bày cách kho tái dựng các trạng thái trung gian khi nạp theo tháng.
 
 \subsection{Làm sạch ở lớp Silver}
 \subsubsection*{Tên thành phố}
@@ -75,7 +75,7 @@ Philippines & 1 & Ngoài Brazil, cách ly đúng \\
 \end{tabularx}
 \end{table}
 
-Kết quả rà soát cho thấy \textbf{31/42 dòng} thực sự nằm ngoài lãnh thổ Brazil (phần lớn rơi vào Bồ Đào Nha và Tây Ban Nha, nhiều khả năng do quá trình mã hóa địa lý của nguồn nhầm với địa danh trùng tên), còn \textbf{11 dòng} thuộc ZIP 53990 (Fernando de Noronha, Pernambuco) là dữ liệu hợp lệ bị khung chữ nhật loại nhầm. Tác động của sai sót này đã được định lượng trên kho: không có khách hàng hay seller nào mang ZIP 53990, nên không có dòng nào trong \texttt{fact\_order}, \texttt{fact\_order\_seller} và \texttt{dim\_route} bị ảnh hưởng; ZIP này chỉ xuất hiện trong \texttt{dim\_location} với tọa độ NULL. Hướng khắc phục là bổ sung danh sách hộp tọa độ ngoại lệ cho các quần đảo hợp pháp của Brazil vào luật \texttt{GEO\_OUTSIDE\_BRAZIL} (Chương IX).
+Kết quả rà soát cho thấy \textbf{31/42 dòng} thực sự nằm ngoài lãnh thổ Brazil (phần lớn rơi vào Bồ Đào Nha và Tây Ban Nha, nhiều khả năng do quá trình mã hóa địa lý của nguồn nhầm với địa danh trùng tên), còn \textbf{11 dòng} thuộc ZIP 53990 (Fernando de Noronha, Pernambuco) là dữ liệu hợp lệ bị khung chữ nhật loại nhầm. Tác động của sai sót này đã được định lượng trên kho: không có khách hàng hay seller nào mang ZIP 53990, nên không có dòng nào trong \texttt{fact\_order}, \texttt{fact\_order\_seller} và \texttt{dim\_route} bị ảnh hưởng; ZIP này chỉ xuất hiện trong \texttt{dim\_location} với tọa độ NULL. Hướng khắc phục là bổ sung danh sách hộp tọa độ ngoại lệ cho các quần đảo hợp pháp của Brazil vào luật \texttt{GEO\_OUTSIDE\_BRAZIL} (Chương 9).
 
 Bảng \texttt{geolocation} có 1.000.163 dòng cho 19.015 ZIP, tức 981.148 dòng trùng ZIP. Tọa độ của mỗi ZIP là \emph{trung vị} các dòng hợp lệ. Trung vị được chọn thay cho trung bình để một vài điểm sai không kéo lệch tâm ZIP.
 
@@ -125,7 +125,7 @@ Tọa độ ngoài lãnh thổ Brazil & 42 & Cách ly (Bảng~\ref{tab:quarantin
 \end{tabularx}
 \end{table}
 
-Nguyên tắc chung là: bất thường về \emph{thứ tự thời gian} hoặc \emph{trạng thái} được giữ lại và bật cờ, không sửa và không xóa. Sửa sẽ tạo ra dữ liệu mà nguồn không có, còn xóa sẽ làm lệch phép đối soát số tiền ở Chương V. Chỉ tọa độ sai mới bị cách ly, vì chúng làm sai phép tính khoảng cách tuyến.
+Nguyên tắc chung là: bất thường về \emph{thứ tự thời gian} hoặc \emph{trạng thái} được giữ lại và bật cờ, không sửa và không xóa. Sửa sẽ tạo ra dữ liệu mà nguồn không có, còn xóa sẽ làm lệch phép đối soát số tiền ở Chương 5. Chỉ tọa độ sai mới bị cách ly, vì chúng làm sai phép tính khoảng cách tuyến.
 
 \subsection{Hai trường hợp ảnh hưởng tới thiết kế fact}
 \subsubsection*{775 đơn không có dòng hàng}
@@ -144,6 +144,6 @@ Số dòng của \texttt{fact\_order\_seller} kiểm tra lại được bằng p
 \underbrace{97.388}_{\text{đơn 1 seller}} + \underbrace{2.622}_{\text{cặp từ 1.278 đơn nhiều seller}} + \underbrace{775}_{\text{đơn không có hàng}} = 100.785
 \end{equation}
 
-\takeawaybox{Tóm tắt Chương III}{
-Chỉ 42 dòng (0,004\% của 1.000.163 dòng tọa độ) bị cách ly, trong đó rà soát thủ công phát hiện 11 dòng hải đảo hợp lệ bị loại nhầm nhưng không ảnh hưởng tới các bảng fact; mọi bất thường khác được giữ và bật cờ, để mọi phép đối soát số dòng và số tiền giữa nguồn và kho khớp tuyệt đối. Hai trường hợp đơn không có hàng và đơn nhiều seller quyết định việc tách \texttt{fact\_order} và \texttt{fact\_order\_seller} ở Chương IV.
+\takeawaybox{Tóm tắt Chương 3}{
+Chỉ 42 dòng (0,004\% của 1.000.163 dòng tọa độ) bị cách ly, trong đó rà soát thủ công phát hiện 11 dòng hải đảo hợp lệ bị loại nhầm nhưng không ảnh hưởng tới các bảng fact; mọi bất thường khác được giữ và bật cờ, để mọi phép đối soát số dòng và số tiền giữa nguồn và kho khớp tuyệt đối. Hai trường hợp đơn không có hàng và đơn nhiều seller quyết định việc tách \texttt{fact\_order} và \texttt{fact\_order\_seller} ở Chương 4.
 }

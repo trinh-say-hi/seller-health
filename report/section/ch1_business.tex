@@ -17,7 +17,7 @@ Một kho dữ liệu chỉ có nghĩa khi trả lời được một quyết đ
 \subsection{Bối cảnh Olist và tập dữ liệu}
 Olist là một nền tảng trung gian tại Brazil: các cửa hàng nhỏ (seller) đăng sản phẩm qua Olist để bán trên các sàn lớn. Khi có đơn, seller tự đóng gói và bàn giao cho đơn vị vận chuyển không muộn hơn hạn \texttt{shipping\_limit\_date}; đơn vị vận chuyển giao tới khách không muộn hơn ngày hẹn \texttt{order\_estimated\_delivery\_date}.
 
-Tập dữ liệu công khai trên Kaggle gồm 9 tệp CSV (Bảng~\ref{tab:olist_files}, Chương III). Sau khi nạp đủ 26 đợt, kho ghi nhận:
+Tập dữ liệu công khai trên Kaggle gồm 9 tệp CSV (Bảng~\ref{tab:olist_files}, Chương 3). Sau khi nạp đủ 26 đợt, kho ghi nhận:
 \begin{itemize}
     \item 99.441 đơn hàng. Trạng thái cuối cùng: 96.478 \texttt{delivered}, 1.107 \texttt{shipped}, 625 \texttt{canceled}, 609 \texttt{unavailable}, 314 \texttt{invoiced}, 301 \texttt{processing}, 5 \texttt{created}, 2 \texttt{approved}.
     \item 112.650 dòng hàng với tổng tiền hàng 13.591.643,70 BRL. Bỏ các đơn \texttt{canceled} và \texttt{unavailable}, GMV hợp lệ là \textbf{13.494.400,74 BRL}. Mọi chỉ số GMV trong báo cáo dùng con số hợp lệ này.
@@ -125,7 +125,7 @@ Giá trị bình quân & 137,42 BRL/đơn & Ngưỡng top 20\% tại 01/07/2018:
 \end{tabularx}
 \end{table}
 
-Ba quan sát trên dẫn đến một kết luận có hệ quả cho thiết kế kho. GMV phụ thuộc vào một nhóm seller có thể đếm được (vài trăm seller), còn khách hàng thì phân tán và hầu như không quay lại; vì thế can thiệp có chủ đích — gọi điện, hỗ trợ vận hành — chỉ khả thi về chi phí khi đối tượng là seller. Lập luận này dựa trên mức độ tập trung, chưa đo được hiệu quả của can thiệp; giới hạn đó được nêu ở Chương IX.
+Ba quan sát trên dẫn đến một kết luận có hệ quả cho thiết kế kho. GMV phụ thuộc vào một nhóm seller có thể đếm được (vài trăm seller), còn khách hàng thì phân tán và hầu như không quay lại; vì thế can thiệp có chủ đích — gọi điện, hỗ trợ vận hành — chỉ khả thi về chi phí khi đối tượng là seller. Lập luận này dựa trên mức độ tập trung, chưa đo được hiệu quả của can thiệp; giới hạn đó được nêu ở Chương 9.
 
 \subsection{Định nghĩa rủi ro: tạm ngừng và sụt GMV}
 Nếu GMV tập trung ở seller, câu hỏi tiếp theo là nhận diện seller nào sắp sụt. Tại mốc as-of $t$, với mỗi seller có đơn trong 90 ngày trước $t$, gọi $\text{GMV}_{90}$ là GMV 90 ngày trước $t$ và $\text{GMV}_{45}$ là GMV 45 ngày sau $t$. Ba đại lượng được định nghĩa trong \texttt{src/dss/run.py}:
@@ -165,6 +165,54 @@ R6 & Nhóm dữ liệu & Kho có được phát hành không, mô hình còn tin
 \end{tabularx}
 \end{table}
 
+\subsection{Vấn đề của từng nhóm người dùng}
+Bảng vai trò cho biết ai quyết định gì; phần này nói họ đang vướng ở đâu khi chưa có hệ thống. Các con số lấy từ kho ở mốc 01/07/2018 hoặc trên toàn kỳ dữ liệu.
+
+\begin{itemize}
+    \item \textbf{Trưởng nhóm Seller Success (R3) có nhiều seller cần lo hơn số người có thể gọi.} Tại mốc 01/07/2018 có 70 seller vừa rơi vào hạng Nguy cơ, tổng GMV rủi ro 45 ngày của toàn sàn là 479 nghìn BRL, trong khi ngân sách tháng là 2.000 BRL và 40 suất nhân sự. Nếu chọn theo cách đơn giản nhất là gọi seller có GMV cao nhất, chỉ 26\% seller được gọi thật sự sụt GMV (Chương 8). R3 cần biết nên dồn nguồn lực có hạn vào ai, làm gì với từng người, và vì sao.
+    \item \textbf{Ban điều hành (R1) không thấy rủi ro đang lớn lên so với nguồn lực.} Từ 09/2017 đến 09/2018, GMV rủi ro của các seller vượt ngưỡng tăng 3,66 lần (từ 103 lên 379 nghìn BRL), còn phần kế hoạch xử lý chỉ dao động 40--138 nghìn vì ngân sách cố định; tỷ lệ bao phủ giảm từ 40,9\% xuống 23,7\% (Chương 7). Đây là thông tin để quyết định có tăng ngân sách hay nhân sự, nhưng nó không hiện ra nếu chỉ nhìn GMV tổng.
+    \item \textbf{Quản lý vùng (R2) cần số của vùng mình, và chỉ của vùng mình.} Sudeste chiếm 10,54 trên 13,45 triệu BRL GMV của giai đoạn 01/2017--08/2018 (78\%). Nếu không lọc theo vùng, các vùng nhỏ như Nordeste (464 nghìn) bị chìm trong số toàn sàn. Đồng thời, quản lý một vùng không nên thấy danh sách seller của vùng khác.
+    \item \textbf{Quản lý vận hành giao nhận (R5) đang đối mặt với trễ hẹn mà nguyên nhân không nằm ở seller.} 72,2\% đơn khách nhận trễ có seller bàn giao cho vận chuyển đúng hạn (mục~\ref{sec:late_finding}). Nhắc seller giao nhanh hơn không sửa được phần lớn đơn trễ; câu hỏi đúng là trên tuyến nào cần hứa ngày giao dài hơn, và dài thêm bao nhiêu.
+    \item \textbf{Nhân viên chăm sóc (R4) cần một danh sách làm được ngay}: ai, làm gì, vì sao, không phải một bảng điểm rủi ro.
+    \item \textbf{Nhóm dữ liệu (R6) cần biết số liệu có đáng tin trước khi đưa cho người khác.} Kho được nạp lại 26 đợt; mỗi đợt có thể lệch giữa các lớp hoặc làm hỏng mô hình mà không ai thấy nếu không có kiểm tra.
+\end{itemize}
+
+\subsection{User story và tiêu chí chấp nhận}
+Mỗi vấn đề trên được viết thành một hoặc hai user story theo mẫu ``Là \ldots, tôi muốn \ldots, để \ldots''. Mỗi story có tiêu chí chấp nhận kiểm tra được và chỉ ra \emph{một} nơi trả lời chính trong hệ thống (Bảng~\ref{tab:user_stories}). Chương 9 đối chiếu lại từng story xem đã đáp ứng tới đâu.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{User story, tiêu chí chấp nhận và nơi đáp ứng}
+\label{tab:user_stories}
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}m{0.75cm}|>{\raggedright\arraybackslash}m{5.0cm}|L|>{\raggedright\arraybackslash}m{2.5cm}|}
+\hline
+\textbf{Mã} & \textbf{User story} & \textbf{Tiêu chí chấp nhận} & \textbf{Nơi đáp ứng} \\
+\hline
+US1 & Là Ban điều hành, tôi muốn thấy GMV, đơn, trễ hẹn, review theo tháng và phần GMV rủi ro được xử lý, để quyết định có tăng ngân sách Seller Success không. & Số chốt sổ theo tháng khớp DuckDB; có đường GMV rủi ro và GMV rủi ro trong kế hoạch qua 13 mốc. & Power BI: KPI tháng, Kế hoạch \\
+\hline
+US2 & Là Quản lý vùng, tôi muốn tách doanh số theo bang, danh mục, hạng seller và chỉ thấy dữ liệu vùng mình, để biết vùng có vấn đề ở đâu. & Drill-down vùng $\rightarrow$ bang $\rightarrow$ danh mục; dưới role vùng chỉ còn seller của vùng, số khớp DuckDB. & Power BI: Doanh số dồn ở đâu?, RLS \\
+\hline
+US3 & Là Trưởng nhóm Seller Success, tôi muốn biết seller nào vừa vào nhóm Nguy cơ và vì sao chưa được xử lý, để không bỏ sót seller đáng lo. & Danh sách seller mới vào Nguy cơ sắp theo GMV rủi ro; mỗi seller ngoài kế hoạch có lý do. & Streamlit: Cần chú ý \\
+\hline
+US4 & Là Trưởng nhóm Seller Success, tôi muốn biết một seller sụt vì đâu, để chọn gọi điện hay hỗ trợ vận hành. & Có GMV theo tháng, thời gian ở khâu seller và khâu vận chuyển, đóng góp từng feature vào khả năng sụt, chẩn đoán bằng chữ. & Streamlit: Chi tiết seller \\
+\hline
+US5 & Là Trưởng nhóm Seller Success, tôi muốn có kế hoạch tốt nhất trong ngân sách và số suất, được chỉnh tay và thử kịch bản, để chốt danh sách tháng này. & Đổi ràng buộc thì bộ tối ưu giải lại ra danh sách mới; kéo thả được; không chốt được kế hoạch vượt ràng buộc; kế hoạch chốt được ghi lại. & Streamlit: Bảng kế hoạch \\
+\hline
+US6 & Là Trưởng nhóm Seller Success, tôi muốn biết kế hoạch các tháng trước trúng bao nhiêu, để biết nên tin đề xuất tới đâu. & So kế hoạch với kết quả thật 45 ngày sau trên 03--07/2018, cạnh cách chọn theo GMV, có cả chỉ số DSS thua. & Streamlit: Kiểm chứng \\
+\hline
+US7 & Là nhân viên chăm sóc seller, tôi muốn nhận danh sách có hành động và lý do, để gọi ngay không phải tự phân tích. & Tệp CSV có seller, hành động, lý do bằng chữ. & Streamlit: Xuất CSV \\
+\hline
+US8 & Là Quản lý vận hành, tôi muốn biết đơn trễ do seller hay do vận chuyển và trễ nhiều ở bang nào, để biết vấn đề thuộc về ai. & Tỷ lệ trễ với khách và tỷ lệ seller giao vận chuyển trễ theo tháng; tỷ lệ đơn trễ có seller đúng hạn; trễ theo bang. & Power BI: Giao hàng \\
+\hline
+US9 & Là Quản lý vận hành, tôi muốn biết trên một tuyến phải hứa thêm bao nhiêu ngày để tỷ lệ trễ không vượt mục tiêu, để đổi lời hẹn giao. & Với mỗi tuyến và mục tiêu, tính tỷ lệ trễ khi hứa thêm $n$ ngày và số ngày nhỏ nhất đạt mục tiêu. & Streamlit: What-if hẹn giao \\
+\hline
+US10 & Là nhóm dữ liệu, tôi muốn kho chỉ được phát hành khi đối soát và kiểm thử đạt, để người dùng không nhìn thấy số sai. & Mỗi đợt đối soát giữa các lớp; bản kho chỉ được đổi sang ``đang dùng'' khi cổng chất lượng đạt. & Dagster, phát hành kho \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Hai luồng quyết định}
 \textbf{Luồng A (giữ chân seller, chủ sở hữu R3)} có ba quyết định nối tiếp mỗi tháng:
 \begin{enumerate}
     \item \textbf{Chọn đối tượng:} seller nào có khả năng sụt GMV cao và đáng giá đủ lớn để bỏ công.
@@ -175,7 +223,7 @@ Tiêu chí lựa chọn (principle of choice) là tối đa GMV giữ được k
 
 \textbf{Luồng B (lời hẹn giao, chủ sở hữu R5):} trên tuyến nào cần hứa thêm bao nhiêu ngày để tỷ lệ trễ không vượt mục tiêu. Tiêu chí: số ngày hứa thêm nhỏ nhất đạt mục tiêu. Luồng B tồn tại vì phân tích ở mục sau cho thấy phần lớn đơn trễ không do seller.
 
-\subsection{Phát hiện: phần lớn đơn trễ có seller bàn giao đúng hạn}
+\subsection{Phát hiện: phần lớn đơn trễ có seller bàn giao đúng hạn}\label{sec:late_finding}
 Luồng B chỉ đáng theo đuổi nếu phần lớn đơn trễ thực sự nằm ở khâu vận chuyển. Vì vậy trước khi thiết kế hành động, cần tách lỗi giao trễ theo từng khâu. Với mỗi cặp đơn $\times$ seller đã giao (\texttt{core.fact\_order\_seller}), hai cờ được tính sẵn trong kho:
 \begin{align}
 \text{seller\_late} &= \mathbb{I}(\text{carrier\_ts} > \text{shipping\_limit\_ts}) \\
