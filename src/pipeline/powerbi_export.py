@@ -11,6 +11,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -102,7 +103,18 @@ def sync_pbip_path(out_dir: Path = OUT_DIR) -> bool:
     if new == text:
         return False
     PBIP_EXPR.write_text(new, encoding="utf-8", newline="")
+    _hide_local_path()
     return True
+
+
+def _hide_local_path():
+    """Duong dan tuyet doi la cua rieng tung may: bao git bo qua thay doi o expressions.tmdl de khong commit nham.
+    Muon sua that file nay thi chay: git update-index --no-skip-worktree <file>."""
+    try:
+        subprocess.run(["git", "-C", str(ROOT), "update-index", "--skip-worktree", str(PBIP_EXPR.relative_to(ROOT))],
+                       check=False, capture_output=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        pass  # khong co git (vd trong Docker): bo qua
 
 
 if __name__ == "__main__":

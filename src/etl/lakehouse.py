@@ -38,7 +38,9 @@ def init_lakehouse_metadata(con):
         SELECT md5(table_name || '|' || row_key) AS quarantine_id,
                table_name AS source_table,
                reason_code AS error_code,
-               'coordinates' AS failed_column,
+               CASE reason_code WHEN 'GEO_OUTSIDE_BRAZIL' THEN 'geolocation_lat, geolocation_lng'
+                                WHEN 'INVALID_PRICE' THEN 'price' WHEN 'INVALID_PAYMENT' THEN 'payment_value'
+                                WHEN 'INVALID_REVIEW' THEN 'review_score, review_answer_timestamp' END AS failed_column,
                row_key AS failed_value,
                '{"row_key": "' || row_key || '", "reason": "' || reason || '"}' AS raw_payload,
                dwh_batch AS batch_id,
@@ -81,23 +83,24 @@ def export_bronze_lake(con, batch: str = None):
             )
 
 
+# Khoa tu nhien cua tung bang giao dich, dung de dem dong trung trong mot dot
+BATCH_KEYS = {"orders": "order_id", "order_items": "order_id, order_item_id",
+              "order_payments": "order_id, payment_sequential", "order_reviews": "review_id, order_id"}
+
+
 def update_silver_batch_metrics(con, batch: str):
-    """Ghi nhan dang thuc bao toan dong 3 trang thai vao silver.processing_batches."""
+    """Ghi so cai chat luong cua mot dot: dong vao = nhan + cach ly + trung, dem that tu raw va ops.quarantine."""
     con.execute("DELETE FROM silver.processing_batches WHERE batch_id = ?", [batch])
-    
-    # 1. Orders: Don hang hop le duoc dua vao stg.orders (don huy van la giao dich hop le, khong phai duplicate)
-    n_in_orders = con.execute("SELECT count(*) FROM raw.orders WHERE dwh_batch = ?", [batch]).fetchone()[0]
-    con.execute("""
-        INSERT INTO silver.processing_batches VALUES
-        (?, 'orders', ?, ?, 0, 0, 100.0, CURRENT_TIMESTAMP)
-    """, [batch, n_in_orders, n_in_orders])
-    
-    # 2. Items
-    n_items = con.execute("SELECT count(*) FROM raw.order_items WHERE dwh_batch = ?", [batch]).fetchone()[0]
-    con.execute("""
-        INSERT INTO silver.processing_batches VALUES
-        (?, 'order_items', ?, ?, 0, 0, 100.0, CURRENT_TIMESTAMP)
-    """, [batch, n_items, n_items])
+    for table, key in BATCH_KEYS.items():
+        n_in, n_distinct = con.execute(
+            f"SELECT count(*), count(DISTINCT ({key})) FROM raw.{table} WHERE dwh_batch = ?", [batch]).fetchone()
+        n_quar = con.execute("SELECT count(*) FROM ops.quarantine WHERE table_name = ? AND dwh_batch = ?",
+                             [table, batch]).fetchone()[0]
+        n_dup = n_in - n_distinct
+        n_ok = n_in - n_quar - n_dup
+        rate = round(100.0 * n_ok / n_in, 2) if n_in else 100.0
+        con.execute("INSERT INTO silver.processing_batches VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+                    [batch, table, n_in, n_ok, n_quar, n_dup, rate])
 
 
 def export_gold_lake(con):

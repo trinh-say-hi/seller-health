@@ -23,8 +23,8 @@ if not current_db().exists():
     st.stop()
 
 # Streamlit danh cho nguoi ra quyet dinh: luong giu chan seller (Truong nhom Seller Success) va luong giao nhan (Quan ly van hanh).
-# Theo doi KPI, OLAP, giao hang va ke hoach theo vung (chi doc, co RLS) nam o Power BI. Man Tong quan, Loi giao tre, Da chieu cu
-# van con trong ma nguon nhung khong con tren menu. Xem docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md.
+# Theo doi KPI, OLAP, giao hang va ke hoach theo vung (chi doc, co RLS) nam o Power BI. Man Tong quan, Loi giao tre, Da chieu cu da duoc xoa
+# khoi ma nguon vi da chuyen sang Power BI. Xem docs/nguoi-dung-phan-quyen-va-ke-hoach-sua.md.
 SCREENS = {"Cần chú ý": attention, "Chi tiết seller": seller, "Bảng kế hoạch": board, "Kiểm chứng": validation, "What-if tuyến": route_whatif}
 LABELS = {"Cần chú ý": "1 · Cần chú ý tháng này", "Chi tiết seller": "2 · Chi tiết seller", "Bảng kế hoạch": "3 · Bảng kế hoạch",
           "Kiểm chứng": "4 · Kiểm chứng", "What-if tuyến": "What-if hẹn giao theo tuyến"}
